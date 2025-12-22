@@ -1,9 +1,9 @@
 ---
-
 layout: home
 permalink: index.html
-
-## repository-name: e20-421-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic title: Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic
+repository-name: e20-421-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic
+title: Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic
+---
 
 # Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic
 
