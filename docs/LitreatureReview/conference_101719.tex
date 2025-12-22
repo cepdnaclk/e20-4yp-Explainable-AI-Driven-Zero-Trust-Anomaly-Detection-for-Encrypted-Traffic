@@ -1,0 +1,383 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url} % For breaking URLs at line boundaries
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{longtable}  % in preamble
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Explainable AI-Driven Zero Trust Anomaly Detection for Encrypted Traffic\\}
+
+\makeatletter
+\newcommand{\newlineauthors}{%
+\end{@IEEEauthorhalign}\hfill\mbox{}\par
+\mbox{}\hfill\begin{@IEEEauthorhalign}
+}
+\makeatother
+
+\author
+{\IEEEauthorblockN{Chalaka Perera}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Peradeniya} \\
+Sri Lanka \\
+e20288@eng.pdn.ac.lk}
+\and
+\IEEEauthorblockN{Janith Wanasinghe}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Peradeniya} \\
+Sri Lanka \\
+e20420@eng.pdn.ac.lk}
+\and
+\IEEEauthorblockN{Sandaru Wijewardhana}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Peradeniya} \\
+Sri Lanka \\
+e20449@eng.pdn.ac.lk}
+\newlineauthors
+\IEEEauthorblockN{Dr. Suneth Namal Karunarathna}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Peradeniya} \\
+Sri Lanka \\
+namal@eng.pdn.ac.lk}
+\and
+\IEEEauthorblockN{Dr. Upul Jayasinghe}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Peradeniya} \\
+Sri Lanka \\
+upuljm@eng.pdn.ac.lk}
+}
+\maketitle
+
+\begin{abstract}
+The modern cybersecurity methods are more focused on encryption protocols to protect data privacy and MitM attacks but with those mechanisms traditional intrusion detection systems (IDS) are blinded. Additionally, the architectural method is shifting from perimeter-based models to Zero-Trust Architecture (ZTA) which demands the continuous, granular verification of every network entity. While Deep Learning (DL) models have demonstrated the capability to detect anomalies within encrypted streams without decryption, their opaque "black-box" nature creates a trust deficit that hinders their deployment in automated ZTA policy enforcement. This literature review provides a comprehensive critical analysis of peer-reviewed studies at the intersection of ZTA, Encrypted Traffic Analysis (ETA), and Explainable AI (XAI). It evaluates the efficacy of current flow-based feature extraction methods, compares the operational viability of XAI techniques like SHAP and LIME in real-time environments, and identifies a critical research gap the lack of unified frameworks that can detect, explain, and block malicious encrypted traffic with the speed required for modern high bandwidth networks.
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+Zero-Trust Architecture (ZTA), Encrypted Traffic Analysis (ETA), Explainable AI (XAI), Network Anomaly Detection, Deep Learning, Automated Policy Enforcement.
+\end{IEEEkeywords}
+
+\section{Introduction}
+\subsection{Challenge in Encrypted Traffic Analysis}
+The digital landscape has changed significantly in terms of data transport security. Due to privacy concerns and regulations like GDPR, encryption has become the standard for network communication. Recent reviews, including the 2024 analysis by Ji et al. \cite{01_ji_2024_artificial}, show that most global web traffic is now encrypted using protocols like HTTPS and TLS. While this shift effectively reduces risks from eavesdropping and man-in-the-middle (MitM) attacks, it has inadvertently created a situation known as "going dark" for network defenders. Traditional security tools, especially Deep Packet Inspection (DPI), depend on analyzing the payload of data packets to identify malicious signatures. In an encrypted environment, these payloads are hidden, making DPI ineffective.
+
+This lack of visibility has been exploited by threat actors. Adversaries now commonly use encrypted tunnels to hide malware distribution, command and control (C2) communications, and data exfiltration efforts. Research by Han et al. \cite{02_han_2022_lightweight} shows that over 90\% of malware threats now use encryption to bypass legacy firewalls. Similarly, Xing and Wu \cite{03_xing_2020_detecting} find that standard anomaly detection methods fail with these invisible channels because they cannot differentiate between legitimate high entropy data (like video streaming) and malicious high entropy data (like ransomware encryption). Consequently, the modern cybersecurity challenge is not just about blocking known threats but identifying malicious intent concealed within seemingly legitimate, hidden data streams. This contrast between legacy clear-text inspection and modern encrypted ``blind spots'' is illustrated in Fig.~\ref{fig:encrypted_vs_unencrypted}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{Encrypted image.png}
+\caption{Comparison between legacy unencrypted HTTP traffic, where Deep Packet Inspection (DPI) can inspect payloads and block known malicious signatures, and modern encrypted HTTPS/TLS traffic, where encryption hides payload contents and blinds traditional DPI-based firewalls.}
+\label{fig:encrypted_vs_unencrypted}
+\end{figure*}
+
+\subsection{The Zero-Trust Imperative}
+
+Alongside the rise of encryption is the decline of traditional perimeter-based security models. The loss of the corporate network boundary, driven by cloud computing, remote work, and the Internet of Things (IoT), has made the idea of "trusted internal networks" outdated. In response, organizations are moving towards Zero-Trust Architecture (ZTA).
+
+ZTA is not just one technology, it is a strategic approach defined by the principle "never trust, always verify." As explained by Dhiman et al. \cite{04_dhiman_2024_a} in their comparative study, ZTA requires that every access request be authenticated, authorized, and encrypted before access is granted. Importantly, this verification must be continuous, trust is diminishing and must be reassessed in real-time based on user behavior and context. Sarkar \cite{05_sarkar_2022_security} adds that ZTA must extend beyond basic identity checks to evaluate the quality of the connection itself. However, implementing ZTA is fundamentally challenged by the lack of transparency in encrypted traffic. A Policy Enforcement Point (PEP) cannot effectively verify a connection if it cannot inspect traffic patterns for signs of compromise.
+
+\subsection{The AI Transparency Gap}
+To address this issue, researchers are looking to Artificial Intelligence (AI) and Deep Learning (DL). As noted by Kodi \cite{06_kodi_2025_zero}, these models can identify malicious patterns in encrypted traffic by examining side channel features like packet timing, size, and direction without the need to decrypt the payload. Kim and Kim \cite{07_kim_2024_anomaly} show that Autoencoder-based models can detect anomalies in encrypted datasets and maintain high precision. Likewise, Liu and Wang \cite{08_liu_2023_realtime} use Convolutional Neural Networks (CNNs) to analyze network flows as if they were images, achieving notable accuracy.
+
+While these models achieve high detection rates, they create a new vulnerability known as the "Black Box" problem. In a Zero Trust environment, security decisions can lead to immediate automated actions, such as isolating a device or revoking a user’s credentials. If these decisions come from a non-transparent Neural Network that cannot articulate its reasoning, security teams face a difficult choice to trust the AI blindly and risk disruptions from false positives or ignore it and risk a security breach. Kalutharage et al. \cite{09_kalutharage_2025_neurosymbolic} describe this as a lack of "semantic mapping" the AI knows something is wrong but cannot explain what. Nazat et al. \cite{10_sazidnazat_2024_xaiads} argue that this lack of transparency undermines the "verify" principle of Zero Trust. Therefore, this review contends that integrating Explainable AI (XAI) is not just an enhancement but a necessity for operation.
+
+
+\section{The Paradigm Shift to Zero-Trust Architecture (ZTA)}
+\subsection{Architectural Evolution and Cost-Benefit Analysis}
+
+Transitioning to Zero Trust signifies a complete rethink of network structure. Traditional models used Virtual Private Networks (VPNs) to tunnel traffic into a “trusted” zone. Adahman et al. \cite{11_adahman_2022_an} present a thorough cost effectiveness analysis of this transition. Their research challenges the notion that ZTA is overly expensive, showing that when the long-term costs of data breaches, ransomware recovery, and VPN management are considered, ZTA offers a better return on investment. They argue that VPNs have become single points of failure, while ZTA’s distributed architecture reduces the impact of any single compromised credential.
+However, the operationalization of ZTA is more complex. Several studies, including those by Micheal \cite{12_micheal_2025_integrating} and Kommera \cite{13_nonesairajkommera_2025_enhancing}, break down the architecture into components such as the Policy Engine (PE) that decides access, the Policy Administrator (PA) that establishes the connection, and the Policy Enforcement Point (PEP) acting as the gatekeeper. The literature consistently points out that the effectiveness of this trio relies entirely on the quality of data fed into the Policy Engine. If the PE cannot see encrypted traffic patterns, the whole system fails to detect internal threats.
+
+\subsection{Zero-Trust in Dynamic Environments (Cloud \& IoT)}
+
+Applying ZTA is further complicated by the dynamic nature of modern infrastructure. Guo et al. \cite{14_guo_2023_an} explore ZTA in Software Defined Networking (SDN) and propose an "Intelligent Zero Trust" framework (IZTSDN). Their work indicates that static firewall rules do not align with temporary containers and serverless functions. In this context, "identity" is more than just a username. It is a complex mixture of workload IDs, API tokens, and behavioral patterns.
+The Internet of Medical Things (IoMT) introduces a unique challenge. As mentioned by Ogunmolu \cite{15_ogunmolu_2025_leveraging} and Gundaboina \cite{16_anjangundaboina_2025_aidriven}, healthcare settings need ZTA to protect sensitive patient data (in compliance with HIPAA) but cannot afford the latency or “false blocks” that might disrupt essential care devices. A ZTA system in a hospital must be "fail-open" or highly intelligent to differentiate between a hacker and a doctor accessing records during an emergency. Tabassum et al. \cite{17_tabassum_2024_anomalybased} stress that in smart health systems, anomaly detection must be context-sensitive. A spike in data transmission could indicate either a firmware update or a data exfiltration attempt. Telling the difference without decrypting data requires thorough behavioral analysis.
+
+\subsection{Performance Overhead and Feasibility}
+A crucial but often overlooked element in the literature is the performance cost of ZTA. Rodigari et al. \cite{18_rodigari_2021_performance} perform a performance analysis of ZTA in multi cloud settings, specifically examining service meshes like Istio. Their findings are significant for this review, implementing the ongoing mutual TLS authentication and authorization checks required by ZTA introduces noticeable latency and CPU overhead.
+This creates a challenge for any proposed Anomaly Detection system. If an AI model takes several seconds to analyze a flow and produce an explanation, it causes a bottleneck that harms user experience, violating the usability standard for effective security. Therefore, the literature suggests that any AI-driven ZTA solution must be lightweight and fast, a challenge that conflicts with the trend of increasingly large Deep Learning models. The interaction between the Policy Engine, Policy Administrator, and Policy Enforcement Point in a Zero-Trust deployment, along with continuous monitoring, is summarized in the end-to-end workflow shown in Fig.~\ref{fig:zta_flow}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{diagram-export-12-3-2025-10_47_42-AM.png}
+\caption{Zero-Trust data and control plane interaction: the Policy Enforcement Point (PEP) mediates initial requests, the Policy Administrator (PA) and Policy Engine (PE) evaluate and issue decisions, and continuous monitoring feeds post-access anomaly detection back into dynamic risk updates.}
+\label{fig:zta_flow}
+\end{figure*}
+
+\section{Anomalies in the Dark: Encrypted Traffic Analysis (ETA)}
+\subsection{From Deep Packet Inspection to Flow-Based Analysis}
+With Deep Packet Inspection (DPI) becoming outdated, researchers now focus more on “Flow-Based” analysis. In this method, network traffic is seen as a series of time-based events, not as readable text data.
+Yin et al. \cite{19_yin_2023_anomaly} show that this method works well by looking at the unencrypted headers (IP, TCP, UDP) that must stay visible for routing. They explain that even without reading the payload, the overall pattern or shape of the traffic—the metadata—is enough to identify certain malware families. For example, the sizes of the first few packets in a TLS handshake can reveal the cipher suite and client hello details, which can act like a fingerprint for specific attack tools.
+Long and Zhang \cite{20_long_2023_deep} introduce a more detailed method using Parallel Stacked Autoencoders (SAE). Their system collects features from encrypted traffic by studying the statistical patterns of bytes. They say that even though encryption hides the payload, it does not hide the behavior of the application sending the traffic. For example, a video stream shows a bursty traffic pattern, while a file download is more continuous. Malware beacons usually send very short, regular bursts. By giving these patterns to a deep learning model, they achieved over 99\% detection accuracy.
+
+\subsection{Deep Learning Approaches}
+\begin{itemize}
+\item The increasing complexity of flow-based features has caused researchers to move from simple statistical models to Deep Learning methods.
+
+\item CNNs for Traffic Imaging: Liu and Wang \cite{08_liu_2023_realtime} treat network traffic analysis like a computer vision task. They change flow data into 2D images (grayscale pictures that show packet sizes and timing) and then use Convolutional Neural Networks (CNNs) to classify them. Their results show that CNNs are very good at finding small spatial patterns in traffic that simpler, linear models cannot detect.
+
+\item Handling Imbalanced Data: A common problem in research is the "needle in a haystack" situation: in real networks, 99.9\% of traffic is normal, and only a tiny amount is malicious. Kim and Kim \cite{07_kim_2024_anomaly} address this by creating feature extraction methods that work well even when the data is highly imbalanced. They use an Autoencoder that is trained only on normal traffic. When the model sees attack traffic, the reconstruction error becomes high, which signals an anomaly. This unsupervised method is important for finding zero-day attacks, which do not have any known signature.
+
+\item Hybrid Models: Bakhshi and Ghita \cite{21_bakhshi_2021_anomaly} suggest a hybrid deep learning approach that mixes different neural network types to improve accuracy and reliability. But they also highlight a major limitation: using only statistical features can cause many false positives, especially when the model sees unusual but harmless traffic, such as high-bandwidth video streaming or large file downloads.
+\end{itemize}
+
+\subsection{Limitations of Current ETA Methods}
+Despite these successes, significant limitations remain. Edozie et al. \cite{22_edozie_2025_artificial} review the advances in AI for telecom networks and note that while models like Generative Adversarial Networks (GANs) show promise, they are computationally expensive. Training a CNN or LSTM on gigabits of real-time traffic requires substantial GPU resources, which may not be available on edge devices or standard enterprise firewalls.
+Furthermore, "feature engineering" remains a bottleneck. Huang et al. \cite{23_huang_2023_anomaly} explore the use of Markov Chains for IoT traffic, noting that the selection of features (e.g., inter-arrival time vs. packet size) drastically changes model performance. There is no universal consensus in the literature on the "perfect" set of features for encrypted traffic analysis, leaving it an active area of research.
+
+
+\section{The "Black Box" Dilemma and Explainable AI (XAI)}
+\subsection{The Trust Deficit in Automated Security}
+The central tension identified in this review is between the performance of DL models and their trustworthiness. Venkataramanan \cite{24_sandhu_2024_aipowered} argues that in cybersecurity, a false positive is not just a statistical error; it is an operational disruption. If an AI model blocks a CEO's laptop because it misidentified a legitimate encrypted video call as data exfiltration, the security team needs to know why to prevent a recurrence.
+
+Black-box models (like Deep Neural Networks) offer no such insight. They provide a probability score (e.g., "99\% Malicious") but no semantic context. This opacity is incompatible with the "Verify" component of Zero-Trust. As noted earlier by Nazat et al. \cite{10_sazidnazat_2024_xaiads}, to "verify" implies to understand and validate, actions that are impossible with an uninterpretable model.
+
+\subsection{XAI Techniques in Cybersecurity}
+Researchers are adapting Explainable AI (XAI) techniques from the broader ML field to cybersecurity.
+
+\textbf{SHAP (SHapley Additive explanations):} This is the most widely cited technique in the reviewed papers. Singh et al. \cite{25_singh_2025_interpretable} develop an "Interpretable Anomaly Detection" system for encrypted traffic using SHAP and XGBoost with 99.94\% accuracy. Similarly, Zeleke et al. \cite{26_zeleke_2025_integrating} use SHAP with Random Forests to detect malware, showing that XAI can highlight if a detection was driven by a specific feature, allowing analysts to validate threats.
+
+\textbf{LIME vs. SHAP:} Nazat et al. \cite{10_sazidnazat_2024_xaiads} perform a comparative analysis and find that SHAP provides consistent global explanations, while LIME is faster for "local" event-specific explanations, which benefits real-time applications.
+
+\textbf{Neurosymbolic AI:} Kalutharage et al. \cite{09_kalutharage_2025_neurosymbolic} combine neural networks with symbolic logic (knowledge graphs), mapping detected anomalies to security tactics from frameworks like MITRE ATT\&CK.
+
+\subsection{XAI for Policy Enforcement}
+The literature is beginning to explore using XAI to drive policy changes directly, not just assist analysts. Haque et al. \cite{27_haque_2024_enhancing} propose a framework where XAI outputs dynamically affect trust scores. Privacy still remains a concern when using metadata for explanations \cite{28_alam_2023_datadriven, 29_asifalilaghari_2025_a}.
+
+\section{Critical Analysis and Synthesis}
+\subsection{Methodology vs. Reality}
+Critical evaluation shows a gap between academic experiments and real-world conditions. Many studies rely on static datasets like CIC-Darknet2020, CSE-CIC-IDS2018, or CTU-13 \cite{25_singh_2025_interpretable, 26_zeleke_2025_integrating, 30_gautam_2024_network}. These may not reflect the complexity of recent traffic, such as HTTP/3 or sophisticated ransomware evasion.
+
+A "real-time" fallacy exists: calculating SHAP values for all traffic is computationally heavy. As noted by Prasath and Ruth \cite{31_a2024_network}, real-time capability is claimed but rarely achieved. Hybrid solutions—using light screening with heavy explanation only for ambiguous flows—are rarely implemented.
+
+\subsection{The Gap in Integrated Frameworks}
+The most significant finding from this review is the fragmentation of the field. The literature can be broadly categorized into three silos:
+\begin{itemize}
+\item \textbf{Pure ETA Papers:} Focus on optimizing CNNs/LSTMs for accuracy, often ignoring interpretability \cite{19_yin_2023_anomaly,20_long_2023_deep,32_gudala_2021_leveraging}.
+\item \textbf{Pure ZTA Paperss:} Focus on architectural diagrams and policy definitions, often assuming the existence of perfect threat detection \cite{04_dhiman_2024_a,05_sarkar_2022_security,29_asifalilaghari_2025_a}.
+\item \textbf{Pure XAI Papers:} Focus on the mathematics of interpretability, often using generic datasets rather than complex encrypted network traffic \cite{33_snigdhatariyal_2016_greedy,34_ikram_2025_zero}.
+\end{itemize}
+Very few papers attempt to build a holistic system that integrates all three. Singh et al. \cite{25_singh_2025_interpretable} come closest, but even they focus primarily on the detection mechanism rather than the downstream Zero-Trust policy enforcement. Other works, such as those by Janiesch et al. \cite{35_janiesch_2021_machine} and Abououf et al. \cite{36_menatallaabououf_2023_explainable}, discuss AI advances broadly or in specific niches (healthcare), but do not bridge the gap to enterprise encrypted traffic enforcement.
+
+
+\subsection{Research Gap Identification}
+Based on the synthesis, the following research gaps are noted:
+\begin{itemize}
+\item \textbf{Automated Policy Translation:} Mechanisms to directly use XAI outputs for machine-readable ZTA policies (like XACML or OPA rules) are lacking. Analysts, not network systems, are the current consumers of XAI.
+\item \textbf{Efficiency in High-Bandwidth Environments:} Current XAI solutions are not ready for 10~Gbps+ networks. There is a need for "Lightweight XAI" that can keep up with traffic volume.
+\item \textbf{Adversarial XAI:} Few address how adversaries might manipulate features to fool both detection and explanation stages. 
+\end{itemize}
+
+
+\subsection{Comparative Analysis of Existing Approaches}
+This subsection consolidates the surveyed work into a structured overview; Tables~\ref{tab:method_comparison_part1} and \ref{tab:method_comparison_part2} summarize representative techniques across encrypted traffic analysis, Zero Trust, healthcare and IoT security, and XAI, highlighting their main advantages and limitations.
+
+% ---------- TABLE I : PART I ----------
+\begin{table*}[!t]
+\vspace{12pt}
+\caption{Summary of Existing Techniques, Advantages, and Disadvantages (Part I)}
+\label{tab:method_comparison_part1}
+\centering
+\renewcommand{\arraystretch}{1.7}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c p{3.1cm} p{5.1cm} p{5.1cm}}
+\hline
+\textbf{Domain} & \textbf{Ref.} & \textbf{Technique Used} & \textbf{Key Advantage} & \textbf{Key Disadvantage} \\
+\hline
+Systematic Review &
+\cite{01_ji_2024_artificial} & Systematic Literature Review (SLR) &
+Provides a comprehensive roadmap of current AI methods and datasets for encrypted traffic. &
+Does not propose a new detection model; depends on the quality of existing studies. \\
+\hline
+
+\multirow{6}{*}{Encrypted Traffic} &
+\cite{02_han_2022_lightweight} & Light-weight Unsupervised Learning &
+Can detect zero-day (unknown) malware without labelled training data; computationally efficient. &
+Unsupervised models often suffer from higher false-positive rates than supervised ones. \\
+
+& \cite{03_xing_2020_detecting} & Deep Dictionary Learning (DDL) &
+Reconstructs complex high-dimensional traffic patterns and identifies anomalies effectively. &
+Dictionary learning is computationally expensive during training. \\
+
+& \cite{07_kim_2024_anomaly} & Few-packet Metadata Extraction &
+Effective on highly imbalanced datasets using only minimal packet headers. &
+Relies heavily on metadata; obfuscated headers reduce detection performance. \\
+
+& \cite{08_liu_2023_realtime} & Real-time CNN &
+CNNs capture spatial correlations in traffic bytes and can be optimised for speed. &
+Truly real-time operation requires significant hardware acceleration (e.g., GPUs). \\
+
+& \cite{20_long_2023_deep} & Parallel Auto–Feature Extraction &
+Uses parallel processing to speed up feature extraction from encrypted tunnels. &
+Architecture is complex to implement and consumes substantial resources. \\
+
+& \cite{21_bakhshi_2021_anomaly} & Hybrid Deep Learning (CNN+LSTM) &
+Combines spatial and temporal analysis for higher accuracy. &
+Training hybrid models is slow and requires large datasets. \\
+\hline
+
+\multirow{10}{*}{Zero Trust} &
+\cite{04_dhiman_2024_a} & Comparative Analysis of ZTA &
+Compares multiple ZTA models to guide organizational adoption. &
+Primarily theoretical; lacks live performance evaluation. \\
+
+& \cite{05_sarkar_2022_security} & Cloud-based Zero Trust Review &
+Targets ZTA for dynamic cloud environments. &
+Managing ZTA is difficult due to ephemeral containers and VMs. \\
+
+& \cite{06_kodi_2025_zero} & AI-driven Zero Trust &
+Uses AI to automate the "verify explicitly" principle. &
+Model drift can lead to false positives that block legitimate users. \\
+
+& \cite{11_adahman_2022_an} & Cost-effectiveness Analysis &
+Evaluates financial and resource cost of implementing ZTA. &
+Focuses on economics rather than technical detection performance. \\
+
+& \cite{12_micheal_2025_integrating} & AI + ZTA for Cloud APIs &
+Secures API endpoints, common attack vectors in cloud applications. &
+API security differs from network-layer security and needs specialised logs. \\
+
+& \cite{13_nonesairajkommera_2025_enhancing} & Threat Intelligence + ZTA &
+Enriches ZTA decisions with external threat feeds. &
+Effectiveness depends on quality and latency of the threat intelligence. \\
+
+& \cite{14_guo_2023_an} & SDN-based Zero Trust &
+Implements ZTA using SDN for centralised control. &
+SDN controller becomes a single point of failure if compromised. \\
+
+& \cite{18_rodigari_2021_performance} & Multi-cloud ZTA Performance &
+Analyses ZTA performance across different cloud providers. &
+Cross-cloud latency can degrade user experience. \\
+
+& \cite{24_sandhu_2024_aipowered} & AI-powered ZTA Review &
+Reviews how AI enhances continuous verification in ZTA. &
+Highlights the black-box problem where AI decisions are hard to audit. \\
+
+& \cite{29_asifalilaghari_2025_a} & AI-enabled ZTA (IIoT) &
+Targets industrial environments where uptime is critical. &
+Proprietary industrial protocols are hard to model with standard AI. \\
+\hline
+
+\multirow{4}{*}{Healthcare / IoT / Cloud} &
+\cite{15_ogunmolu_2025_leveraging} & GenAI + Behavioural Biometrics &
+Uses generative AI and user behaviour for strong identity verification. &
+Raises privacy concerns over collection of behavioural biometric data. \\
+
+& \cite{16_anjangundaboina_2025_aidriven} & AI Threat Detection (Cloud) &
+Protects patient data in cloud environments using AI-based detection. &
+Regulations such as HIPAA/GDPR restrict data available for AI training. \\
+
+& \cite{17_tabassum_2024_anomalybased} & Anomaly-based Detection (ML) &
+Focuses on smart-health devices and sensors. &
+Resource-constrained IoT devices struggle to run complex models on-device. \\
+
+& \cite{23_huang_2023_anomaly} & Anomaly Detection for IoMT &
+Specifically targets Internet of Medical Things deployments. &
+High sensitivity is required; false negatives can endanger patient safety. \\
+\hline
+
+Cloud Security &
+\cite{19_yin_2023_anomaly} & Traffic Packet-based Detection &
+Analyses raw packet behaviour in cloud environments. &
+Deep encryption (e.g., TLS 1.3) hides many headers, hindering analysis. \\
+\hline
+
+Telecom &
+\cite{22_edozie_2025_artificial} & AI in Telecom Review &
+Examines AI for large-scale telecom networks. &
+Telecom-specific constraints may not generalise to enterprise networks. \\
+\hline
+\end{tabular}
+}
+\vspace{16pt}
+\end{table*}
+
+% ---------- TABLE II : PART II ----------
+\begin{table*}[!t]
+\vspace{16pt}
+\caption{Summary of Existing Techniques, Advantages, and Disadvantages (Part II)}
+\label{tab:method_comparison_part2}
+\centering
+\renewcommand{\arraystretch}{1.7}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l c p{3.1cm} p{5.1cm} p{5.1cm}}
+\hline
+\textbf{Domain} & \textbf{Ref.} & \textbf{Technique Used} & \textbf{Key Advantage} & \textbf{Key Disadvantage} \\
+\hline
+\multirow{5}{*}{Explainable AI / XAI} &
+\cite{10_sazidnazat_2024_xaiads} & XAI for Autonomous Systems &
+Applies XAI to explain anomalies in autonomous driving systems. &
+High-speed contexts mean XAI calculations add latency. \\
+
+& \cite{25_singh_2025_interpretable} & SHAP with Machine Learning &
+Uses SHAP values to interpret why encrypted traffic is flagged. &
+SHAP computations are computationally very expensive and slow. \\
+
+& \cite{26_zeleke_2025_integrating} & XAI for Malware Detection &
+Explains malware classification decisions in network traffic. &
+Explanations may be misinterpreted by non-expert analysts. \\
+
+& \cite{31_a2024_network} & XAI in Simulated Environment &
+Evaluates XAI tools in controlled simulations. &
+Simulation results may not fully reflect real network conditions. \\
+
+& \cite{36_menatallaabououf_2023_explainable} & XAI for Healthcare Monitoring &
+Explains anomalies in patient monitoring systems. &
+Even with XAI, accuracy is critical and explanations do not guarantee correctness. \\
+\hline
+
+\multirow{3}{*}{Other Security Domains} &
+\cite{27_haque_2024_enhancing} & Deep Learning + XAI for UAV Security &
+Applies ZTA and deep learning with XAI to secure UAVs. &
+UAVs have strict power and compute limits; heavy models drain batteries. \\
+
+& \cite{28_alam_2023_datadriven} & Data-driven Network Analysis &
+Uses statistical analysis of sensor data for anomaly detection. &
+Statistical thresholds may miss low-and-slow attacks that mimic normal traffic. \\
+
+& \cite{30_gautam_2024_network} & Intrusion Analysis with ZTA &
+Integrates IDS capabilities into a ZTA framework. &
+Integrating legacy IDS with modern ZTA is architecturally challenging. \\
+\hline
+
+\multirow{2}{*}{General AI / Overview} &
+\cite{32_gudala_2021_leveraging} & ML for Threat Detection &
+Uses standard ML to detect threats that bypass static ZTA rules. &
+Requires frequent retraining to handle evolving attack vectors. \\
+
+& \cite{35_janiesch_2021_machine} & ML and DL Overview &
+Provides a broad survey of ML/DL techniques and markets. &
+Too generic; lacks concrete network-security implementation details. \\
+\hline
+\end{tabular}
+}
+\end{table*}
+
+
+\section{Conclusion}
+The combination of Zero-Trust Architecture, Encrypted Traffic Analysis, and Explainable AI (XAI) represents the newest and most advanced area of modern network security. This literature review shows that each part has grown strong on its own—Deep Learning can analyze encrypted traffic effectively, and Zero-Trust can secure network systems. However, putting them together is still difficult because of the “Black Box” problem in AI models.
+The reviewed papers clearly show that Explainable AI is the missing piece needed to make AI-based detection usable in a Zero-Trust system. Without XAI, automatic blocking is too dangerous because we do not know why the model made a decision. With XAI, security decisions become clear, understandable, and easier to defend.
+The identified research gaps—especially the lack of real-time, automatic policy creation from XAI outputs—give a clear direction for this final year project. By building a framework that not only finds anomalies in hidden (encrypted) traffic but also explains the reason, this project aims to offer a practical solution to one of the most important challenges in cybersecurity today.
+
+
+\section{Declaration of Writing Assistance}
+This work benefited from grammatical clarity, rephrasing, and summarization assistance using AI tools including Perplexity, Gemini, ChatGPT-4, Scispace, ChatGPT-5, and Consensus AI for identifying related research papers. Gemini was also used to generate initial versions of illustrative figures, which were then carefully reviewed, edited, and corrected manually to ensure accuracy and alignment with the authors’ intended concepts. All technical content, analysis, figures, and conclusions presented in this literature review are solely the authors’ original work and have been critically evaluated prior to submission.
+
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{library}
+
+\vspace{12pt}
+
+\end{document}
