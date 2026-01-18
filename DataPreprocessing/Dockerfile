@@ -39,3 +39,8 @@ EXPOSE 8888
 
 # 7. Start Jupyter
 CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+
+# 8. GPU Guidelines
+# Ensure that the NVIDIA runtime is available for GPU support.
+# Use the following command to run the container with GPU support:
+# docker run --gpus all -it -p 8888:8888 -v "$(pwd):/app" ml-env:gpu

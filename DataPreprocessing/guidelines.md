@@ -47,6 +47,15 @@ Run the container with a volume mount to ensure your changes to the notebook are
 docker run -it -p 8888:8888 -v "$(pwd):/app" ml-pipeline
 ```
 
+### GPU Guidelines
+
+- **Ensure that the NVIDIA runtime is available for GPU support.**
+- **Use the following command to run the container with GPU support:**
+
+```bash
+docker run --gpus all -it -p 8888:8888 -v "$(pwd):/app" ml-env:gpu
+```
+
 ## 3. Accessing the Development Interface
 
 ### Access via Browser
@@ -65,7 +74,37 @@ Click on `confidence_pseudo_labeling.ipynb` to begin.
 4. Choose "Existing Jupyter Server".
 5. Paste the same URL (with the token) from your terminal.
 
-## 4. Pipeline Artifacts
+## 4. Stopping and Starting the Container
+
+### Stopping the Container
+
+To stop the running container, you can use the following command in a new terminal:
+
+```bash
+docker stop <container_id>
+```
+
+Replace `<container_id>` with the actual ID of your running container. You can find the container ID by running:
+
+```bash
+docker ps
+```
+
+### Starting the Container
+
+To start a stopped container, use:
+
+```bash
+docker start <container_id>
+```
+
+Again, replace `<container_id>` with the ID of the container you wish to start. You can also use the following command to start the container and attach to it:
+
+```bash
+docker start -ai <container_id>
+```
+
+## 5. Pipeline Artifacts
 
 After running the full notebook, the following cleaned files will be generated in the `./pseudo_labeling_artifacts` folder:
 
