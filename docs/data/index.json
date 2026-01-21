@@ -1,0 +1,37 @@
+{
+    "team": [
+        {
+            "name": "Chalaka Perera",
+            "email": "e20288@eng.pdn.ac.lk",
+            "eNumber": "E/20/288"
+        },
+        {
+            "name": "Janith Wanasinghe",
+            "email": "e20420@eng.pdn.ac.lk",
+            "eNumber": "E/20/420"
+        },
+        {
+            "name": "Sandaru Wijewardhana",
+            "email": "e20449@eng.pdn.ac.lk",
+            "eNumber": "E/20/449"
+        }
+    ],
+    "supervisors": [
+        {
+            "name": "Dr. Suneth Namal Karunarathna",
+            "email": "namal@eng.pdn.ac.lk"
+        },
+        {
+            "name": "Dr. Upul Jayasinghe",
+            "email": "upuljm@eng.pdn.ac.lk"
+        }
+    ],
+    "media": [
+        {
+            "type": "youtube",
+            "title": "",
+            "url": "#"
+        }
+    ],
+    "tags": ["XAI","Cyber","ZTA"]
+}
