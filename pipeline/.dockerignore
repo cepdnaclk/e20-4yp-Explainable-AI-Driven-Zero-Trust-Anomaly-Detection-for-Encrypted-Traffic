@@ -1,0 +1,7 @@
+# Don't ship bulky artefacts into the image – they're mounted at runtime
+artifacts/
+results/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.git/
