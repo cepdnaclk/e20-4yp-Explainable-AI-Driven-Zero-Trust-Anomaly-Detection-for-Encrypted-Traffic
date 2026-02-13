@@ -5,8 +5,12 @@ import time
 import random
 import logging
 import joblib
+import argparse
 from datetime import datetime, timezone
 import pandas as pd
+
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 # Logic to import sibling modules
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -21,11 +25,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("SentryController")
 
 # Configuration
-DATASET_SOURCE_DIR = "/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday-WorkingHours_labeled"
+DATASET_SOURCE_DIR = "/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-labeled-small"
 MODEL_PATH = "/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/Models/sentry_zero_leak_v1.pkl"
 OUTPUT_LOG = os.path.join(parent_dir, "simulation_log.json")
 STATS_FILE = os.path.join(parent_dir, "dashboard", "live_stats.json")
-SLEEP_INTERVAL = 2 # Seconds between streams to simulate "live"
+SLEEP_INTERVAL = 0.1 # Seconds between streams to simulate "live"
 
 # Ensure dashboard dir exists for stats
 os.makedirs(os.path.dirname(STATS_FILE), exist_ok=True)
@@ -175,38 +179,62 @@ class SentrySwitch:
             
         logger.info(f"[Decision] {prediction} (Conf: {probability:.2f}) -> {action}")
 
-    def run(self):
-        logger.info(f"Starting Sentry Controller Simulation reading from {DATASET_SOURCE_DIR}...")
+    def run(self, explicit_files=None, override_dir=None, loops=1):
+        source_dir = override_dir if override_dir else DATASET_SOURCE_DIR
         
-        # Recursively find all PCAP files
         pcap_files = []
-        for root, dirs, files in os.walk(DATASET_SOURCE_DIR):
-            for file in files:
-                if file.endswith(".pcap"):
-                    # Determine ground truth from folder structure
-                    # Expected structure: .../Friday-WorkingHours_labeled/Normal/stream.pcap
-                    # or .../Friday-WorkingHours_labeled/Attack/stream.pcap
-                    path = os.path.join(root, file)
-                    folder_name = os.path.basename(root)
-                    
-                    if "normal" in folder_name.lower():
-                        ground_truth = "Normal"
-                    else:
-                        ground_truth = "Attack"
+        
+        if explicit_files:
+            logger.info(f"Using explicit file list: {explicit_files}")
+            for f in explicit_files:
+                # determine label loosely based on filename
+                if "attack" in f.lower(): label = "Attack"
+                elif "benign" in f.lower(): label = "Normal"
+                else: label = "Unknown"
+                pcap_files.append((f, label))
+        else:
+            logger.info(f"Starting Sentry Controller Simulation reading from {source_dir}...")
+            # Recursively find all PCAP files
+            for root, dirs, files in os.walk(source_dir):
+                for file in files:
+                    if file.endswith(".pcap"):
+                        # Determine ground truth from folder structure
+                        path = os.path.join(root, file)
+                        folder_name = os.path.basename(root)
                         
-                    pcap_files.append((path, ground_truth))
+                        if "BENIGN" in folder_name:
+                            ground_truth = "Normal"
+                        elif "DDoS" in folder_name:
+                            ground_truth = "Attack"
+                        else:
+                            ground_truth = "Unknown"
+                            
+                        pcap_files.append((path, ground_truth))
+        
+        # Count and report Benign vs Attack
+        normal_count = sum(1 for _, label in pcap_files if label == "Normal")
+        attack_count = sum(1 for _, label in pcap_files if label == "Attack")
+        
+        logger.info(f"Dataset Analysis: Found {len(pcap_files)} total streams.")
+        logger.info(f" - Normal (BENIGN): {normal_count}")
+        logger.info(f" - Attack (DDoS): {attack_count}")
         
         if not pcap_files:
-            logger.error(f"No PCAP files found in {DATASET_SOURCE_DIR}")
+            logger.error(f"No PCAP files found.")
             return
+            
+        # LOOP SUPPORT
+        final_playlist = []
+        for i in range(loops):
+            # Shuffle each iteration for variety
+            current_batch = list(pcap_files)
+            random.shuffle(current_batch)
+            final_playlist.extend(current_batch)
 
-        # Shuffle to simulate mixed traffic or sort optionally
-        random.shuffle(pcap_files)
-        
-        logger.info(f"Found {len(pcap_files)} streams. Starting live playback...")
+        logger.info(f"Starting live playback of {len(final_playlist)} streams (Loops: {loops})...")
 
         try:
-            for file_path, label in pcap_files:
+            for file_path, label in final_playlist:
                 self.process_stream(file_path, label)
                 
                 # Simulate live delay
@@ -216,9 +244,21 @@ class SentrySwitch:
         except KeyboardInterrupt:
             logger.info("Simulation stopping...")
 
+        # Print Final Stats
+        print("\n=== Final Simulation Stats ===")
+        print(json.dumps(self.stats, indent=2))
+        print("==============================\n")
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--files", nargs='+', help="Specific PCAP files to process (overrides dataset dir)")
+    parser.add_argument("--dir", help="Override dataset directory")
+    parser.add_argument("--loop", type=int, default=1, help="Number of times to loop through the files")
+    args = parser.parse_args()
+
     sentry = SentrySwitch()
     try:
-        sentry.run()
+        sentry.run(explicit_files=args.files, override_dir=args.dir, loops=args.loop)
     except KeyboardInterrupt:
         print("Stopping Sentry Controller...")

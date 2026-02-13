@@ -1,0 +1,72 @@
+2026-02-13 04:28:13,739 - SentryController - ERROR - Failed to load model: No module named 'sklearn'
+2026-02-13 04:28:13,739 - SentryController - INFO - Starting Sentry Controller Simulation reading from /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-labeled-small...
+2026-02-13 04:28:13,740 - SentryController - INFO - Dataset Analysis: Found 128 total streams.
+2026-02-13 04:28:13,740 - SentryController - INFO -  - Normal (BENIGN): 75
+2026-02-13 04:28:13,740 - SentryController - INFO -  - Attack (DDoS): 53
+2026-02-13 04:28:13,741 - SentryController - INFO - Found 128 streams. Starting live playback...
+2026-02-13 04:28:13,741 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:28:13,745 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:13,745 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:13,745 - TrafficEncryptor - INFO - [Latency] Network: 0.00ms | Crypto: 4.29ms
+2026-02-13 04:28:14,005 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:14,005 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:14,438 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:14,445 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:14,445 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:14,445 - TrafficEncryptor - INFO - [Latency] Network: 3.25ms | Crypto: 3.08ms
+2026-02-13 04:28:14,496 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:14,497 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:14,648 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:14,653 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:14,653 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:14,653 - TrafficEncryptor - INFO - [Latency] Network: 0.09ms | Crypto: 4.01ms
+2026-02-13 04:28:14,700 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:14,700 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:15,013 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:15,019 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:15,019 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:15,019 - TrafficEncryptor - INFO - [Latency] Network: 0.55ms | Crypto: 4.74ms
+2026-02-13 04:28:15,070 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:15,070 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:15,465 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:28:15,470 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:15,470 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:15,470 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 4.26ms
+2026-02-13 04:28:15,518 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:15,518 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:15,685 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:15,691 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:15,691 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:15,691 - TrafficEncryptor - INFO - [Latency] Network: 1.85ms | Crypto: 3.71ms
+2026-02-13 04:28:15,748 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:15,748 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:16,063 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:16,066 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:16,066 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:16,066 - TrafficEncryptor - INFO - [Latency] Network: 0.15ms | Crypto: 2.45ms
+2026-02-13 04:28:16,115 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:16,116 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:16,429 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:28:16,432 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:16,432 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:16,432 - TrafficEncryptor - INFO - [Latency] Network: 0.00ms | Crypto: 3.51ms
+2026-02-13 04:28:16,479 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:16,479 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:16,958 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:16,962 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:16,962 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:16,962 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 4.25ms
+2026-02-13 04:28:17,013 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:17,014 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:17,455 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:28:17,459 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:17,459 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:17,459 - TrafficEncryptor - INFO - [Latency] Network: 0.04ms | Crypto: 2.93ms
+2026-02-13 04:28:17,507 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:17,508 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD
+2026-02-13 04:28:17,894 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:28:17,897 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:28:17,897 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:28:17,897 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 2.19ms
+2026-02-13 04:28:17,944 - SentryController - WARNING - No model loaded. Defaulting to Normal.
+2026-02-13 04:28:17,944 - SentryController - INFO - [Decision] Normal (Conf: 0.00) -> FORWARD

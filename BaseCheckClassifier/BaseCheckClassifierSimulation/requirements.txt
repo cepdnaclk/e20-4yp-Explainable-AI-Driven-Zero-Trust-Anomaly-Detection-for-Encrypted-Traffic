@@ -1,7 +1,9 @@
-nfstream
 pandas
-joblib
+nfstream
 scikit-learn
+joblib
+dpkt
+numpy
 streamlit
-matplotlib
 seaborn
+matplotlib
