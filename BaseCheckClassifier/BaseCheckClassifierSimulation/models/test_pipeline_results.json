@@ -1,0 +1,781 @@
+{
+  "run_timestamp": "2026-02-28T10:59:15.763050+00:00",
+  "total_streams": 4,
+  "stats": {
+    "total_streams": 4,
+    "dt_passed": 0,
+    "dt_flagged": 4,
+    "ddl_cleared": 0,
+    "ddl_confirmed": 4,
+    "TP": 2,
+    "TN": 0,
+    "FP": 2,
+    "FN": 0
+  },
+  "stream_results": [
+    {
+      "timestamp": "2026-02-28T10:59:15.118840+00:00",
+      "stream_id": "stream_0001_synthetic_attack.pcap",
+      "input_file": "synthetic_attack.pcap",
+      "ground_truth": "Attack",
+      "stages": {
+        "encryption": {
+          "latency_ms": 163.58704295455857,
+          "algorithm": "AES-256-GCM"
+        },
+        "extraction": {
+          "features": {
+            "Packet Length Variance": 301436.5885342112,
+            "Fwd Packet Length Max": 1514,
+            "Fwd Header Length": 200124,
+            "Init_Win_bytes_forward": 8192,
+            "Bwd Header Length": 80644,
+            "Total Length of Fwd Packets": 3179042,
+            "Init_Win_bytes_backward": 8192,
+            "Bwd Packets/s": 373.3333333333333,
+            "Flow IAT Min": 0,
+            "Fwd IAT Min": 0,
+            "Flow Bytes/s": 608872.2222222221,
+            "Active Min": 5400000,
+            "Bwd IAT Total": 5389000,
+            "Flow IAT Max": 10000,
+            "Flow Duration": 5400000
+          },
+          "flow_id": "172.16.66.66:23652->192.168.10.50:80",
+          "protocol": "HTTP"
+        },
+        "base_check": {
+          "prediction": "Attack",
+          "confidence": 0.0,
+          "model": "DecisionTree (entropy, depth=15, attack_weight=50)"
+        },
+        "deep_analysis": {
+          "ddl_available": true,
+          "ddl_prediction": "Anomaly",
+          "anomaly_score": 4.465061211706076e+21,
+          "threshold": 0.1944273209001434,
+          "analysis_time_ms": 2.96
+        },
+        "buffer": {
+          "action": "DROPPED",
+          "hold_time_ms": 2.994060516357422
+        }
+      },
+      "final_action": "DROP",
+      "explanation": {
+        "summary": "Decision: Anomaly\nThe DDL reconstruction error is 22965194339651384508416.00x the normal threshold.\nPrimary anomalous features: Active Min, Init_Win_bytes_backward, Total Length of Fwd Packets\nRecommendation: DROP stream and alert SOC analyst.",
+        "ddl_native": {
+          "decision": "Anomaly",
+          "total_reconstruction_error": 4.465061211706076e+21,
+          "anomaly_threshold": 0.194427,
+          "error_ratio": 2.2965194339651385e+22,
+          "feature_contributions": [
+            {
+              "feature": "Active Min",
+              "reconstruction_error": 8.638893898301803e+20,
+              "pct_of_total_error": 19.35,
+              "original_value": 5400000.0,
+              "reconstructed_value": -137264074359698.66,
+              "deviation": 137264079759698.66
+            },
+            {
+              "feature": "Init_Win_bytes_backward",
+              "reconstruction_error": 7.887739095831571e+20,
+              "pct_of_total_error": 17.67,
+              "original_value": 8192.0,
+              "reconstructed_value": 8472.8512,
+              "deviation": 280.8512
+            },
+            {
+              "feature": "Total Length of Fwd Packets",
+              "reconstruction_error": 6.718861253471538e+20,
+              "pct_of_total_error": 15.05,
+              "original_value": 3179042.0,
+              "reconstructed_value": -5382848217605.186,
+              "deviation": 5382851396647.186
+            },
+            {
+              "feature": "Flow IAT Max",
+              "reconstruction_error": 4.892526727338522e+20,
+              "pct_of_total_error": 10.96,
+              "original_value": 10000.0,
+              "reconstructed_value": 137423262842707.8,
+              "deviation": 137423262832707.8
+            },
+            {
+              "feature": "Flow Duration",
+              "reconstruction_error": 4.0018262012985396e+20,
+              "pct_of_total_error": 8.96,
+              "original_value": 5400000.0,
+              "reconstructed_value": 249664670323825.28,
+              "deviation": 249664664923825.28
+            },
+            {
+              "feature": "Fwd Packet Length Max",
+              "reconstruction_error": 2.4565487100484072e+20,
+              "pct_of_total_error": 5.5,
+              "original_value": 1514.0,
+              "reconstructed_value": 148533714897.5455,
+              "deviation": 148533713383.5455
+            },
+            {
+              "feature": "Flow Bytes/s",
+              "reconstruction_error": 2.0886204259646718e+20,
+              "pct_of_total_error": 4.68,
+              "original_value": 608872.2222,
+              "reconstructed_value": 914486048242.6797,
+              "deviation": 914485439370.4575
+            },
+            {
+              "feature": "Init_Win_bytes_forward",
+              "reconstruction_error": 1.7859304757374036e+20,
+              "pct_of_total_error": 4.0,
+              "original_value": 8192.0,
+              "reconstructed_value": 8325.6387,
+              "deviation": 133.6387
+            },
+            {
+              "feature": "Bwd Header Length",
+              "reconstruction_error": 1.7351641535351187e+20,
+              "pct_of_total_error": 3.89,
+              "original_value": 80644.0,
+              "reconstructed_value": -826938969785.9869,
+              "deviation": 826939050429.9869
+            },
+            {
+              "feature": "Bwd IAT Total",
+              "reconstruction_error": 1.6641669408026418e+20,
+              "pct_of_total_error": 3.73,
+              "original_value": 5389000.0,
+              "reconstructed_value": 37588271280779.85,
+              "deviation": 37588265891779.85
+            },
+            {
+              "feature": "Packet Length Variance",
+              "reconstruction_error": 1.1456062085819711e+20,
+              "pct_of_total_error": 2.57,
+              "original_value": 301436.5885,
+              "reconstructed_value": -131245022214.7084,
+              "deviation": 131245323651.2969
+            },
+            {
+              "feature": "Bwd Packets/s",
+              "reconstruction_error": 9.425259519026582e+19,
+              "pct_of_total_error": 2.11,
+              "original_value": 373.3333,
+              "reconstructed_value": -12125759431.7776,
+              "deviation": 12125759805.1109
+            },
+            {
+              "feature": "Flow IAT Min",
+              "reconstruction_error": 4.214254248104909e+19,
+              "pct_of_total_error": 0.94,
+              "original_value": 0.0,
+              "reconstructed_value": -18929262200296.594,
+              "deviation": 18929262200296.594
+            },
+            {
+              "feature": "Fwd IAT Min",
+              "reconstruction_error": 1.7998081630981964e+19,
+              "pct_of_total_error": 0.4,
+              "original_value": 0.0,
+              "reconstructed_value": 6779373219808.063,
+              "deviation": 6779373219808.063
+            },
+            {
+              "feature": "Fwd Header Length",
+              "reconstruction_error": 9.07958331256056e+18,
+              "pct_of_total_error": 0.2,
+              "original_value": 200124.0,
+              "reconstructed_value": -376063078725.5928,
+              "deviation": 376063278849.5928
+            }
+          ],
+          "sparse_code_summary": {
+            "layer1_active_atoms": 32,
+            "layer1_total_atoms": 32,
+            "layer1_sparsity": 0.0,
+            "layer2_active_atoms": 64,
+            "layer2_total_atoms": 64,
+            "layer2_sparsity": 0.0
+          },
+          "interpretation": "ANOMALY DETECTED: Reconstruction error (4465061211706076168192.0000) exceeds threshold (0.1944) by 2296519435146309872386048.0%.\n\nTop features driving the anomaly score:\n  1. Active Min: 19.4% of error (expected \u2248-137264074359698.66, observed 5400000.00, deviation 137264079759698.66)\n  2. Init_Win_bytes_backward: 17.7% of error (expected \u22488472.85, observed 8192.00, deviation 280.85)\n  3. Total Length of Fwd Packets: 15.1% of error (expected \u2248-5382848217605.19, observed 3179042.00, deviation 5382851396647.19)\n  4. Flow IAT Max: 11.0% of error (expected \u2248137423262842707.80, observed 10000.00, deviation 137423262832707.80)\n  5. Flow Duration: 9.0% of error (expected \u2248249664670323825.28, observed 5400000.00, deviation 249664664923825.28)\n\nDictionary activation: L1 used 32/32 atoms (100%), L2 used 64/64 atoms (100%)\n  \u2192 High L1 activation suggests the sample is fundamentally different from learned normal patterns."
+        },
+        "shap": null
+      }
+    },
+    {
+      "timestamp": "2026-02-28T10:59:15.558113+00:00",
+      "stream_id": "stream_0002_synthetic_benign.pcap",
+      "input_file": "synthetic_benign.pcap",
+      "ground_truth": "Normal",
+      "stages": {
+        "encryption": {
+          "latency_ms": 3.577994305239096,
+          "algorithm": "AES-256-GCM"
+        },
+        "extraction": {
+          "features": {
+            "Packet Length Variance": 373.4129947722184,
+            "Fwd Packet Length Max": 154,
+            "Fwd Header Length": 4120,
+            "Init_Win_bytes_forward": 8192,
+            "Bwd Header Length": 40,
+            "Total Length of Fwd Packets": 15562,
+            "Init_Win_bytes_backward": 8192,
+            "Bwd Packets/s": 27.027027027027028,
+            "Flow IAT Min": 0,
+            "Fwd IAT Min": 0,
+            "Flow Bytes/s": 422054.0540540541,
+            "Active Min": 37000,
+            "Bwd IAT Total": 0,
+            "Flow IAT Max": 2000,
+            "Flow Duration": 37000
+          },
+          "flow_id": "192.168.1.100:12345->10.0.0.5:80",
+          "protocol": "HTTP"
+        },
+        "base_check": {
+          "prediction": "Attack",
+          "confidence": 0.0,
+          "model": "DecisionTree (entropy, depth=15, attack_weight=50)"
+        },
+        "deep_analysis": {
+          "ddl_available": true,
+          "ddl_prediction": "Anomaly",
+          "anomaly_score": 4.4650611759816193e+21,
+          "threshold": 0.1944273209001434,
+          "analysis_time_ms": 2.78
+        },
+        "buffer": {
+          "action": "DROPPED",
+          "hold_time_ms": 2.8433799743652344
+        }
+      },
+      "final_action": "DROP",
+      "explanation": {
+        "summary": "Decision: Anomaly\nThe DDL reconstruction error is 22965194155909424611328.00x the normal threshold.\nPrimary anomalous features: Active Min, Init_Win_bytes_backward, Total Length of Fwd Packets\nRecommendation: DROP stream and alert SOC analyst.",
+        "ddl_native": {
+          "decision": "Anomaly",
+          "total_reconstruction_error": 4.4650611759816193e+21,
+          "anomaly_threshold": 0.194427,
+          "error_ratio": 2.2965194155909425e+22,
+          "feature_contributions": [
+            {
+              "feature": "Active Min",
+              "reconstruction_error": 8.638893924228976e+20,
+              "pct_of_total_error": 19.35,
+              "original_value": 37000.0,
+              "reconstructed_value": -137264079928678.14,
+              "deviation": 137264079965678.14
+            },
+            {
+              "feature": "Init_Win_bytes_backward",
+              "reconstruction_error": 7.887739052660575e+20,
+              "pct_of_total_error": 17.67,
+              "original_value": 8192.0,
+              "reconstructed_value": 8472.8512,
+              "deviation": 280.8512
+            },
+            {
+              "feature": "Total Length of Fwd Packets",
+              "reconstruction_error": 6.718861065747856e+20,
+              "pct_of_total_error": 15.05,
+              "original_value": 15562.0,
+              "reconstructed_value": -5382851305887.272,
+              "deviation": 5382851321449.272
+            },
+            {
+              "feature": "Flow IAT Max",
+              "reconstruction_error": 4.8925267577728755e+20,
+              "pct_of_total_error": 10.96,
+              "original_value": 2000.0,
+              "reconstructed_value": 137423263262133.98,
+              "deviation": 137423263260133.98
+            },
+            {
+              "feature": "Flow Duration",
+              "reconstruction_error": 4.00182609949932e+20,
+              "pct_of_total_error": 8.96,
+              "original_value": 37000.0,
+              "reconstructed_value": 249664661785316.5,
+              "deviation": 249664661748316.5
+            },
+            {
+              "feature": "Fwd Packet Length Max",
+              "reconstruction_error": 2.456548732268687e+20,
+              "pct_of_total_error": 5.5,
+              "original_value": 154.0,
+              "reconstructed_value": 148533714209.3133,
+              "deviation": 148533714055.3133
+            },
+            {
+              "feature": "Flow Bytes/s",
+              "reconstruction_error": 2.0886204707069742e+20,
+              "pct_of_total_error": 4.68,
+              "original_value": 422054.0541,
+              "reconstructed_value": 914485871219.5378,
+              "deviation": 914485449165.4838
+            },
+            {
+              "feature": "Init_Win_bytes_forward",
+              "reconstruction_error": 1.785930415406835e+20,
+              "pct_of_total_error": 4.0,
+              "original_value": 8192.0,
+              "reconstructed_value": 8325.6387,
+              "deviation": 133.6387
+            },
+            {
+              "feature": "Bwd Header Length",
+              "reconstruction_error": 1.7351641928395925e+20,
+              "pct_of_total_error": 3.89,
+              "original_value": 40.0,
+              "reconstructed_value": -826939059755.7878,
+              "deviation": 826939059795.7878
+            },
+            {
+              "feature": "Bwd IAT Total",
+              "reconstruction_error": 1.664166946971078e+20,
+              "pct_of_total_error": 3.73,
+              "original_value": 0.0,
+              "reconstructed_value": 37588265961442.58,
+              "deviation": 37588265961442.58
+            },
+            {
+              "feature": "Packet Length Variance",
+              "reconstruction_error": 1.1456061376738633e+20,
+              "pct_of_total_error": 2.57,
+              "original_value": 373.413,
+              "reconstructed_value": -131245319216.1227,
+              "deviation": 131245319589.5357
+            },
+            {
+              "feature": "Bwd Packets/s",
+              "reconstruction_error": 9.42525903500286e+19,
+              "pct_of_total_error": 2.11,
+              "original_value": 27.027,
+              "reconstructed_value": -12125759466.7314,
+              "deviation": 12125759493.7585
+            },
+            {
+              "feature": "Flow IAT Min",
+              "reconstruction_error": 4.214254299338057e+19,
+              "pct_of_total_error": 0.94,
+              "original_value": 0.0,
+              "reconstructed_value": -18929262315359.145,
+              "deviation": 18929262315359.145
+            },
+            {
+              "feature": "Fwd IAT Min",
+              "reconstruction_error": 1.7998081195853525e+19,
+              "pct_of_total_error": 0.4,
+              "original_value": 0.0,
+              "reconstructed_value": 6779373137857.716,
+              "deviation": 6779373137857.716
+            },
+            {
+              "feature": "Fwd Header Length",
+              "reconstruction_error": 9.079581864692816e+18,
+              "pct_of_total_error": 0.2,
+              "original_value": 4120.0,
+              "reconstructed_value": -376063244745.2921,
+              "deviation": 376063248865.2921
+            }
+          ],
+          "sparse_code_summary": {
+            "layer1_active_atoms": 32,
+            "layer1_total_atoms": 32,
+            "layer1_sparsity": 0.0,
+            "layer2_active_atoms": 64,
+            "layer2_total_atoms": 64,
+            "layer2_sparsity": 0.0
+          },
+          "interpretation": "ANOMALY DETECTED: Reconstruction error (4465061175981619281920.0000) exceeds threshold (0.1944) by 2296519416772113899454464.0%.\n\nTop features driving the anomaly score:\n  1. Active Min: 19.4% of error (expected \u2248-137264079928678.14, observed 37000.00, deviation 137264079965678.14)\n  2. Init_Win_bytes_backward: 17.7% of error (expected \u22488472.85, observed 8192.00, deviation 280.85)\n  3. Total Length of Fwd Packets: 15.1% of error (expected \u2248-5382851305887.27, observed 15562.00, deviation 5382851321449.27)\n  4. Flow IAT Max: 11.0% of error (expected \u2248137423263262133.98, observed 2000.00, deviation 137423263260133.98)\n  5. Flow Duration: 9.0% of error (expected \u2248249664661785316.50, observed 37000.00, deviation 249664661748316.50)\n\nDictionary activation: L1 used 32/32 atoms (100%), L2 used 64/64 atoms (100%)\n  \u2192 High L1 activation suggests the sample is fundamentally different from learned normal patterns."
+        },
+        "shap": null
+      }
+    },
+    {
+      "timestamp": "2026-02-28T10:59:15.628458+00:00",
+      "stream_id": "stream_0003_bot_1.pcap",
+      "input_file": "bot_1.pcap",
+      "ground_truth": "Attack",
+      "stages": {
+        "encryption": {
+          "latency_ms": 2.132502196856776,
+          "algorithm": "AES-256-GCM"
+        },
+        "extraction": {
+          "features": {
+            "Packet Length Variance": 4885.6111111111095,
+            "Fwd Packet Length Max": 249,
+            "Fwd Header Length": 212,
+            "Init_Win_bytes_forward": 8192,
+            "Bwd Header Length": 172,
+            "Total Length of Fwd Packets": 495,
+            "Init_Win_bytes_backward": 29200,
+            "Bwd Packets/s": 60.6060606060606,
+            "Flow IAT Min": 0,
+            "Fwd IAT Min": 0,
+            "Flow Bytes/s": 13075.757575757576,
+            "Active Min": 66000,
+            "Bwd IAT Total": 66000,
+            "Flow IAT Max": 64000,
+            "Flow Duration": 66000
+          },
+          "flow_id": "192.168.10.14:51664->205.174.165.73:8080",
+          "protocol": "HTTP"
+        },
+        "base_check": {
+          "prediction": "Attack",
+          "confidence": 0.0,
+          "model": "DecisionTree (entropy, depth=15, attack_weight=50)"
+        },
+        "deep_analysis": {
+          "ddl_available": true,
+          "ddl_prediction": "Anomaly",
+          "anomaly_score": 3.118717335968967e+21,
+          "threshold": 0.1944273209001434,
+          "analysis_time_ms": 2.97
+        },
+        "buffer": {
+          "action": "DROPPED",
+          "hold_time_ms": 3.0634403228759766
+        }
+      },
+      "final_action": "DROP",
+      "explanation": {
+        "summary": "Decision: Anomaly\nThe DDL reconstruction error is 16040530311923942555648.00x the normal threshold.\nPrimary anomalous features: Total Length of Fwd Packets, Active Min, Init_Win_bytes_backward\nRecommendation: DROP stream and alert SOC analyst.",
+        "ddl_native": {
+          "decision": "Anomaly",
+          "total_reconstruction_error": 3.118717335968967e+21,
+          "anomaly_threshold": 0.194427,
+          "error_ratio": 1.6040530311923943e+22,
+          "feature_contributions": [
+            {
+              "feature": "Total Length of Fwd Packets",
+              "reconstruction_error": 5.38895970355467e+20,
+              "pct_of_total_error": 17.28,
+              "original_value": 495.0,
+              "reconstructed_value": -4820776775483.921,
+              "deviation": 4820776775978.921
+            },
+            {
+              "feature": "Active Min",
+              "reconstruction_error": 5.3823933606511673e+20,
+              "pct_of_total_error": 17.26,
+              "original_value": 66000.0,
+              "reconstructed_value": -108346665409364.16,
+              "deviation": 108346665475364.16
+            },
+            {
+              "feature": "Init_Win_bytes_backward",
+              "reconstruction_error": 4.846093879888675e+20,
+              "pct_of_total_error": 15.54,
+              "original_value": 29200.0,
+              "reconstructed_value": 29420.1385,
+              "deviation": 220.1385
+            },
+            {
+              "feature": "Flow Duration",
+              "reconstruction_error": 3.611637828800915e+20,
+              "pct_of_total_error": 11.58,
+              "original_value": 66000.0,
+              "reconstructed_value": 237181092949672.34,
+              "deviation": 237181092883672.34
+            },
+            {
+              "feature": "Flow IAT Max",
+              "reconstruction_error": 2.678965401641328e+20,
+              "pct_of_total_error": 8.59,
+              "original_value": 64000.0,
+              "reconstructed_value": 101689755941221.05,
+              "deviation": 101689755877221.05
+            },
+            {
+              "feature": "Init_Win_bytes_forward",
+              "reconstruction_error": 1.8348561455053298e+20,
+              "pct_of_total_error": 5.88,
+              "original_value": 8192.0,
+              "reconstructed_value": 8327.4569,
+              "deviation": 135.4569
+            },
+            {
+              "feature": "Packet Length Variance",
+              "reconstruction_error": 1.5642184878020533e+20,
+              "pct_of_total_error": 5.02,
+              "original_value": 4885.6111,
+              "reconstructed_value": -153360971966.2367,
+              "deviation": 153360976851.8478
+            },
+            {
+              "feature": "Fwd Packet Length Max",
+              "reconstruction_error": 1.3015964548738096e+20,
+              "pct_of_total_error": 4.17,
+              "original_value": 249.0,
+              "reconstructed_value": 108118628550.9335,
+              "deviation": 108118628301.9335
+            },
+            {
+              "feature": "Bwd Packets/s",
+              "reconstruction_error": 1.160362709106742e+20,
+              "pct_of_total_error": 3.72,
+              "original_value": 60.6061,
+              "reconstructed_value": -13454240368.3159,
+              "deviation": 13454240428.9219
+            },
+            {
+              "feature": "Bwd IAT Total",
+              "reconstruction_error": 1.0562718036926285e+20,
+              "pct_of_total_error": 3.39,
+              "original_value": 66000.0,
+              "reconstructed_value": 29946197843701.21,
+              "deviation": 29946197777701.21
+            },
+            {
+              "feature": "Flow Bytes/s",
+              "reconstruction_error": 9.519590460333764e+19,
+              "pct_of_total_error": 3.05,
+              "original_value": 13075.7576,
+              "reconstructed_value": 617385145835.0739,
+              "deviation": 617385132759.3163
+            },
+            {
+              "feature": "Bwd Header Length",
+              "reconstruction_error": 6.822273282127807e+19,
+              "pct_of_total_error": 2.19,
+              "original_value": 172.0,
+              "reconstructed_value": -518522699557.0609,
+              "deviation": 518522699729.0609
+            },
+            {
+              "feature": "Flow IAT Min",
+              "reconstruction_error": 2.630192282813401e+19,
+              "pct_of_total_error": 0.84,
+              "original_value": 0.0,
+              "reconstructed_value": -14954333781474.293,
+              "deviation": 14954333781474.293
+            },
+            {
+              "feature": "Fwd Header Length",
+              "reconstruction_error": 2.5778636396033155e+19,
+              "pct_of_total_error": 0.83,
+              "original_value": 212.0,
+              "reconstructed_value": -633662402467.0273,
+              "deviation": 633662402679.0273
+            },
+            {
+              "feature": "Fwd IAT Min",
+              "reconstruction_error": 2.06825617684517e+19,
+              "pct_of_total_error": 0.66,
+              "original_value": 0.0,
+              "reconstructed_value": 7267392223664.5,
+              "deviation": 7267392223664.5
+            }
+          ],
+          "sparse_code_summary": {
+            "layer1_active_atoms": 32,
+            "layer1_total_atoms": 32,
+            "layer1_sparsity": 0.0,
+            "layer2_active_atoms": 64,
+            "layer2_total_atoms": 64,
+            "layer2_sparsity": 0.0
+          },
+          "interpretation": "ANOMALY DETECTED: Reconstruction error (3118717335968966770688.0000) exceeds threshold (0.1944) by 1604053032017408525598720.0%.\n\nTop features driving the anomaly score:\n  1. Total Length of Fwd Packets: 17.3% of error (expected \u2248-4820776775483.92, observed 495.00, deviation 4820776775978.92)\n  2. Active Min: 17.3% of error (expected \u2248-108346665409364.16, observed 66000.00, deviation 108346665475364.16)\n  3. Init_Win_bytes_backward: 15.5% of error (expected \u224829420.14, observed 29200.00, deviation 220.14)\n  4. Flow Duration: 11.6% of error (expected \u2248237181092949672.34, observed 66000.00, deviation 237181092883672.34)\n  5. Flow IAT Max: 8.6% of error (expected \u2248101689755941221.05, observed 64000.00, deviation 101689755877221.05)\n\nDictionary activation: L1 used 32/32 atoms (100%), L2 used 64/64 atoms (100%)\n  \u2192 High L1 activation suggests the sample is fundamentally different from learned normal patterns."
+        },
+        "shap": null
+      }
+    },
+    {
+      "timestamp": "2026-02-28T10:59:15.695491+00:00",
+      "stream_id": "stream_0004_benign_1.pcap",
+      "input_file": "benign_1.pcap",
+      "ground_truth": "Normal",
+      "stages": {
+        "encryption": {
+          "latency_ms": 4.79024484462848,
+          "algorithm": "AES-256-GCM"
+        },
+        "extraction": {
+          "features": {
+            "Packet Length Variance": 352.2380952380951,
+            "Fwd Packet Length Max": 103,
+            "Fwd Header Length": 144,
+            "Init_Win_bytes_forward": 62,
+            "Bwd Header Length": 208,
+            "Total Length of Fwd Packets": 229,
+            "Init_Win_bytes_backward": 65535,
+            "Bwd Packets/s": 0.17817371937639198,
+            "Flow IAT Min": 0,
+            "Fwd IAT Min": 0,
+            "Flow Bytes/s": 23.608017817371937,
+            "Active Min": 22450000,
+            "Bwd IAT Total": 22416000,
+            "Flow IAT Max": 22416000,
+            "Flow Duration": 22450000
+          },
+          "flow_id": "68.67.180.45:443->192.168.10.25:49293",
+          "protocol": "TLS"
+        },
+        "base_check": {
+          "prediction": "Attack",
+          "confidence": 0.0,
+          "model": "DecisionTree (entropy, depth=15, attack_weight=50)"
+        },
+        "deep_analysis": {
+          "ddl_available": true,
+          "ddl_prediction": "Anomaly",
+          "anomaly_score": 2.2516201842655554e+21,
+          "threshold": 0.1944273209001434,
+          "analysis_time_ms": 2.97
+        },
+        "buffer": {
+          "action": "DROPPED",
+          "hold_time_ms": 3.01361083984375
+        }
+      },
+      "final_action": "DROP",
+      "explanation": {
+        "summary": "Decision: Anomaly\nThe DDL reconstruction error is 11580780790904868831232.00x the normal threshold.\nPrimary anomalous features: Total Length of Fwd Packets, Flow Duration, Packet Length Variance\nRecommendation: DROP stream and alert SOC analyst.",
+        "ddl_native": {
+          "decision": "Anomaly",
+          "total_reconstruction_error": 2.2516201842655554e+21,
+          "anomaly_threshold": 0.194427,
+          "error_ratio": 1.1580780790904869e+22,
+          "feature_contributions": [
+            {
+              "feature": "Total Length of Fwd Packets",
+              "reconstruction_error": 4.4776031047117976e+20,
+              "pct_of_total_error": 19.89,
+              "original_value": 229.0,
+              "reconstructed_value": -4394276207627.001,
+              "deviation": 4394276207856.001
+            },
+            {
+              "feature": "Flow Duration",
+              "reconstruction_error": 3.8901292219086176e+20,
+              "pct_of_total_error": 17.28,
+              "original_value": 22450000.0,
+              "reconstructed_value": 246155771439426.88,
+              "deviation": 246155748989426.88
+            },
+            {
+              "feature": "Packet Length Variance",
+              "reconstruction_error": 3.183285968045111e+20,
+              "pct_of_total_error": 14.14,
+              "original_value": 352.2381,
+              "reconstructed_value": -218778170162.0846,
+              "deviation": 218778170514.3227
+            },
+            {
+              "feature": "Init_Win_bytes_forward",
+              "reconstruction_error": 2.5043760859649042e+20,
+              "pct_of_total_error": 11.12,
+              "original_value": 62.0,
+              "reconstructed_value": 220.2522,
+              "deviation": 158.2522
+            },
+            {
+              "feature": "Bwd Packets/s",
+              "reconstruction_error": 2.073518409375445e+20,
+              "pct_of_total_error": 9.21,
+              "original_value": 0.1782,
+              "reconstructed_value": -17985240533.1652,
+              "deviation": 17985240533.3434
+            },
+            {
+              "feature": "Active Min",
+              "reconstruction_error": 2.0338426840904873e+20,
+              "pct_of_total_error": 9.03,
+              "original_value": 22450000.0,
+              "reconstructed_value": -66601861112106.17,
+              "deviation": 66601883562106.17
+            },
+            {
+              "feature": "Init_Win_bytes_backward",
+              "reconstruction_error": 1.7280168598834194e+20,
+              "pct_of_total_error": 7.67,
+              "original_value": 65535.0,
+              "reconstructed_value": 65666.4541,
+              "deviation": 131.4541
+            },
+            {
+              "feature": "Fwd Header Length",
+              "reconstruction_error": 9.747921774589043e+19,
+              "pct_of_total_error": 4.33,
+              "original_value": 144.0,
+              "reconstructed_value": -1232207894593.4524,
+              "deviation": 1232207894737.4524
+            },
+            {
+              "feature": "Flow IAT Max",
+              "reconstruction_error": 5.372958640872198e+19,
+              "pct_of_total_error": 2.39,
+              "original_value": 22416000.0,
+              "reconstructed_value": 45540795744780.27,
+              "deviation": 45540773328780.27
+            },
+            {
+              "feature": "Bwd IAT Total",
+              "reconstruction_error": 4.297115300651916e+19,
+              "pct_of_total_error": 1.91,
+              "original_value": 22416000.0,
+              "reconstructed_value": 19100417412644.75,
+              "deviation": 19100394996644.75
+            },
+            {
+              "feature": "Fwd IAT Min",
+              "reconstruction_error": 3.3589910082671444e+19,
+              "pct_of_total_error": 1.49,
+              "original_value": 0.0,
+              "reconstructed_value": 9261489857910.73,
+              "deviation": 9261489857910.73
+            },
+            {
+              "feature": "Fwd Packet Length Max",
+              "reconstruction_error": 2.1201389848169374e+19,
+              "pct_of_total_error": 0.94,
+              "original_value": 103.0,
+              "reconstructed_value": 43635958053.7833,
+              "deviation": 43635957950.7833
+            },
+            {
+              "feature": "Flow IAT Min",
+              "reconstruction_error": 1.0008594401571457e+19,
+              "pct_of_total_error": 0.44,
+              "original_value": 0.0,
+              "reconstructed_value": -9224861727958.04,
+              "deviation": 9224861727958.04
+            },
+            {
+              "feature": "Flow Bytes/s",
+              "reconstruction_error": 3.489582695040411e+18,
+              "pct_of_total_error": 0.15,
+              "original_value": 23.608,
+              "reconstructed_value": 118204437822.525,
+              "deviation": 118204437798.9169
+            },
+            {
+              "feature": "Bwd Header Length",
+              "reconstruction_error": 7.35166789932277e+16,
+              "pct_of_total_error": 0.0,
+              "original_value": 208.0,
+              "reconstructed_value": 17021434695.2756,
+              "deviation": 17021434487.2756
+            }
+          ],
+          "sparse_code_summary": {
+            "layer1_active_atoms": 32,
+            "layer1_total_atoms": 32,
+            "layer1_sparsity": 0.0,
+            "layer2_active_atoms": 64,
+            "layer2_total_atoms": 64,
+            "layer2_sparsity": 0.0
+          },
+          "interpretation": "ANOMALY DETECTED: Reconstruction error (2251620184265555443712.0000) exceeds threshold (0.1944) by 1158078079686122342973440.0%.\n\nTop features driving the anomaly score:\n  1. Total Length of Fwd Packets: 19.9% of error (expected \u2248-4394276207627.00, observed 229.00, deviation 4394276207856.00)\n  2. Flow Duration: 17.3% of error (expected \u2248246155771439426.88, observed 22450000.00, deviation 246155748989426.88)\n  3. Packet Length Variance: 14.1% of error (expected \u2248-218778170162.08, observed 352.24, deviation 218778170514.32)\n  4. Init_Win_bytes_forward: 11.1% of error (expected \u2248220.25, observed 62.00, deviation 158.25)\n  5. Bwd Packets/s: 9.2% of error (expected \u2248-17985240533.17, observed 0.18, deviation 17985240533.34)\n\nDictionary activation: L1 used 32/32 atoms (100%), L2 used 64/64 atoms (100%)\n  \u2192 High L1 activation suggests the sample is fundamentally different from learned normal patterns."
+        },
+        "shap": null
+      }
+    }
+  ]
+}
