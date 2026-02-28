@@ -1,0 +1,240 @@
+2026-02-13 04:31:03,466 - SentryController - INFO - Model loaded successfully from /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/Models/sentry_zero_leak_v1.pkl
+2026-02-13 04:31:03,466 - SentryController - INFO - Starting Sentry Controller Simulation reading from /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-labeled-small...
+2026-02-13 04:31:03,467 - SentryController - INFO - Dataset Analysis: Found 128 total streams.
+2026-02-13 04:31:03,467 - SentryController - INFO -  - Normal (BENIGN): 75
+2026-02-13 04:31:03,467 - SentryController - INFO -  - Attack (DDoS): 53
+2026-02-13 04:31:03,468 - SentryController - INFO - Found 128 streams. Starting live playback...
+2026-02-13 04:31:03,468 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:03,472 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:03,472 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:03,472 - TrafficEncryptor - INFO - [Latency] Network: 0.09ms | Crypto: 4.45ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:03,817 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:04,242 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:04,248 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:04,248 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:04,248 - TrafficEncryptor - INFO - [Latency] Network: 0.45ms | Crypto: 4.39ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:04,292 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:04,632 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:04,637 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:04,637 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:04,637 - TrafficEncryptor - INFO - [Latency] Network: 0.13ms | Crypto: 4.35ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:04,683 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:04,878 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:04,881 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:04,881 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:04,881 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 2.29ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:04,926 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:05,040 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:05,045 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:05,045 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:05,045 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 4.24ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:05,086 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:05,389 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:05,393 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:05,394 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:05,394 - TrafficEncryptor - INFO - [Latency] Network: 0.04ms | Crypto: 3.65ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:05,433 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:05,698 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:05,702 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:05,702 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:05,702 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 3.09ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:05,744 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:06,144 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:06,150 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:06,151 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:06,151 - TrafficEncryptor - INFO - [Latency] Network: 1.41ms | Crypto: 4.80ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:06,195 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:06,503 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:06,507 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:06,507 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:06,507 - TrafficEncryptor - INFO - [Latency] Network: 0.15ms | Crypto: 3.40ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:06,552 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:06,665 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:06,669 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:06,669 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:06,669 - TrafficEncryptor - INFO - [Latency] Network: 0.00ms | Crypto: 3.67ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:06,710 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:06,847 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:06,850 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:06,850 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:06,850 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 2.96ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:06,894 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:07,317 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:07,320 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:07,320 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:07,320 - TrafficEncryptor - INFO - [Latency] Network: 0.07ms | Crypto: 3.07ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:07,363 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:07,507 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:07,512 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:07,512 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:07,512 - TrafficEncryptor - INFO - [Latency] Network: 0.36ms | Crypto: 4.12ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:07,554 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:07,773 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:07,777 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:07,777 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:07,777 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 3.65ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:07,822 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:08,043 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:08,048 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:08,048 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:08,048 - TrafficEncryptor - INFO - [Latency] Network: 0.42ms | Crypto: 4.27ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:08,088 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:08,511 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:08,514 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:08,514 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:08,514 - TrafficEncryptor - INFO - [Latency] Network: 0.00ms | Crypto: 2.21ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:08,556 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:08,827 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:08,907 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:08,907 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:08,907 - TrafficEncryptor - INFO - [Latency] Network: 76.02ms | Crypto: 3.18ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:08,973 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:09,139 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:09,144 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:09,144 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:09,144 - TrafficEncryptor - INFO - [Latency] Network: 0.00ms | Crypto: 4.36ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:09,186 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:09,313 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:09,318 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:09,318 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:09,318 - TrafficEncryptor - INFO - [Latency] Network: 0.29ms | Crypto: 4.83ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:09,361 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:09,589 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:09,592 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:09,592 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:09,592 - TrafficEncryptor - INFO - [Latency] Network: 0.04ms | Crypto: 2.73ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:09,636 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:10,009 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:10,013 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:10,013 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:10,013 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 3.55ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:10,057 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:10,321 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:10,324 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:10,324 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:10,324 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 2.39ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:10,368 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:10,697 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:10,702 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:10,702 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:10,702 - TrafficEncryptor - INFO - [Latency] Network: 0.03ms | Crypto: 4.43ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:10,744 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:11,205 - SentryController - INFO - --- Processing Stream: packets.pcap (Normal) ---
+2026-02-13 04:31:11,209 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:11,209 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:11,209 - TrafficEncryptor - INFO - [Latency] Network: 0.25ms | Crypto: 2.60ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:11,252 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:11,452 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:11,455 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:11,455 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:11,455 - TrafficEncryptor - INFO - [Latency] Network: 0.01ms | Crypto: 2.48ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:11,501 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
+2026-02-13 04:31:11,761 - SentryController - INFO - --- Processing Stream: packets.pcap (Attack) ---
+2026-02-13 04:31:11,765 - TrafficEncryptor - INFO - [Encryption] Processing packets.pcap
+2026-02-13 04:31:11,765 - TrafficEncryptor - INFO - [Encryption] Algorithm: AES-256-GCM | KeyRotation: Auto
+2026-02-13 04:31:11,765 - TrafficEncryptor - INFO - [Latency] Network: 0.00ms | Crypto: 2.95ms
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+/home/e20449/.local/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but DecisionTreeClassifier was fitted with feature names
+  warnings.warn(
+2026-02-13 04:31:11,810 - SentryController - INFO - [Decision] Normal (Conf: 1.00) -> FORWARD
