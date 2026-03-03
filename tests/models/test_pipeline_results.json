@@ -1,5 +1,5 @@
 {
-  "run_timestamp": "2026-02-28T10:59:15.763050+00:00",
+  "run_timestamp": "2026-03-03T08:25:31.175279+00:00",
   "total_streams": 4,
   "stats": {
     "total_streams": 4,
@@ -14,13 +14,13 @@
   },
   "stream_results": [
     {
-      "timestamp": "2026-02-28T10:59:15.118840+00:00",
+      "timestamp": "2026-03-03T08:25:30.355544+00:00",
       "stream_id": "stream_0001_synthetic_attack.pcap",
       "input_file": "synthetic_attack.pcap",
       "ground_truth": "Attack",
       "stages": {
         "encryption": {
-          "latency_ms": 163.58704295455857,
+          "latency_ms": 191.86999822913103,
           "algorithm": "AES-256-GCM"
         },
         "extraction": {
@@ -54,11 +54,11 @@
           "ddl_prediction": "Anomaly",
           "anomaly_score": 4.465061211706076e+21,
           "threshold": 0.1944273209001434,
-          "analysis_time_ms": 2.96
+          "analysis_time_ms": 5.14
         },
         "buffer": {
           "action": "DROPPED",
-          "hold_time_ms": 2.994060516357422
+          "hold_time_ms": 5.220174789428711
         }
       },
       "final_action": "DROP",
@@ -205,13 +205,13 @@
       }
     },
     {
-      "timestamp": "2026-02-28T10:59:15.558113+00:00",
+      "timestamp": "2026-03-03T08:25:30.857062+00:00",
       "stream_id": "stream_0002_synthetic_benign.pcap",
       "input_file": "synthetic_benign.pcap",
       "ground_truth": "Normal",
       "stages": {
         "encryption": {
-          "latency_ms": 3.577994305239096,
+          "latency_ms": 3.0949205535233357,
           "algorithm": "AES-256-GCM"
         },
         "extraction": {
@@ -245,11 +245,11 @@
           "ddl_prediction": "Anomaly",
           "anomaly_score": 4.4650611759816193e+21,
           "threshold": 0.1944273209001434,
-          "analysis_time_ms": 2.78
+          "analysis_time_ms": 6.49
         },
         "buffer": {
           "action": "DROPPED",
-          "hold_time_ms": 2.8433799743652344
+          "hold_time_ms": 6.6013336181640625
         }
       },
       "final_action": "DROP",
@@ -396,13 +396,13 @@
       }
     },
     {
-      "timestamp": "2026-02-28T10:59:15.628458+00:00",
+      "timestamp": "2026-03-03T08:25:30.989931+00:00",
       "stream_id": "stream_0003_bot_1.pcap",
       "input_file": "bot_1.pcap",
       "ground_truth": "Attack",
       "stages": {
         "encryption": {
-          "latency_ms": 2.132502196856776,
+          "latency_ms": 2.7630110440403457,
           "algorithm": "AES-256-GCM"
         },
         "extraction": {
@@ -436,11 +436,11 @@
           "ddl_prediction": "Anomaly",
           "anomaly_score": 3.118717335968967e+21,
           "threshold": 0.1944273209001434,
-          "analysis_time_ms": 2.97
+          "analysis_time_ms": 3.51
         },
         "buffer": {
           "action": "DROPPED",
-          "hold_time_ms": 3.0634403228759766
+          "hold_time_ms": 3.604412078857422
         }
       },
       "final_action": "DROP",
@@ -587,13 +587,13 @@
       }
     },
     {
-      "timestamp": "2026-02-28T10:59:15.695491+00:00",
+      "timestamp": "2026-03-03T08:25:31.088738+00:00",
       "stream_id": "stream_0004_benign_1.pcap",
       "input_file": "benign_1.pcap",
       "ground_truth": "Normal",
       "stages": {
         "encryption": {
-          "latency_ms": 4.79024484462848,
+          "latency_ms": 2.082886068363543,
           "algorithm": "AES-256-GCM"
         },
         "extraction": {
@@ -627,11 +627,11 @@
           "ddl_prediction": "Anomaly",
           "anomaly_score": 2.2516201842655554e+21,
           "threshold": 0.1944273209001434,
-          "analysis_time_ms": 2.97
+          "analysis_time_ms": 6.19
         },
         "buffer": {
           "action": "DROPPED",
-          "hold_time_ms": 3.01361083984375
+          "hold_time_ms": 6.283760070800781
         }
       },
       "final_action": "DROP",

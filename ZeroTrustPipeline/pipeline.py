@@ -12,12 +12,13 @@ Full pipeline for encrypted traffic analysis in an SDN environment:
                                   ├─ Normal → RELEASE buffer, FORWARD
                                   └─ Anomaly → DROP + XAI Explanation Report
 
-Components:
-  1. feature_extractor.py — Extracts 15 CIC-IDS-2017 features from pcap
-  2. Decision Tree        — Fast base check (entropy, depth=15, class_weight={Attack:50})
-  3. ddl_model.py         — Deep Dictionary Learning for deep anomaly analysis
-  4. explainer.py         — SHAP + DDL-native explanations
-  5. This file            — Pipeline orchestrator with SDN buffer simulation
+Components (separate modules):
+  1. BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/feature_extractor.py
+  2. BaseCheckClassifier/BaseCheckClassifierSimulation/encryption/traffic_encryptor.py
+  3. DDLModel/ddl_model.py         — Deep Dictionary Learning
+  4. XAIExplainer/explainer.py     — SHAP + DDL-native explanations
+  5. SDNBuffer/sdn_buffer.py       — SDN buffer simulation
+  6. This file                     — Pipeline orchestrator
 """
 
 import os
@@ -30,14 +31,20 @@ import joblib
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Path setup
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
+# ── Path setup ──
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(_THIS_DIR)
+sys.path.insert(0, PROJECT_ROOT)
+
+# Friend's modules live in BaseCheckClassifier/BaseCheckClassifierSimulation/
+BASECHK_SIM = os.path.join(PROJECT_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
+sys.path.insert(0, BASECHK_SIM)
 
 from extraction.feature_extractor import extract_features
 from encryption.traffic_encryptor import simulate_encryption_and_latency
-from ddl.ddl_model import DeepDictionaryLearning
-from xai.explainer import DDLExplainer
+from DDLModel.ddl_model import DeepDictionaryLearning
+from XAIExplainer.explainer import DDLExplainer
+from SDNBuffer.sdn_buffer import SDNBuffer
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 logger = logging.getLogger("Pipeline")
@@ -49,52 +56,6 @@ FEATURE_NAMES = [
     'Init_Win_bytes_backward', 'Bwd Packets/s', 'Flow IAT Min', 'Fwd IAT Min',
     'Flow Bytes/s', 'Active Min', 'Bwd IAT Total', 'Flow IAT Max', 'Flow Duration'
 ]
-
-
-class SDNBuffer:
-    """
-    Simulates the SDN buffer that holds flagged streams while DDL + XAI
-    processes them.
-    
-    In a real deployment, this would be an actual OpenFlow buffer table.
-    Here we track buffered streams, their features, and timing.
-    """
-
-    def __init__(self, max_buffer_size=1000, timeout_ms=5000):
-        self.buffer = {}
-        self.max_buffer_size = max_buffer_size
-        self.timeout_ms = timeout_ms  # Max time a stream can be buffered
-
-    def add(self, stream_id, features, metadata=None):
-        """Buffer a flagged stream."""
-        self.buffer[stream_id] = {
-            "features": features,
-            "metadata": metadata or {},
-            "buffered_at": time.time(),
-            "status": "BUFFERED"
-        }
-        logger.info(f"[SDN Buffer] Stream {stream_id} buffered for deep analysis")
-
-    def release(self, stream_id):
-        """Release a buffered stream (DDL says clean)."""
-        if stream_id in self.buffer:
-            entry = self.buffer.pop(stream_id)
-            hold_time = (time.time() - entry["buffered_at"]) * 1000
-            logger.info(f"[SDN Buffer] Stream {stream_id} RELEASED after {hold_time:.0f}ms")
-            return {"action": "FORWARD", "hold_time_ms": hold_time}
-        return None
-
-    def drop(self, stream_id):
-        """Drop a buffered stream (DDL confirms anomaly)."""
-        if stream_id in self.buffer:
-            entry = self.buffer.pop(stream_id)
-            hold_time = (time.time() - entry["buffered_at"]) * 1000
-            logger.info(f"[SDN Buffer] Stream {stream_id} DROPPED after {hold_time:.0f}ms")
-            return {"action": "DROP", "hold_time_ms": hold_time}
-        return None
-
-    def get_buffered_count(self):
-        return len(self.buffer)
 
 
 class ZeroTrustPipeline:

@@ -7,5 +7,3 @@ numpy
 streamlit
 seaborn
 matplotlib
-shap
-scapy

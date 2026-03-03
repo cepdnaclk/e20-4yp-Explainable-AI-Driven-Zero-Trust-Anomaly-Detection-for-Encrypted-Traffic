@@ -8,10 +8,10 @@ Demonstrates the full pipeline end-to-end:
   3. Shows Decision Tree → Buffer → DDL → XAI flow
   4. Prints explanations for detected anomalies
 
-Usage:
-    python run_pipeline_demo.py
-    python run_pipeline_demo.py --pcap-dir ./attack/ ./normal/
-    python run_pipeline_demo.py --files synthetic_attack.pcap synthetic_benign.pcap
+Usage (from project root):
+    python -m ZeroTrustPipeline.run_demo
+    python -m ZeroTrustPipeline.run_demo --pcap-dir ./BaseCheckClassifier/BaseCheckClassifierSimulation/attack/ ./BaseCheckClassifier/BaseCheckClassifierSimulation/normal/
+    python -m ZeroTrustPipeline.run_demo --files path/to/attack.pcap path/to/benign.pcap
 """
 
 import os
@@ -20,11 +20,16 @@ import argparse
 import numpy as np
 import logging
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
+# ── Path setup ──
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(_THIS_DIR)
+sys.path.insert(0, PROJECT_ROOT)
 
-from ddl.ddl_model import DeepDictionaryLearning
-from pipeline import ZeroTrustPipeline, FEATURE_NAMES
+BASECHK_SIM = os.path.join(PROJECT_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
+sys.path.insert(0, BASECHK_SIM)
+
+from DDLModel.ddl_model import DeepDictionaryLearning
+from ZeroTrustPipeline.pipeline import ZeroTrustPipeline, FEATURE_NAMES
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(levelname)s: %(message)s')
 logger = logging.getLogger("Demo")
@@ -119,7 +124,7 @@ def collect_pcap_files(pcap_dirs=None, explicit_files=None):
                         pcap_list.append((path, label))
     
     else:
-        # Default: use local synthetic + small pcaps
+        # Default: use pcap files from BaseCheckClassifierSimulation
         defaults = [
             ("synthetic_attack.pcap", "Attack"),
             ("synthetic_benign.pcap", "Normal"),
@@ -129,7 +134,7 @@ def collect_pcap_files(pcap_dirs=None, explicit_files=None):
             ("normal/benign_2.pcap", "Normal"),
         ]
         for fname, label in defaults:
-            path = os.path.join(current_dir, fname)
+            path = os.path.join(BASECHK_SIM, fname)
             if os.path.exists(path):
                 pcap_list.append((path, label))
     
@@ -144,7 +149,7 @@ def main():
     parser.add_argument("--ddl-model", help="Path to pre-trained DDL model (.pkl)")
     parser.add_argument("--train-csv", help="CSV with normal traffic for DDL training")
     parser.add_argument("--no-shap", action="store_true", help="Disable SHAP (faster)")
-    parser.add_argument("--output", default=os.path.join(current_dir, "pipeline_results.json"),
+    parser.add_argument("--output", default=os.path.join(_THIS_DIR, "pipeline_results.json"),
                         help="Output results JSON path")
     args = parser.parse_args()
 
@@ -156,14 +161,16 @@ def main():
     # ─── Step 1: Prepare DDL model ───
     ddl_path = args.ddl_model
     background_data = None
+    models_dir = os.path.join(_THIS_DIR, "models")
+    os.makedirs(models_dir, exist_ok=True)
 
     if ddl_path and os.path.exists(ddl_path):
         logger.info(f"Loading pre-trained DDL model from {ddl_path}")
     elif args.train_csv and os.path.exists(args.train_csv):
         # Train from CSV
         logger.info(f"Training DDL from CSV: {args.train_csv}")
-        from ddl.train_ddl import train_from_csv
-        ddl_path = os.path.join(current_dir, "models", "ddl_demo.pkl")
+        from DDLModel.train_ddl import train_from_csv
+        ddl_path = os.path.join(models_dir, "ddl_demo.pkl")
         ddl = train_from_csv(args.train_csv, ddl_path)
         background_data = generate_training_data(100)
     else:
@@ -178,8 +185,7 @@ def main():
         )
         ddl.fit(background_data)
 
-        ddl_path = os.path.join(current_dir, "models", "ddl_demo.pkl")
-        os.makedirs(os.path.dirname(ddl_path), exist_ok=True)
+        ddl_path = os.path.join(models_dir, "ddl_demo.pkl")
         ddl.save(ddl_path)
         logger.info(f"Trained DDL model saved to {ddl_path}")
 
@@ -188,6 +194,7 @@ def main():
 
     if not pcap_list:
         logger.error("No .pcap files found to process!")
+        logger.info("Hint: Place .pcap files in BaseCheckClassifier/BaseCheckClassifierSimulation/attack/ and normal/")
         sys.exit(1)
 
     print(f"\nCollected {len(pcap_list)} streams:")

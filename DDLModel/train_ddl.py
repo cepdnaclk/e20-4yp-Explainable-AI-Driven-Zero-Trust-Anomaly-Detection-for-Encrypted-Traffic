@@ -8,8 +8,8 @@ Can train on:
   2. A directory of benign .pcap files (extracts features on the fly)
 
 Usage:
-    python -m ddl.train_ddl --csv /path/to/TRAIN_Traffic.csv --output ./models/ddl_model.pkl
-    python -m ddl.train_ddl --pcap-dir ./normal/ --output ./models/ddl_model.pkl
+    python -m DDLModel.train_ddl --csv /path/to/TRAIN_Traffic.csv --output ./models/ddl_model.pkl
+    python -m DDLModel.train_ddl --pcap-dir ./BaseCheckClassifier/BaseCheckClassifierSimulation/normal/ --output ./models/ddl_model.pkl
 """
 
 import argparse
@@ -19,12 +19,16 @@ import numpy as np
 import pandas as pd
 import logging
 
-# Add parent to path for sibling imports
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.insert(0, parent_dir)
+# ── Path setup: add project root and BaseCheckClassifier simulation dir ──
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(_THIS_DIR)
+sys.path.insert(0, PROJECT_ROOT)
 
-from ddl.ddl_model import DeepDictionaryLearning
+# Friend's feature extractor lives in BaseCheckClassifier/BaseCheckClassifierSimulation/
+BASECHK_SIM = os.path.join(PROJECT_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
+sys.path.insert(0, BASECHK_SIM)
+
+from DDLModel.ddl_model import DeepDictionaryLearning
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("DDL-Trainer")
@@ -93,6 +97,8 @@ def train_from_pcaps(pcap_dir, output_path, n_atoms_l1=64, n_atoms_l2=128,
                      n_epochs=100, threshold_pct=95):
     """
     Train DDL by extracting features from benign .pcap files.
+    
+    Uses the feature extractor from BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/.
     
     Args:
         pcap_dir: Directory containing benign .pcap files.

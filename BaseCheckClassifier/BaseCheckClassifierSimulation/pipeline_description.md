@@ -1,8 +1,5 @@
 # Data Packet Pipeline Description
 
-> **Note**: For the complete, up-to-date pipeline documentation including DDL, SHAP XAI, SDN buffering,
-> training guides, and integration instructions, see **[PIPELINE_GUIDE.md](PIPELINE_GUIDE.md)**.
-
 This document describes the full lifecycle of a data packet (stream) as it flows through the Sentry Zero-Leak simulation.
 
 ## Overview

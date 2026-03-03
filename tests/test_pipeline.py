@@ -4,8 +4,8 @@ Integration Tests for the Zero-Trust Pipeline
 
 Tests the full pipeline: Feature extraction → Decision Tree → DDL → SHAP XAI
 
-Run:
-    python test_pipeline.py
+Run (from project root):
+    python -m tests.test_pipeline
 """
 
 import os
@@ -14,12 +14,18 @@ import json
 import numpy as np
 import logging
 
-# Ensure parent dir is in path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
+# ── Path setup ──
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(_THIS_DIR)
+sys.path.insert(0, PROJECT_ROOT)
 
-from ddl.ddl_model import DeepDictionaryLearning
-from xai.explainer import DDLExplainer, FEATURE_NAMES
+# Friend's modules
+BASECHK_SIM = os.path.join(PROJECT_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
+sys.path.insert(0, BASECHK_SIM)
+
+from DDLModel.ddl_model import DeepDictionaryLearning
+from XAIExplainer.explainer import DDLExplainer, FEATURE_NAMES
+from SDNBuffer.sdn_buffer import SDNBuffer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("TestPipeline")
@@ -135,7 +141,7 @@ def test_ddl_model(results):
         results.fail("Single sample prediction", "Expected string label")
 
     # Save and reload
-    model_path = os.path.join(current_dir, "models", "test_ddl.pkl")
+    model_path = os.path.join(_THIS_DIR, "models", "test_ddl.pkl")
     os.makedirs(os.path.dirname(model_path), exist_ok=True)
     ddl.save(model_path)
     ddl2 = DeepDictionaryLearning.load(model_path)
@@ -281,11 +287,11 @@ def test_pipeline_flow(ddl, results):
     """Test the full pipeline with synthetic pcaps (if available)."""
     print("\n─── Test: Pipeline Flow ───")
 
-    # Check if synthetic pcaps exist
-    attack_pcap = os.path.join(current_dir, "synthetic_attack.pcap")
-    benign_pcap = os.path.join(current_dir, "synthetic_benign.pcap")
-    small_attack = os.path.join(current_dir, "attack", "bot_1.pcap")
-    small_benign = os.path.join(current_dir, "normal", "benign_1.pcap")
+    # Check if synthetic pcaps exist (in friend's directory)
+    attack_pcap = os.path.join(BASECHK_SIM, "synthetic_attack.pcap")
+    benign_pcap = os.path.join(BASECHK_SIM, "synthetic_benign.pcap")
+    small_attack = os.path.join(BASECHK_SIM, "attack", "bot_1.pcap")
+    small_benign = os.path.join(BASECHK_SIM, "normal", "benign_1.pcap")
 
     pcap_files = []
     for path, label in [(attack_pcap, "Attack"), (benign_pcap, "Normal"),
@@ -300,12 +306,12 @@ def test_pipeline_flow(ddl, results):
     results.ok(f"Found {len(pcap_files)} test pcap files")
 
     # Save DDL model for pipeline to load
-    ddl_path = os.path.join(current_dir, "models", "test_ddl.pkl")
+    ddl_path = os.path.join(_THIS_DIR, "models", "test_ddl.pkl")
     if ddl and ddl.is_fitted_:
         os.makedirs(os.path.dirname(ddl_path), exist_ok=True)
         ddl.save(ddl_path)
 
-    from pipeline import ZeroTrustPipeline
+    from ZeroTrustPipeline.pipeline import ZeroTrustPipeline
 
     pipeline = ZeroTrustPipeline(
         dt_model_path=None,  # No DT model → everything goes to DDL (zero-trust)
@@ -314,7 +320,7 @@ def test_pipeline_flow(ddl, results):
         enable_shap=False,  # Faster for tests
     )
 
-    results_file = os.path.join(current_dir, "models", "test_pipeline_results.json")
+    results_file = os.path.join(_THIS_DIR, "models", "test_pipeline_results.json")
     output = pipeline.run_batch(pcap_files, output_log=results_file)
 
     if output["stats"]["total_streams"] == len(pcap_files):
@@ -348,8 +354,6 @@ def test_pipeline_flow(ddl, results):
 def test_sdn_buffer(results):
     """Test SDN buffer operations."""
     print("\n─── Test: SDN Buffer ───")
-
-    from pipeline import SDNBuffer
 
     buf = SDNBuffer(max_buffer_size=10, timeout_ms=5000)
 
