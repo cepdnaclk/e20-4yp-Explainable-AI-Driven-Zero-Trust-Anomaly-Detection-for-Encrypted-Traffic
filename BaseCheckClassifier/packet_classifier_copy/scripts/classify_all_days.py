@@ -81,25 +81,32 @@ def load_flow_data(day_name, csv_pattern):
             continue
 
         for idx, row in df.iterrows():
-            src_ip = str(row['Source IP']).strip()
-            dst_ip = str(row['Destination IP']).strip()
-            sport = int(row['Source Port'])
-            dport = int(row['Destination Port'])
-            proto = int(row['Protocol'])
-            label = str(row['Label']).strip()
+            if pd.isna(row['Source IP']) or pd.isna(row['Source Port']) or pd.isna(row['Destination Port']):
+                continue
             
-            key = (src_ip, dst_ip, sport, dport, proto)
-            ts_val = parse_custom_timestamp(str(row['Timestamp']), is_afternoon)
-            
-            flow_data = {
-                'id': row.get('Flow ID', f"flow_{total_flows}"),
-                'csv_row': idx + 2,
-                'timestamp': ts_val,
-                'duration': row['Flow Duration'],
-                'total_pkts': row['Total Fwd Packets'] + row['Total Backward Packets'],
-                'label': label,
-                'matched_packets': 0
-            }
+            try:
+                src_ip = str(row['Source IP']).strip()
+                dst_ip = str(row['Destination IP']).strip()
+                sport = int(row['Source Port'])
+                dport = int(row['Destination Port'])
+                proto = int(row['Protocol'])
+                label = str(row['Label']).strip()
+                
+                key = (src_ip, dst_ip, sport, dport, proto)
+                ts_val = parse_custom_timestamp(str(row['Timestamp']), is_afternoon)
+                
+                flow_data = {
+                    'id': row.get('Flow ID', f"flow_{total_flows}"),
+                    'csv_row': idx + 2,
+                    'timestamp': ts_val,
+                    'duration': row['Flow Duration'],
+                    'total_pkts': row['Total Fwd Packets'] + row['Total Backward Packets'],
+                    'label': label,
+                    'matched_packets': 0
+                }
+            except Exception as e:
+                print(f"[!] Error parsing row {idx+2} in {filename}: {e}")
+                continue
             
             if key not in flow_map: flow_map[key] = []
             flow_map[key].append(flow_data)

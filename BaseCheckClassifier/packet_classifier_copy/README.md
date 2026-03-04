@@ -1,33 +1,64 @@
-# PCAP Streamline Classification Documentation
+# Packet Classifier — Base Check Classifier
 
-## Overview
-This component is responsible for decomposing large daily PCAP captures into individual flow-level streamlines (PCAPs) based on the ground-truth labels provided by the CIC-IDS-2017 dataset.
-
-## Logic Flow
-1.  **CSV Parsing**: Loads flow metadata (5-tuple, timestamp, duration, label) from the "TrafficLabelling" CSVs.
-2.  **Time Calibration**: PCAP timestamps often have a drift/offset compared to CSV records. The script scans the first 50,000 packets to find a confident match and calculates the median offset.
-3.  **Two-Pass Matching**:
-    -   **Pass 1**: Iterates through the raw PCAP. Matches packets to CSV flows using the 5-tuple and time-window (flow start to end + 2s padding). Packets are buffered in memory grouped by their CSV row index.
-    -   **Pass 2**: Writes each buffer to a separate `packets.pcap` file within a directory named `Row_<Index>_<Label>`.
-4.  **Reporting**: Generates a JSON report for each day summarizing the number of packets expected vs. found for every row.
+Stream-based PCAP classifier for the CIC-IDS-2017 dataset. Matches raw PCAP traffic to ground-truth CIC CSV flow records, and writes each matched stream as a labeled mini-PCAP file.
 
 ## Directory Structure
+
 ```
-Labeled/
-└── <Day>/
-    └── Row_<Index>_<Label>/
-        └── packets.pcap
+packet_classifier_copy/
+├── CLASSIFICATION_REPORT.md   # Full analysis report for all days
+├── README.md                  # This file
+├── scripts/                   # Core classification scripts
+│   ├── classify_all_days.py   # Main pipeline: runs all 4 days
+│   ├── classify_pcap.py       # Single-day classifier (entrypoint)
+│   ├── classify_pcap_logic.py # Core matching logic
+│   └── run_remaining_days.sh  # Shell launcher for remaining days
+├── reports/                   # JSON classification reports (per day)
+│   ├── Monday_report.json
+│   ├── Tuesday_report.json
+│   ├── Wednesday_report.json
+│   └── Thursday_report.json
+├── logs/                      # Progress logs (per day)
+│   ├── monday_progress.log
+│   ├── tuesday_progress.log
+│   ├── wednesday_progress.log
+│   └── thursday_progress.log
+├── analysis/                  # Auxiliary analysis scripts & reports
+│   ├── analyze_tuesday_by_hour.py
+│   ├── analyze_tuesday_details.py
+│   ├── check_tuesday_pcap.py
+│   ├── recount_and_verify.py
+│   ├── analytics_report.txt
+│   └── Tuesday_Detailed_Report.md
+└── venv/                      # Python virtual environment
 ```
 
-## How to Run
-To process a specific day:
-```bash
-python3 classify_all_days.py <DayName>
+## Output
+
+Labeled PCAP files are written to:
 ```
-To process all days:
-```bash
-python3 classify_all_days.py
+/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/
+├── Monday/      (268,857 streams, 8.91 GB)
+├── Tuesday/     (53,875  streams, 7.70 GB)
+├── Wednesday/   (175,397 streams, 9.13 GB)
+└── Thursday/    (81,803  streams, 5.81 GB)
 ```
 
-## Performance Note
-Processing 10GB+ PCAPs is CPU and I/O intensive. The script is optimized to use `PcapReader` (scapy) for memory efficiency, though it may take several hours to complete a full day.
+Each subfolder is named `Row_<N>_<LABEL>/` and contains one PCAP file per matched stream.
+
+## Quick Start
+
+```bash
+cd scripts/
+source ../venv/bin/activate
+python classify_all_days.py
+```
+
+## Status
+
+| Day | Status | Streams | Match Rate |
+|-----|--------|---------|------------|
+| Monday | ✅ Done | 268,857 | 101.9% |
+| Tuesday | ✅ Done | 53,875 | 91.4% |
+| Wednesday | ✅ Done | 175,397 | 87.9% |
+| Thursday | ✅ Done | 81,803 | 82.2% |
