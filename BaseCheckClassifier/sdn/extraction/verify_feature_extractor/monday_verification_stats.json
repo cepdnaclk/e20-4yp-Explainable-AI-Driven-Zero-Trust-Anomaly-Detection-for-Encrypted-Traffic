@@ -1,0 +1,165 @@
+{
+  "total_processed": 2000,
+  "valid_count": 2000,
+  "invalid_count": 0,
+  "invalid_rate_pct": 0.0,
+  "all_features_match": 0,
+  "all_features_match_pct": 0.0,
+  "pkt_count_match": 1002,
+  "pkt_count_match_pct": 50.1,
+  "pkt_fwd_mean_abs_diff": 7.62,
+  "pkt_fwd_mean_rel_pct": 245.1,
+  "per_feature": {
+    "Packet Length Variance": {
+      "match_count": 228,
+      "total": 2000,
+      "match_rate_pct": 11.4,
+      "mean_abs_diff": 129973.6647,
+      "median_abs_diff": 9089.7118,
+      "max_abs_diff": 2577131.597,
+      "mean_rel_diff_pct": 114.27,
+      "median_rel_diff_pct": 89.99
+    },
+    "Fwd Packet Length Max": {
+      "match_count": 81,
+      "total": 2000,
+      "match_rate_pct": 4.05,
+      "mean_abs_diff": 359.863,
+      "median_abs_diff": 74.0,
+      "max_abs_diff": 5751.0,
+      "mean_rel_diff_pct": 142.06,
+      "median_rel_diff_pct": 83.6
+    },
+    "Fwd Header Length": {
+      "match_count": 695,
+      "total": 2000,
+      "match_rate_pct": 34.75,
+      "mean_abs_diff": 347.616,
+      "median_abs_diff": 80.0,
+      "max_abs_diff": 66328.0,
+      "mean_rel_diff_pct": 167.83,
+      "median_rel_diff_pct": 100.0
+    },
+    "Init_Win_bytes_forward": {
+      "match_count": 1082,
+      "total": 2000,
+      "match_rate_pct": 54.1,
+      "mean_abs_diff": 12348.686,
+      "median_abs_diff": 120.0,
+      "max_abs_diff": 65536.0,
+      "mean_rel_diff_pct": 87.25,
+      "median_rel_diff_pct": 100.0
+    },
+    "Bwd Header Length": {
+      "match_count": 958,
+      "total": 2000,
+      "match_rate_pct": 47.9,
+      "mean_abs_diff": 273.454,
+      "median_abs_diff": 60.0,
+      "max_abs_diff": 48064.0,
+      "mean_rel_diff_pct": 103.23,
+      "median_rel_diff_pct": 100.0
+    },
+    "Total Length of Fwd Packets": {
+      "match_count": 69,
+      "total": 2000,
+      "match_rate_pct": 3.45,
+      "mean_abs_diff": 2127.0455,
+      "median_abs_diff": 240.5,
+      "max_abs_diff": 460845.0,
+      "mean_rel_diff_pct": 170.32,
+      "median_rel_diff_pct": 96.16
+    },
+    "Init_Win_bytes_backward": {
+      "match_count": 1263,
+      "total": 2000,
+      "match_rate_pct": 63.15,
+      "mean_abs_diff": 8029.235,
+      "median_abs_diff": 32.0,
+      "max_abs_diff": 65536.0,
+      "mean_rel_diff_pct": 99.34,
+      "median_rel_diff_pct": 100.0
+    },
+    "Bwd Packets/s": {
+      "match_count": 597,
+      "total": 2000,
+      "match_rate_pct": 29.85,
+      "mean_abs_diff": 217017.4148,
+      "median_abs_diff": 29.807,
+      "max_abs_diff": 2000000.0,
+      "mean_rel_diff_pct": 91.82,
+      "median_rel_diff_pct": 99.77
+    },
+    "Flow IAT Min": {
+      "match_count": 1388,
+      "total": 2000,
+      "match_rate_pct": 69.4,
+      "mean_abs_diff": 558265.875,
+      "median_abs_diff": 35.0,
+      "max_abs_diff": 64068997.0,
+      "mean_rel_diff_pct": 95.23,
+      "median_rel_diff_pct": 100.0
+    },
+    "Fwd IAT Min": {
+      "match_count": 1610,
+      "total": 2000,
+      "match_rate_pct": 80.5,
+      "mean_abs_diff": 2984712.499,
+      "median_abs_diff": 3.0,
+      "max_abs_diff": 109394000.0,
+      "mean_rel_diff_pct": 78.7,
+      "median_rel_diff_pct": 100.0
+    },
+    "Flow Bytes/s": {
+      "match_count": 271,
+      "total": 2000,
+      "match_rate_pct": 13.55,
+      "mean_abs_diff": 63408885.0024,
+      "median_abs_diff": 18756.7417,
+      "max_abs_diff": 3564888888.8889,
+      "mean_rel_diff_pct": 121.81,
+      "median_rel_diff_pct": 97.41
+    },
+    "Active Min": {
+      "match_count": 1369,
+      "total": 2000,
+      "match_rate_pct": 68.45,
+      "mean_abs_diff": 11003744.244,
+      "median_abs_diff": 104573.0,
+      "max_abs_diff": 120621000.0,
+      "mean_rel_diff_pct": 47.41,
+      "median_rel_diff_pct": 0.0
+    },
+    "Bwd IAT Total": {
+      "match_count": 1218,
+      "total": 2000,
+      "match_rate_pct": 60.9,
+      "mean_abs_diff": 9385224.5125,
+      "median_abs_diff": 4.0,
+      "max_abs_diff": 120457721.0,
+      "mean_rel_diff_pct": 53.17,
+      "median_rel_diff_pct": 81.22
+    },
+    "Flow IAT Max": {
+      "match_count": 458,
+      "total": 2000,
+      "match_rate_pct": 22.9,
+      "mean_abs_diff": 5990842.855,
+      "median_abs_diff": 59817.0,
+      "max_abs_diff": 119432479.0,
+      "mean_rel_diff_pct": 99.11,
+      "median_rel_diff_pct": 98.95
+    },
+    "Flow Duration": {
+      "match_count": 439,
+      "total": 2000,
+      "match_rate_pct": 21.95,
+      "mean_abs_diff": 10267373.2625,
+      "median_abs_diff": 107292.0,
+      "max_abs_diff": 120368925.0,
+      "mean_rel_diff_pct": 97.59,
+      "median_rel_diff_pct": 98.84
+    }
+  },
+  "invalid_samples": []
+}

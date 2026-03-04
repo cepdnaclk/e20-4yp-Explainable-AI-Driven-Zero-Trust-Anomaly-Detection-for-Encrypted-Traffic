@@ -1,0 +1,25 @@
+nohup: ignoring input
+[*] Loading CSV: /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/Machine-Learning-CSV/MachineLearningCVE/Monday-WorkingHours.pcap_ISCX.csv
+[*] CSV loaded: 529918 rows
+[*] Tasks: 268856 streams (1 skipped)
+[*] Sampled: 2000
+[*] Running verification: 2000 streams, 8 workers
+/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/extraction/verify_feature_extractor/run_verification.py:301: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+  200/2000 (10.0%) | 34.3/s | ETA: 52s
+  400/2000 (20.0%) | 37.3/s | ETA: 43s
+  600/2000 (30.0%) | 38.7/s | ETA: 36s
+  800/2000 (40.0%) | 39.0/s | ETA: 31s
+  1000/2000 (50.0%) | 39.1/s | ETA: 26s
+  1200/2000 (60.0%) | 39.2/s | ETA: 20s
+  1400/2000 (70.0%) | 39.5/s | ETA: 15s
+  1600/2000 (80.0%) | 39.4/s | ETA: 10s
+  1800/2000 (90.0%) | 39.5/s | ETA: 5s
+  2000/2000 (100.0%) | 39.7/s | ETA: 0s
+[*] Done in 50.4s
+[*] Report saved: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/extraction/verify_feature_extractor/MONDAY_FEATURE_VERIFICATION_REPORT.md
+
+[*] Done!
+    Valid:     2,000 / 2,000
+    All match: 0 (0.0%)
+    Output:    /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/extraction/verify_feature_extractor
