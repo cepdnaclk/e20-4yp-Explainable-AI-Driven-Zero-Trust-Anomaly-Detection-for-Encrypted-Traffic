@@ -1,72 +1,182 @@
-# Explainable AI-Driven Zero Trust Anomaly Detection for Encrypted Traffic
+# Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic
 
-This project addresses the modern cybersecurity "blind spot" created by the widespread adoption of encryption protocols (HTTPS/TLS 1.3). While encryption protects privacy, it renders traditional Deep Packet Inspection (DPI) ineffective, allowing adversaries to hide malware and data exfiltration within legitimate-looking data streams.
-
-Our solution integrates **Zero-Trust Architecture (ZTA)**, **Encrypted Traffic Analysis (ETA)**, and **Explainable AI (XAI)** to create a framework that can detect, explain, and block malicious traffic in real-time without decryption.
-
----
-
-## 🚀 Overview
-
-Traditional perimeter-based security is outdated. This project implements a **"Never Trust, Always Verify"** approach by using Deep Learning to identify malicious patterns in traffic metadata (packet timing, size, and direction). To overcome the "Black Box" problem of AI, we integrate XAI techniques like **SHAP** to provide human-readable rationales for security decisions, ensuring trust in automated policy enforcement.
-
-### Key Features
-
-* **Decryption-Free Detection:** Uses flow-based features (metadata) to identify threats within encrypted tunnels.
-
-* **Explainable Decisions:** Integration of **SHAP** values to explain why a specific flow was flagged as an anomaly.
-
-* **Zero-Trust Integration:** Dynamically updates trust scores and feeds decisions back into Policy Enforcement Points (PEP).
-
-* **Real-time Response:** Aimed at high-bandwidth environments to block or isolate hosts immediately upon detection.
-
-
+> **University of Peradeniya — FYP 2025/2026**
+> Department of Computer Engineering
 
 ---
 
-## 🛠️ Methodology & Design
+## What This System Does
 
-The project pipeline follows a structured approach from raw data to automated decision-making:
+Modern network traffic is almost entirely encrypted (HTTPS/TLS 1.3).
+Traditional deep packet inspection cannot read it.
+This system detects malicious behaviour **without decrypting traffic** by analysing
+flow-level metadata (packet timing, sizes, directions, TCP flags).
 
-1. **Data Acquisition:** Utilizes datasets such as **CIC-IDS 2017**.
-
-2. **Feature Extraction:** Focuses on non-encrypted metadata:
-* Packet sizes and directions.
-
-* Inter-arrival times.
-
-* TLS handshake parameters (Cipher suites, Client Hello details).
-
-3. **Model Architecture:** A combined model approach using **Deep Dictionary Learning** enhanced with Decision Trees (DT) or Isolation Forests (IF).
-4. **XAI Integration:** SHAP engine provides the "reasoning" for every flagged packet in real-time.
-5. **Policy Enforcement:** Decisions result in actions such as maintaining/tightening access, step-up authentication, or blocking the host.
+Every blocking decision comes with an **XAI explanation** — it names which
+statistical features triggered the alert and by how much.
 
 ---
 
-## 📊 Performance & Evaluation
+## Pipeline Architecture
 
-The system is evaluated against the following metrics:
+```
+  [Laptop A]──────────┐
+  Traffic Source       │ Ethernet
+                       ▼
+             ┌─────────────────┐
+             │  Cisco / HP     │
+             │  L3 Switch      │
+             │                 │
+             │  SPAN session   │ ← copies all traffic to mirror port
+             └────────┬────────┘
+                      │ Mirror port (passive, read-only)
+                      ▼
+          ┌───────────────────────┐
+          │   Pipeline Machine    │  eth1 (promiscuous)
+          │                       │
+          │  NFStream             │  assembles raw packets → flow stats
+          │      │                │
+          │      ▼                │
+          │  Stage 1 — DT         │  15 features, < 1 ms  [TEAMMATE]
+          │  Base Check           │
+          │   │         │         │
+          │ Normal    Anomaly     │
+          │   │         │         │
+          │   ▼         ▼         │
+          │ FORWARD  SDN Buffer   │  holds suspicious flow
+          │          (software)   │
+          │              │        │
+          │              ▼        │
+          │  Stage 2 — DDL + XAI  │  30 features, ~45 ms  [OUR WORK]
+          │  Deep Dict. Learning  │
+          │   │         │         │
+          │ Normal    Anomaly     │
+          │   │         │         │
+          │   ▼         ▼         │
+          │ FORWARD    DROP       │  + XAI explanation (which features)
+          └───────────────────────┘
+```
 
-* **Accuracy Metrics:** F1-score and Precision.
-* **Explanation Quality:** Assessing the semantic clarity of AI rationales.
-* **Latency & Overhead:** Measuring the impact of continuous verification on system load.
+**Key principle:** DT uses 15 coarse features for a fast first pass.
+DDL uses 30 richer flow statistics for a more sensitive second opinion.
+Both operate on **flow-level data** — never individual packets.
+
 ---
 
-## 📅 Project Timeline (2025-2026)
+## Repository Layout
 
-* **Dec 2025:** Data Collection & Preparation and Model Development.
-* **Jan 2026:** Testing and XAI Integration.
-* **Feb 2026:** Evaluation, Validation, and Deployment.
-* **Mar 2026:** Final Documentation and Reporting.
+```
+├── BaseCheckClassifier/           ← Stage 1 DT (teammate — do not modify)
+│   └── BaseCheckClassifierSimulation/
+│
+├── DDLModel/                      ← Stage 2 DDL model
+│   ├── ddl_model.py               ← Two-layer DDL with ISTA + GPU support
+│   ├── ddl_feature_extractor.py   ← 30-feature extractor from NFStream flows
+│   ├── train_ddl_enhanced.py      ← Training script (--gpu flag for Apptainer)
+│   └── GPU_SETUP.md               ← Apptainer + PyTorch setup
+│
+├── XAIExplainer/                  ← XAI explanations
+│   └── explainer.py               ← DDL-native + SHAP
+│
+├── SDNBuffer/                     ← Software buffer between Stage 1 and Stage 2
+│   ├── sdn_buffer.py              ← Original
+│   └── sdn_buffer_v2.py           ← Improved (OpenFlow rule push via Ryu REST)
+│
+├── LiveTraffic/                   ← Live capture and traffic generation
+│   ├── live_pipeline.py           ← NFStream → full cascade pipeline
+│   ├── pcap_replay_pipeline.py    ← Offline PCAP accuracy testing
+│   ├── traffic_generator.py       ← Synthetic attack/normal PCAP generator
+│   └── SWITCH_SETUP_GUIDE.md      ← Cisco + HP switch mirror config
+│
+├── EnhancedPipeline/              ← Extended pipeline with IF + Streamlit dashboard
+│   ├── enhanced_pipeline.py       ← DDL + Isolation Forest + DualXAI
+│   ├── rest_api.py                ← FastAPI server
+│   ├── dashboard.py               ← Streamlit real-time monitoring
+│   └── config.py                  ← Centralised hyperparameters
+│
+├── ZeroTrustPipeline/             ← Original orchestrator (PCAP-based)
+│   └── pipeline.py
+│
+├── profiling/                     ← Latency benchmarking
+│   ├── timing_profiler.py
+│   └── latency_benchmark.py
+│
+├── tests/                         ← Integration tests
+│   └── test_pipeline.py
+│
+├── dataset/                       ← CIC-IDS-2017 CSV training data
+│   ├── TRAIN_Traffic.csv          ← 70-column, ~2.5M rows
+│   └── TEST_Traffic.csv
+│
+├── models/                        ← Trained model files (generated by training)
+│   ├── ddl_30feat.pkl
+│   └── isolation_forest.pkl
+│
+├── docs/                          ← Technical documents
+│   ├── DDL_XAI_INSIGHT.md         ← How DDL + XAI work (flow-level analysis)
+│   ├── FEATURE_ANALYSIS.md        ← 15 DT features vs 30 DDL features
+│   ├── REPRODUCTION_GUIDE.md      ← Full 12-step reproduction guide
+│   └── LIVE_TRAFFIC_GUIDE.md      ← All 6 traffic simulation methods
+│
+├── QUICK_START.md                 ← ⭐ Start here — end-to-end in one page
+├── PIPELINE_GUIDE.md              ← Architecture deep-dive
+├── DemonstrationPlan.md           ← Demo script (4-terminal layout, talking points)
+└── WORKPLAN.md                    ← Development history and command reference
+```
+
 ---
 
-## 👥 Research Team
+## Quickest Way to Start
 
-* **Chalaka Perera** (e20288@eng.pdn.ac.lk) 
-* **Janith Wanasinghe** (e20420@eng.pdn.ac.lk) 
-* **Sandaru Wijewardhana** (e20449@eng.pdn.ac.lk) 
-* **Supervisors:** Dr. Suneth Namal Karunarathna & Dr. Upul Jayasinghe 
+```bash
+# 1. Go to project root and activate the shared venv:
+cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/
+source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-**Department of Computer Engineering, University of Peradeniya, Sri Lanka.** 
+# 2. Train DDL on GPU via Apptainer (~30 min):
+apptainer exec --nv \
+    /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif \
+    python DDLModel/train_ddl_enhanced.py \
+        --train dataset/TRAIN_Traffic.csv --test dataset/TEST_Traffic.csv \
+        --epochs 150 --gpu --batch-size 512
+
+# 3. Run demo mode (no hardware needed):
+python LiveTraffic/live_pipeline.py --demo --duration 60
+
+# 4. Run tests:
+python -m tests.test_pipeline
+```
+
+**→ See `QUICK_START.md` for tomorrow's live switch demo (step-by-step).**
 
 ---
+
+## Requirements
+
+```bash
+pip install numpy pandas scikit-learn joblib nfstream scapy \
+            fastapi uvicorn pydantic streamlit plotly \
+            requests shap lime matplotlib seaborn
+```
+
+GPU training (optional):
+```bash
+# Via Apptainer (recommended — SIF already on server):
+apptainer exec --nv /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif python ...
+
+# Or install PyTorch directly into venv:
+pip install torch --index-url https://download.pytorch.org/whl/cu124
+```
+
+---
+
+## Research Team
+
+| Name | Email |
+|------|-------|
+| Chalaka Perera | e20288@eng.pdn.ac.lk |
+| Janith Wanasinghe | e20420@eng.pdn.ac.lk |
+| Sandaru Wijewardhana | e20449@eng.pdn.ac.lk |
+
+**Supervisors:** Dr. Suneth Namal Karunarathna & Dr. Upul Jayasinghe
+**Department of Computer Engineering, University of Peradeniya, Sri Lanka**

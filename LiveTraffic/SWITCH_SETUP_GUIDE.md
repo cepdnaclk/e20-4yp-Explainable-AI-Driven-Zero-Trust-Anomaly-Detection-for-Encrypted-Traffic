@@ -133,8 +133,8 @@ If `tcpdump` shows no packets, check:
 ### 3.1 Start the Pipeline
 
 ```bash
-# From project root:
-source .venv/bin/activate
+# From project root (use absolute venv path):
+source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \

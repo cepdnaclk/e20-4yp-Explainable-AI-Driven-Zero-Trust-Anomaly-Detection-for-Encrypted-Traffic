@@ -1,9 +1,10 @@
 # WORKPLAN.md — Zero-Trust Anomaly Detection Pipeline
 
-> **HOW TO RESUME:** Read this file first. Start from the first unchecked `[ ]` item.
+> **HOW TO RESUME:** Read `QUICK_START.md` first — it covers everything needed for the demo.
 > Project root: `e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/`
-> Dataset: `dataset/TRAIN_Traffic.csv` and `dataset/TEST_Traffic.csv` (copied from `CICDataset/Processed-Data/`)
-> Hardware: **Cisco IOS switch** (primary) or **HP L3 switch** (backup); laptop wired to mirror port (no WiFi)
+> Dataset: `dataset/TRAIN_Traffic.csv` and `dataset/TEST_Traffic.csv`
+> Hardware: **Cisco IOS switch** (primary) or **HP L3 switch** (backup); laptop wired to mirror port
+> PyTorch container: `/scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif`
 
 ---
 
@@ -123,10 +124,10 @@ Better architecture proposal (separate folder, does not replace existing):
 - ✅ `docs/FEATURE_ANALYSIS.md` — justification for 15 DT features vs 30 DDL features
 
 ### Remaining Steps
-- [ ] Run DDL training: `python DDLModel/train_ddl_enhanced.py --train dataset/TRAIN_Traffic.csv --test dataset/TEST_Traffic.csv`
-- [ ] Check `models/ddl_30feat.pkl` and `models/isolation_forest.pkl` generated
-- [ ] Run test suite: `python -m tests.test_pipeline`
-- [ ] Commit session 2 work (commits 6–10)
+- [x] Run DDL training: `python DDLModel/train_ddl_enhanced.py --train dataset/TRAIN_Traffic.csv --test dataset/TEST_Traffic.csv`
+- [x] Check `models/ddl_30feat.pkl` and `models/isolation_forest.pkl` generated
+- [ ] Run test suite: `python -m tests.test_pipeline` (run before demo)
+- [x] Commit session 2 work (commits 6–10)
 
 ---
 
@@ -137,16 +138,22 @@ Better architecture proposal (separate folder, does not replace existing):
 # Activate shared venv (from project root)
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-# ── Training (run once before demo) ──────────────────────────────────
-# Full training (may take 5–20 min):
-python DDLModel/train_ddl_enhanced.py \
+# ── Training ─────────────────────────────────────────────────────────
+# ⭐ GPU via Apptainer (~30 min) — RECOMMENDED:
+apptainer exec --nv \
+    /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif \
+    python DDLModel/train_ddl_enhanced.py \
+        --train dataset/TRAIN_Traffic.csv \
+        --test  dataset/TEST_Traffic.csv \
+        --epochs 150 --gpu --batch-size 512
+
+# CPU full training (~9 hours, background):
+nohup python DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
-    --ddl-output models/ddl_30feat.pkl \
-    --if-output  models/isolation_forest.pkl \
-    --epochs 150
+    --epochs 150 > models/training_log.txt 2>&1 &
 
-# Quick debug training (50k rows, 30 epochs):
+# Quick debug (CPU, ~10 min):
 python DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
@@ -212,4 +219,26 @@ python -m profiling.latency_benchmark --n_flows 200 --output profiling/results/d
 | Flow-Level | Duration, total bytes fwd/bwd; init window fwd/bwd; down/up ratio |
 
 ---
-*Last updated: 2026-03-05 (Session 2 — all missing files created, DDL trainer ready)*
+## SECTION 8 — Session 3 (2026-03-05) ✅ DONE
+
+### New Files Created
+- ✅ `docs/DDL_XAI_INSIGHT.md` — 8-part technical insight (flow vs packet, ISTA math, XAI, SDN buffer)
+- ✅ `DDLModel/ddl_model.py` — GPU CUDA backend via PyTorch (_sparse_code_gpu, use_gpu param)
+- ✅ `DDLModel/train_ddl_enhanced.py` — --gpu flag, Apptainer-compatible
+- ✅ `DDLModel/GPU_SETUP.md` — Apptainer SIF training guide + speed table
+- ✅ `LiveTraffic/pcap_replay_pipeline.py` — labeled + fullday PCAP accuracy testing
+- ✅ `SDNBuffer/sdn_buffer_v2.py` — OpenFlow rule push (Ryu REST API) + zero-trust auto-expire
+- ✅ `docs/REPRODUCTION_GUIDE.md` — 12-step full reproduction guide
+- ✅ `docs/LIVE_TRAFFIC_GUIDE.md` — 6 traffic methods with decision matrix
+- ✅ `DemonstrationPlan.md` — Cisco/HP switch specifics, 4-terminal layout, talking points
+- ✅ `QUICK_START.md` — one-page guide for demo day
+- ✅ `README.md` — complete rewrite with correct pipeline diagram and Apptainer commands
+- ✅ `PIPELINE_GUIDE.md` — corrected pipeline diagram, 30-feat DDL code, Apptainer training
+
+### Remaining
+- [ ] Run `python -m tests.test_pipeline` before demo
+- [ ] GPU training via Apptainer (see QUICK_START.md Step 1)
+- [ ] PCAP accuracy test: `python LiveTraffic/pcap_replay_pipeline.py --mode labeled ...`
+
+---
+*Last updated: 2026-03-05 (Session 3 — all docs corrected, QUICK_START.md created)*

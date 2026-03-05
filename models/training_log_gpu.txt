@@ -1,0 +1,15 @@
+2026-03-05 18:53:14,191 [INFO] === STAGE 1: Loading training data ===
+2026-03-05 18:53:14,191 [INFO] Reading dataset/TRAIN_Traffic.csv ...
+2026-03-05 18:56:09,361 [INFO]   Loaded 2,125,957 rows × 70 columns
+2026-03-05 18:56:10,715 [INFO]   Normal=1,682,457  Anomaly=443,500  Total=2,125,957
+2026-03-05 18:56:10,793 [INFO] Training DDL on 1,682,457 normal samples × 30 features
+2026-03-05 18:56:10,793 [INFO] === STAGE 2: Training Deep Dictionary Learning model ===
+2026-03-05 18:56:10,793 [INFO] GPU mode requested — will use CUDA if available (see DDLModel/GPU_SETUP.md)
+2026-03-05 18:56:10,793 [INFO]   Recommended: --batch-size 512 for GPU efficiency
+2026-03-05 18:56:10,995 [INFO]   GPU 0: NVIDIA RTX 6000 Ada Generation  free=7.9GB/50.9GB
+2026-03-05 18:56:11,116 [INFO]   GPU 1: NVIDIA RTX 6000 Ada Generation  free=21.6GB/50.9GB
+2026-03-05 18:56:11,244 [INFO]   GPU 2: NVIDIA RTX 6000 Ada Generation  free=19.7GB/50.9GB
+2026-03-05 18:56:11,244 [INFO] Using GPU 1: NVIDIA RTX 6000 Ada Generation
+2026-03-05 18:56:11,244 [INFO] DDL will use GPU backend: cuda:1
+2026-03-05 18:56:11,862 [INFO] Training DDL (30 features, L1=64, L2=128) | device=cuda:1: 1682457 samples
+2026-03-05 18:57:21,668 [INFO]   Epoch 1/150 — Loss: 1.410670
