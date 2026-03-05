@@ -358,6 +358,8 @@ permalink: /
     <a href="#methodology">Methodology</a>
     <a href="#architecture">Architecture</a>
     <a href="#experiments">Experiments</a>
+    <a href="#implementation">Implementation</a>
+    <a href="#testing-plan">Testing Plan</a>
     <a href="#results">Results</a>
     <a href="#conclusion">Conclusion</a>
     <a href="#links">Links</a>
@@ -867,9 +869,339 @@ permalink: /
   </div>
 </section>
 
+<!-- ============ Implementation Details ============ -->
+<section id="implementation">
+  <h2><span class="num">06</span> Implementation Details</h2>
+  <p>
+    The current zero-trust pipeline is <strong>fully implemented</strong> as modular Python packages, with
+    27/27 integration tests passing. Below are the technical specifics of each component.
+  </p>
+
+  <!-- DDL Model -->
+  <h3>6.1 &nbsp; Deep Dictionary Learning Model</h3>
+  <div class="card">
+    <h4>Architecture</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Specification</th></tr></thead>
+        <tbody>
+          <tr><td>Input</td><td>15 CIC-IDS-2017 features (Z-score normalised)</td></tr>
+          <tr><td>Layer&nbsp;1 Dictionary</td><td><strong>D₁ ∈ ℝ<sup>15×64</sup></strong> — captures coarse flow patterns</td></tr>
+          <tr><td>Layer&nbsp;2 Dictionary</td><td><strong>D₂ ∈ ℝ<sup>64×128</sup></strong> — captures subtle micro-patterns</td></tr>
+          <tr><td>Sparse Coding</td><td>ISTA (Iterative Shrinkage-Thresholding Algorithm), 50 iterations per layer</td></tr>
+          <tr><td>Sparsity Penalty (λ)</td><td>0.1 (L1 regularisation on sparse codes)</td></tr>
+          <tr><td>Dictionary Update</td><td>Mini-batch gradient descent with column-wise unit-norm projection</td></tr>
+          <tr><td>Training Epochs</td><td>100 (batch size = 32, LR = 0.001)</td></tr>
+          <tr><td>Anomaly Threshold</td><td>95th percentile of training reconstruction error</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="margin-top: 1.2rem;">Forward Pass</h4>
+    <div style="background: #0f172a; border-radius: 0.5rem; padding: 1rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; color: var(--text-dim); overflow-x: auto;">
+      <span style="color: var(--accent);">x</span> → normalise → <span style="color: var(--accent2);">α₁</span> = ISTA(D₁, x)  &nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Layer 1 sparse code (64-dim)</span><br>
+      <span style="color: var(--accent2);">α₁</span> → <span style="color: var(--accent3);">α₂</span> = ISTA(D₂, α₁) &nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Layer 2 sparse code (128-dim)</span><br>
+      <span style="color: var(--accent3);">α₂</span> → α̂₁ = α₂ · D₂ᵀ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Decode to Layer 1 space</span><br>
+      α̂₁ → <span style="color: var(--warn);">x̂</span> = α̂₁ · D₁ᵀ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Full reconstruction</span><br>
+      <span style="color: var(--danger);">error</span> = ‖x − x̂‖² &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// If error > threshold → Anomaly</span>
+    </div>
+
+    <h4 style="margin-top: 1.2rem;">Training Strategy</h4>
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      The model trains <strong>only on benign traffic</strong> — an unsupervised approach that avoids the need
+      for labelled attack samples. During training, dictionaries D₁ and D₂ learn to efficiently represent
+      normal flow patterns via alternating sparse coding (ISTA) and dictionary update (gradient descent with
+      column normalisation). After training, an anomaly threshold is set at the 95th percentile of reconstruction
+      errors on the training set. At inference time, any flow whose reconstruction error exceeds this threshold
+      is flagged as anomalous.
+    </p>
+  </div>
+
+  <!-- XAI Module -->
+  <h3>6.2 &nbsp; Explainability Module (XAI)</h3>
+  <div class="card">
+    <p style="color: var(--text-dim); font-size: 0.93rem; margin-bottom: 1rem;">
+      Every anomaly decision is accompanied by a detailed explanation through <strong>two complementary strategies</strong>:
+    </p>
+
+    <div class="card-grid" style="margin-bottom: 1rem;">
+      <div class="card" style="border-left: 3px solid var(--accent);">
+        <h4 style="font-size: 0.95rem;">DDL-Native Explanation</h4>
+        <ul style="font-size: 0.88rem; color: var(--text-dim); margin: 0.3rem 0 0 1.2rem;">
+          <li><strong>Per-feature reconstruction error</strong> — decomposes the total error into each of the 15 features, ranks them by contribution</li>
+          <li><strong>Sparse code activation analysis</strong> — reports how many dictionary atoms activated in each layer (sparsity ratio)</li>
+          <li><strong>Layer-by-layer diagnostics</strong> — intermediate representations at L1 and L2 for failure-mode analysis</li>
+          <li><strong>Expected vs. observed values</strong> — shows what the DDL model expected each feature to be versus the actual value</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left: 3px solid var(--accent2);">
+        <h4 style="font-size: 0.95rem;">SHAP KernelExplainer</h4>
+        <ul style="font-size: 0.88rem; color: var(--text-dim); margin: 0.3rem 0 0 1.2rem;">
+          <li><strong>Model-agnostic</strong> — treats the DDL anomaly scorer as a black box, compatible with any future model replacement</li>
+          <li><strong>Background dataset</strong> — uses 100 normal samples as the baseline distribution</li>
+          <li><strong>Per-feature SHAP values</strong> — quantifies each feature's individual contribution to the anomaly score</li>
+          <li><strong>Actionable output</strong> — "Packet Length Variance contributes +8340 to anomaly score" rather than "Feature_045 is important"</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      Both strategies produce a <strong>composite report</strong> suitable for SOC analyst dashboards and
+      automated policy audit trails. The human-readable interpretation includes feature rankings, deviation
+      magnitudes, and a recommended action (DROP / FORWARD).
+    </p>
+  </div>
+
+  <!-- SDN Buffer -->
+  <h3>6.3 &nbsp; SDN Buffer (Simulated OpenFlow)</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Value</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Max Buffer Size</td><td>1,000 streams</td><td>Max concurrent flows held for analysis</td></tr>
+          <tr><td>Timeout</td><td>5,000 ms</td><td>Auto-release if DDL analysis takes too long</td></tr>
+          <tr><td>Actions</td><td>BUFFER → RELEASE / DROP</td><td>Mirrors OpenFlow <code>OFPT_PACKET_IN</code> / <code>OFPT_FLOW_MOD</code></td></tr>
+          <tr><td>Expiry Policy</td><td>Auto-release with warning</td><td>Fail-open on timeout to prevent denial of service</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.93rem; margin-top: 0.5rem;">
+      In a real deployment, this module would be replaced by actual SDN controller commands (e.g., OpenDaylight or
+      ONOS). The simulation faithfully tracks buffer state, hold times, and capacity — providing realistic latency
+      measurements for the pipeline evaluation.
+    </p>
+  </div>
+
+  <!-- Pipeline Orchestrator -->
+  <h3>6.4 &nbsp; Pipeline Orchestrator</h3>
+  <div class="card">
+    <p style="color: var(--text-dim); font-size: 0.93rem; margin-bottom: 0.8rem;">
+      The <code>ZeroTrustPipeline</code> ties all components together with a <strong>fail-closed</strong> design:
+    </p>
+    <div style="background: #0f172a; border-radius: 0.5rem; padding: 1rem; font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; color: var(--text-dim); overflow-x: auto;">
+      <span style="color: var(--accent);">Stage 1</span> &nbsp;.pcap → simulate TLS encryption → extract 15 features<br>
+      <span style="color: var(--accent2);">Stage 2</span> &nbsp;Features → Decision Tree pre-check<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├─ <span style="color: var(--accent3);">Normal</span> → <strong>FORWARD</strong> immediately (fast path)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └─ <span style="color: var(--warn);">Flagged</span> → SDN Buffer <strong>HOLD</strong><br>
+      <span style="color: var(--danger);">Stage 3</span> &nbsp;Buffer → DDL + XAI <em>(parallel threads)</em><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├─ DDL: Normal → Buffer <strong>RELEASE</strong> → FORWARD<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └─ DDL: Anomaly → Buffer <strong>DROP</strong> + XAI Report attached
+    </div>
+    <ul style="font-size: 0.9rem; color: var(--text-dim); margin-top: 0.8rem; padding-left: 1.2rem;">
+      <li><strong>Parallel execution:</strong> DDL prediction and SHAP explanation run concurrently via <code>ThreadPoolExecutor</code></li>
+      <li><strong>Ground truth tracking:</strong> When labels are available, the pipeline calculates TP/TN/FP/FN, accuracy, precision, recall, F1</li>
+      <li><strong>Fail-closed default:</strong> If the DT model is unavailable, all streams are flagged for DDL analysis (zero-trust principle)</li>
+      <li><strong>Batch mode:</strong> <code>run_batch()</code> processes multiple pcaps and exports a full JSON log for analysis</li>
+    </ul>
+  </div>
+
+  <!-- 15 Features -->
+  <h3>6.5 &nbsp; Feature Set (CIC-IDS-2017)</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Feature</th><th>Category</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Packet Length Variance</td><td>Packet Size</td><td>High variance signals unusual payload distribution</td></tr>
+          <tr><td>2</td><td>Fwd Packet Length Max</td><td>Packet Size</td><td>Abnormally large forward packets indicate exfiltration</td></tr>
+          <tr><td>3</td><td>Fwd Header Length</td><td>Header</td><td>Header padding/manipulation is a common evasion technique</td></tr>
+          <tr><td>4</td><td>Init_Win_bytes_forward</td><td>TCP Window</td><td>Unusual initial window sizes indicate scanning tools</td></tr>
+          <tr><td>5</td><td>Bwd Header Length</td><td>Header</td><td>Asymmetric header sizes suggest protocol misuse</td></tr>
+          <tr><td>6</td><td>Total Length of Fwd Packets</td><td>Volume</td><td>Abnormal volume indicates data exfiltration or flooding</td></tr>
+          <tr><td>7</td><td>Init_Win_bytes_backward</td><td>TCP Window</td><td>Mismatched backward window sizes indicate C2 traffic</td></tr>
+          <tr><td>8</td><td>Bwd Packets/s</td><td>Rate</td><td>High backward rate anomalies indicate DDoS or amplification</td></tr>
+          <tr><td>9</td><td>Flow IAT Min</td><td>Timing</td><td>Machine-generated traffic has unnaturally regular timing</td></tr>
+          <tr><td>10</td><td>Fwd IAT Min</td><td>Timing</td><td>Forward inter-arrival times reveal automated scanning</td></tr>
+          <tr><td>11</td><td>Flow Bytes/s</td><td>Throughput</td><td>Sudden throughput spikes indicate data exfiltration</td></tr>
+          <tr><td>12</td><td>Active Min</td><td>Activity</td><td>Short active periods in bursts indicate bot behaviour</td></tr>
+          <tr><td>13</td><td>Bwd IAT Total</td><td>Timing</td><td>Total backward inter-arrival time reveals response patterns</td></tr>
+          <tr><td>14</td><td>Flow IAT Max</td><td>Timing</td><td>Long idle periods between bursts indicate C2 beaconing</td></tr>
+          <tr><td>15</td><td>Flow Duration</td><td>Duration</td><td>Abnormally short or long flows indicate scanning or tunnelling</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.5rem;">
+      These 15 features are <strong>metadata-only</strong> — they describe flow behaviour without inspecting
+      encrypted payloads, making them compatible with TLS-encrypted traffic and privacy regulations.
+    </p>
+  </div>
+
+  <!-- Testing Status -->
+  <h3>6.6 &nbsp; Current Testing Status</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Test Suite</th><th>Tests</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>DDL Model — training, prediction, save/load, edge cases</td><td>7</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>Intermediate Representations — per-feature error, atom counts</td><td>2</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>XAI Explainer — DDL-native explanation, feature ranking</td><td>6</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>SHAP Integration — KernelExplainer, feature attribution</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>Pipeline Flow — end-to-end with PCAPs (benign + attack)</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>SDN Buffer — add/release/drop/expire/capacity</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.5rem;">
+      All 27 integration tests pass on synthetic data. The pipeline has been demonstrated end-to-end on
+      4 synthetic pcap streams (2 benign + 2 attack), correctly detecting both attacks with zero false negatives.
+    </p>
+  </div>
+</section>
+
+<!-- ============ Testing Plan ============ -->
+<section id="testing-plan">
+  <h2><span class="num">07</span> Evaluation &amp; Testing Plan</h2>
+  <p>
+    While the pipeline is fully implemented and unit-tested, the <strong>full-scale evaluation on the
+    CIC-IDS-2017 dataset</strong> is the next milestone. Below is the planned evaluation methodology.
+  </p>
+
+  <!-- Phase 1 -->
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h4>Phase 1 — DDL Training on CIC-IDS-2017 Benign Traffic</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Plan</th></tr></thead>
+        <tbody>
+          <tr><td>Training Data</td><td>CIC-IDS-2017 "Monday — WorkingHours" (benign-only, ~529K flows)</td></tr>
+          <tr><td>Validation Split</td><td>80/20 train/validation on benign data</td></tr>
+          <tr><td>Feature Normalisation</td><td>Z-score from training set (stored in model)</td></tr>
+          <tr><td>Convergence Criterion</td><td>Validation reconstruction error plateau (&lt; 0.1% improvement over 20 epochs)</td></tr>
+          <tr><td>Threshold Tuning</td><td>Sweep 90th, 95th, 97th, 99th percentile on validation set</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem;">
+      <strong>Command:</strong> <code>python -m DDLModel.train_ddl --csv data/Monday-WorkingHours.csv --output models/ddl_cic.pkl</code>
+    </p>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="card" style="border-left: 3px solid var(--accent2); margin-top: 1rem;">
+    <h4>Phase 2 — Attack Detection Evaluation</h4>
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      Test the trained DDL against all CIC-IDS-2017 attack categories:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Attack Category</th><th>CIC-IDS-2017 Day</th><th>Expected Signature</th></tr></thead>
+        <tbody>
+          <tr><td>Brute Force (FTP, SSH)</td><td>Tuesday</td><td>High Fwd IAT Min, abnormal Init_Win_bytes</td></tr>
+          <tr><td>DoS / DDoS (Hulk, Slowloris, GoldenEye)</td><td>Wednesday</td><td>Extreme Bwd Packets/s, Flow Bytes/s spikes</td></tr>
+          <tr><td>Web Attacks (XSS, SQL Injection)</td><td>Thursday AM</td><td>Unusual Fwd Packet Length Max, Header anomalies</td></tr>
+          <tr><td>Infiltration</td><td>Thursday PM</td><td>Long Flow Duration, irregular IAT patterns</td></tr>
+          <tr><td>Botnet (ARES)</td><td>Friday AM</td><td>Short Active Min bursts, C2 beaconing in Flow IAT Max</td></tr>
+          <tr><td>Port Scan</td><td>Friday PM</td><td>Very short flows, low Packet Length Variance</td></tr>
+          <tr><td>DDoS (LOIT)</td><td>Friday PM</td><td>Extreme volume in Total Length of Fwd Packets</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem;">
+      For each attack type, we will compute per-class detection rate and verify that the XAI explanations
+      correctly identify the distinguishing features listed above.
+    </p>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="card" style="border-left: 3px solid var(--accent3); margin-top: 1rem;">
+    <h4>Phase 3 — Quantitative Metrics</h4>
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      Primary evaluation metrics with target values:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Metric</th><th>Formula</th><th>Target</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>Accuracy</td><td>(TP + TN) / N</td><td>≥ 0.95</td><td>Overall correctness</td></tr>
+          <tr><td>Precision</td><td>TP / (TP + FP)</td><td>≥ 0.85</td><td>Minimise false alarms for SOC analysts</td></tr>
+          <tr><td>Recall</td><td>TP / (TP + FN)</td><td>≥ 0.95</td><td>Zero-trust: never miss an attack (critical)</td></tr>
+          <tr><td>F1-Score</td><td>2 · P · R / (P + R)</td><td>≥ 0.90</td><td>Balance between precision and recall</td></tr>
+          <tr><td>ROC-AUC</td><td>Area under ROC curve</td><td>≥ 0.97</td><td>Threshold-independent discrimination</td></tr>
+          <tr><td>False Positive Rate</td><td>FP / (FP + TN)</td><td>≤ 0.05</td><td>Usability in production SDN</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="card" style="border-left: 3px solid var(--warn); margin-top: 1rem;">
+    <h4>Phase 4 — Ablation Studies &amp; Hyperparameter Tuning</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Experiment</th><th>Variable</th><th>Range</th></tr></thead>
+        <tbody>
+          <tr><td>Dictionary Size</td><td>n_atoms_l1 / n_atoms_l2</td><td>{32, 64, 128} × {64, 128, 256}</td></tr>
+          <tr><td>Sparsity Weight (λ)</td><td>sparsity_weight</td><td>{0.01, 0.05, 0.1, 0.5}</td></tr>
+          <tr><td>Threshold Percentile</td><td>threshold_percentile</td><td>{90, 95, 97, 99}</td></tr>
+          <tr><td>ISTA Iterations</td><td>n_iter</td><td>{20, 50, 100}</td></tr>
+          <tr><td>Training Epochs</td><td>n_epochs</td><td>{50, 100, 200}</td></tr>
+          <tr><td>DT Pre-filter Impact</td><td>With vs. without DT</td><td>Binary comparison</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem;">
+      Each combination will be evaluated on the Phase 3 metrics. Results will be presented as heatmaps
+      showing the precision-recall trade-off across parameter settings.
+    </p>
+  </div>
+
+  <!-- Phase 5 -->
+  <div class="card" style="border-left: 3px solid var(--danger); margin-top: 1rem;">
+    <h4>Phase 5 — Explainability Quality Assessment</h4>
+    <ul style="font-size: 0.9rem; color: var(--text-dim); padding-left: 1.2rem;">
+      <li><strong>Faithfulness test:</strong> For each detected anomaly, verify that the top-3 features identified by SHAP and DDL-native
+          match the known attack signatures from CIC-IDS-2017 documentation</li>
+      <li><strong>Consistency check:</strong> Compare DDL-native rankings with SHAP rankings — measure rank correlation (Spearman's ρ)
+          to ensure both explanation methods agree</li>
+      <li><strong>Actionability evaluation:</strong> For each attack category, confirm the XAI report provides enough information
+          to draft an SDN policy rule (e.g., "block flows with Bwd Packets/s &gt; 10,000")</li>
+      <li><strong>Completeness:</strong> Verify that the explanation covers all significantly anomalous features,
+          not just the top contributor</li>
+    </ul>
+  </div>
+
+  <!-- Phase 6 -->
+  <div class="card" style="border-left: 3px solid var(--accent); margin-top: 1rem;">
+    <h4>Phase 6 — Latency &amp; Throughput Benchmarks</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Measurement</th><th>Target</th><th>Method</th></tr></thead>
+        <tbody>
+          <tr><td>DT pre-check latency</td><td>&lt; 1 ms</td><td>Average over 10K samples</td></tr>
+          <tr><td>DDL inference latency</td><td>&lt; 50 ms</td><td>Per-sample, including both layers + ISTA</td></tr>
+          <tr><td>SHAP explanation latency</td><td>&lt; 500 ms</td><td>KernelExplainer on single sample (15 features)</td></tr>
+          <tr><td>End-to-end pipeline latency</td><td>&lt; 600 ms</td><td>pcap → feature extraction → DT → DDL + SHAP → policy</td></tr>
+          <tr><td>SDN buffer hold time</td><td>&lt; 1,000 ms</td><td>Time from BUFFER to RELEASE/DROP</td></tr>
+          <tr><td>Throughput</td><td>≥ 100 flows/sec</td><td>Batch processing rate on CIC-IDS-2017</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <h3 style="margin-top: 2rem;">Evaluation Timeline</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Phase</th><th>Task</th><th>Target Date</th><th>Deliverable</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Train DDL on CIC-IDS-2017 benign data</td><td>Week 1</td><td>Trained model + convergence curves</td></tr>
+          <tr><td>2</td><td>Attack detection per category</td><td>Week 2</td><td>Per-class detection rates + confusion matrix</td></tr>
+          <tr><td>3</td><td>Full metrics computation</td><td>Week 2</td><td>Accuracy, Precision, Recall, F1, ROC-AUC</td></tr>
+          <tr><td>4</td><td>Ablation studies</td><td>Weeks 3–4</td><td>Hyperparameter sensitivity heatmaps</td></tr>
+          <tr><td>5</td><td>Explainability assessment</td><td>Week 4</td><td>Faithfulness report + rank correlation</td></tr>
+          <tr><td>6</td><td>Latency benchmarks</td><td>Week 5</td><td>Performance report + throughput analysis</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- ============ Results ============ -->
 <section id="results">
-  <h2><span class="num">06</span> Results &amp; Analysis</h2>
+  <h2><span class="num">08</span> Results &amp; Analysis</h2>
 
   <h3>Integration Test Results (27/27 passing)</h3>
   <div class="table-wrap">
@@ -921,7 +1253,7 @@ permalink: /
 
 <!-- ============ Conclusion ============ -->
 <section id="conclusion">
-  <h2><span class="num">07</span> Conclusion</h2>
+  <h2><span class="num">09</span> Conclusion</h2>
   <p>
     This project identifies that <strong>Explainable AI is the missing piece</strong> needed to make
     AI-based detection usable in automated Zero-Trust systems. Through iterative experimentation — from
@@ -955,7 +1287,7 @@ permalink: /
 
 <!-- ============ Links ============ -->
 <section id="links">
-  <h2><span class="num">08</span> Links</h2>
+  <h2><span class="num">10</span> Links</h2>
   <div class="card-grid">
     <div class="card">
       <h4>🔗 Project Repository</h4>
