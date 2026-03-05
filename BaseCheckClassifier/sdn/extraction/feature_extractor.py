@@ -30,8 +30,8 @@ import socket
 
 import dpkt
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("FeatureExtractor")
+logger.addHandler(logging.NullHandler())
 
 # CICFlowMeter's activity timeout threshold (microseconds)
 # A new idle period is detected when gap between packets > 5 seconds
@@ -306,6 +306,243 @@ def extract_features(pcap_path):
 
     except Exception as e:
         logger.error(f"Extraction Error for {pcap_path}: {e}")
+        return {"valid": False, "error": str(e), "features": {}}
+
+
+
+# The 28 features for the extended model (original 15 + 13 new)
+EXTENDED_FEATURES = [
+    # --- Original 15 ---
+    'Packet Length Variance',
+    'Fwd Packet Length Max',
+    'Fwd Header Length',
+    'Init_Win_bytes_forward',
+    'Bwd Header Length',
+    'Total Length of Fwd Packets',
+    'Init_Win_bytes_backward',
+    'Bwd Packets/s',
+    'Flow IAT Min',
+    'Fwd IAT Min',
+    'Flow Bytes/s',
+    'Active Min',
+    'Bwd IAT Total',
+    'Flow IAT Max',
+    'Flow Duration',
+    # --- New 13 ---
+    'Total Fwd Packets',
+    'Total Bwd Packets',
+    'Fwd Packet Length Mean',
+    'Bwd Packet Length Mean',
+    'Fwd Packet Length Std',
+    'Bwd Packet Length Max',
+    'Flow IAT Mean',
+    'Flow IAT Std',
+    'Fwd IAT Total',
+    'Fwd Packets/s',
+    'Down/Up Ratio',
+    'SYN Flag Count',
+    'RST Flag Count',
+]
+
+
+def _std(values):
+    """Population standard deviation."""
+    n = len(values)
+    if n < 2:
+        return 0.0
+    mean = sum(values) / n
+    return math.sqrt(sum((v - mean) ** 2 for v in values) / n)
+
+
+def extract_features_extended(pcap_path):
+    """
+    Extract all 28 features from a PCAP file.
+
+    Returns all original 15 CICFlowMeter-compatible features PLUS 13 new
+    research-backed features (packet counts, per-direction stats, IAT statistics,
+    TCP flag counts, Down/Up ratio). All features observable from IP/TCP headers
+    — no payload decryption required.
+
+    Args:
+        pcap_path (str): Absolute path to the PCAP file.
+
+    Returns:
+        dict with keys:
+            "valid"            (bool)  – True if extraction succeeded.
+            "features"         (dict)  – Feature name → value (28 entries).
+            "ordered_features" (list)  – 28 values in EXTENDED_FEATURES order.
+            "flow_id"          (str)   – "src_ip:src_port->dst_ip:dst_port".
+            "error"            (str)   – Present only when valid=False.
+    """
+    try:
+        # ------------------------------------------------------------------ #
+        # Pass 1: collect per-packet data                                     #
+        # ------------------------------------------------------------------ #
+        fwd_src_ip   = None
+        fwd_src_port = None
+        fwd_dst_ip   = None
+        fwd_dst_port = None
+
+        all_timestamps_us = []
+        fwd_payloads   = []
+        bwd_payloads   = []
+        fwd_header_sum = 0
+        bwd_header_sum = 0
+        fwd_timestamps = []
+        bwd_timestamps = []
+
+        init_win_fwd = 0
+        init_win_bwd = 0
+        got_win_fwd  = False
+        got_win_bwd  = False
+
+        syn_count = 0
+        rst_count = 0
+
+        with open(pcap_path, 'rb') as f:
+            reader = dpkt.pcap.Reader(f)
+            for raw_ts, buf in reader:
+                try:
+                    eth = dpkt.ethernet.Ethernet(buf)
+                except Exception:
+                    continue
+
+                if not isinstance(eth.data, dpkt.ip.IP):
+                    continue
+                ip = eth.data
+
+                if ip.p != dpkt.ip.IP_PROTO_TCP:
+                    continue
+                tcp = ip.data
+
+                src_ip   = socket.inet_ntoa(ip.src)
+                dst_ip   = socket.inet_ntoa(ip.dst)
+                src_port = tcp.sport
+                dst_port = tcp.dport
+                ts_us    = int(raw_ts * 1_000_000)
+
+                ip_hdr_len    = ip.hl * 4
+                tcp_hdr_len   = tcp.off * 4
+                header_bytes  = ip_hdr_len + tcp_hdr_len
+                payload_bytes = max(0, ip.len - ip_hdr_len - tcp_hdr_len)
+
+                # TCP flags (dpkt stores as integer bitmask)
+                flags = tcp.flags
+                if flags & dpkt.tcp.TH_SYN:
+                    syn_count += 1
+                if flags & dpkt.tcp.TH_RST:
+                    rst_count += 1
+
+                if fwd_src_ip is None:
+                    fwd_src_ip   = src_ip
+                    fwd_src_port = src_port
+                    fwd_dst_ip   = dst_ip
+                    fwd_dst_port = dst_port
+
+                all_timestamps_us.append(ts_us)
+                is_forward = (src_ip == fwd_src_ip)
+
+                if is_forward:
+                    fwd_payloads.append(payload_bytes)
+                    fwd_header_sum += header_bytes
+                    fwd_timestamps.append(ts_us)
+                    if not got_win_fwd:
+                        init_win_fwd = tcp.win
+                        got_win_fwd  = True
+                else:
+                    bwd_payloads.append(payload_bytes)
+                    bwd_header_sum += header_bytes
+                    bwd_timestamps.append(ts_us)
+                    if not got_win_bwd:
+                        init_win_bwd = tcp.win
+                        got_win_bwd  = True
+
+        if not all_timestamps_us:
+            return {"valid": False, "error": "No TCP packets found", "features": {}}
+
+        # ------------------------------------------------------------------ #
+        # Pass 2: compute all 28 features                                     #
+        # ------------------------------------------------------------------ #
+
+        # Timing
+        flow_duration_us = all_timestamps_us[-1] - all_timestamps_us[0]
+        duration_sec     = flow_duration_us / 1_000_000.0
+
+        # IATs
+        flow_iats = [all_timestamps_us[i] - all_timestamps_us[i-1]
+                     for i in range(1, len(all_timestamps_us))]
+        fwd_iats  = [fwd_timestamps[i] - fwd_timestamps[i-1]
+                     for i in range(1, len(fwd_timestamps))]
+        bwd_iats  = [bwd_timestamps[i] - bwd_timestamps[i-1]
+                     for i in range(1, len(bwd_timestamps))]
+
+        # Payload stats
+        all_payloads = fwd_payloads + bwd_payloads
+        fwd_sum = sum(fwd_payloads)
+        bwd_sum = sum(bwd_payloads)
+        fwd_cnt = len(fwd_payloads)
+        bwd_cnt = len(bwd_payloads)
+
+        # Rates
+        if duration_sec > 0:
+            bwd_pkts_per_sec   = bwd_cnt / duration_sec
+            fwd_pkts_per_sec   = fwd_cnt / duration_sec
+            flow_bytes_per_sec = sum(all_payloads) / duration_sec
+        else:
+            bwd_pkts_per_sec   = 0.0
+            fwd_pkts_per_sec   = 0.0
+            flow_bytes_per_sec = 0.0
+
+        # Down/Up ratio (bwd bytes / fwd bytes)
+        down_up_ratio = (bwd_sum / fwd_sum) if fwd_sum > 0 else 0.0
+
+        features = {
+            # ---- Original 15 ----
+            'Packet Length Variance':      _variance(all_payloads),
+            'Fwd Packet Length Max':       max(fwd_payloads) if fwd_payloads else 0,
+            'Fwd Header Length':           fwd_header_sum,
+            'Init_Win_bytes_forward':      init_win_fwd,
+            'Bwd Header Length':           bwd_header_sum,
+            'Total Length of Fwd Packets': fwd_sum,
+            'Init_Win_bytes_backward':     init_win_bwd,
+            'Bwd Packets/s':               bwd_pkts_per_sec,
+            'Flow IAT Min':                min(flow_iats) if flow_iats else 0,
+            'Fwd IAT Min':                 min(fwd_iats)  if fwd_iats  else 0,
+            'Flow Bytes/s':                flow_bytes_per_sec,
+            'Active Min':                  _compute_active_min(all_timestamps_us),
+            'Bwd IAT Total':               sum(bwd_iats)  if bwd_iats  else 0,
+            'Flow IAT Max':                max(flow_iats) if flow_iats else 0,
+            'Flow Duration':               flow_duration_us,
+            # ---- New 13 ----
+            'Total Fwd Packets':           fwd_cnt,
+            'Total Bwd Packets':           bwd_cnt,
+            'Fwd Packet Length Mean':      (fwd_sum / fwd_cnt) if fwd_cnt > 0 else 0.0,
+            'Bwd Packet Length Mean':      (bwd_sum / bwd_cnt) if bwd_cnt > 0 else 0.0,
+            'Fwd Packet Length Std':       _std(fwd_payloads),
+            'Bwd Packet Length Max':       max(bwd_payloads) if bwd_payloads else 0,
+            'Flow IAT Mean':               (sum(flow_iats) / len(flow_iats)) if flow_iats else 0.0,
+            'Flow IAT Std':                _std(flow_iats),
+            'Fwd IAT Total':               sum(fwd_iats) if fwd_iats else 0,
+            'Fwd Packets/s':               fwd_pkts_per_sec,
+            'Down/Up Ratio':               down_up_ratio,
+            'SYN Flag Count':              syn_count,
+            'RST Flag Count':              rst_count,
+        }
+
+        flow_id = (
+            f"{fwd_src_ip}:{fwd_src_port}->{fwd_dst_ip}:{fwd_dst_port}"
+            if fwd_src_ip else "unknown"
+        )
+
+        return {
+            "valid":            True,
+            "features":         features,
+            "ordered_features": [features[k] for k in EXTENDED_FEATURES],
+            "flow_id":          flow_id,
+        }
+
+    except Exception as e:
+        logger.error(f"Extended extraction error for {pcap_path}: {e}")
         return {"valid": False, "error": str(e), "features": {}}
 
 

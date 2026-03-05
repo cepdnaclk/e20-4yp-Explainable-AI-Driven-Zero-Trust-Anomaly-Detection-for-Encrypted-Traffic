@@ -1,0 +1,14 @@
+nohup: ignoring input
+=================================================================
+  Feature Extraction Pipeline — All Days
+=================================================================
+  Labeled PCAP root : /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled
+  Days              : Monday, Tuesday, Wednesday, Thursday, Friday
+  Features          : 28 (28)
+  Workers           : 16
+  Output            : /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/dataset_raw.csv
+=================================================================
+[*] Total tasks: 702,007 streams  (0 skipped — missing pcap)
+
+[*] Starting extraction with 16 workers ...
+
