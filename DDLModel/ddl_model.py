@@ -2,23 +2,35 @@
 Deep Dictionary Learning (DDL) Model for Encrypted Traffic Anomaly Detection
 =============================================================================
 
-Implements a multi-layer dictionary learning pipeline that learns sparse
-representations of normal traffic patterns. Anomalies are detected when
-a sample cannot be efficiently reconstructed from the learned dictionaries.
+Implements a multi-layer (2 or 3 layers) dictionary learning pipeline that
+learns sparse representations of normal traffic patterns. Anomalies are
+detected when a sample cannot be efficiently reconstructed from the dictionaries.
 
-Architecture:
-    Layer 1 (Coarse):  D1 ∈ R^(15×64)  — captures broad flow patterns
-    Layer 2 (Fine):    D2 ∈ R^(64×128) — captures subtle micro-patterns
-    
+Now fully configurable: n_features can be 15 (DT features, legacy) or 30
+(DDL-specific features from ddl_feature_extractor.py — recommended).
+
+Architecture (2-layer default):
+    D1 ∈ R^(n_features × k1)   — coarse patterns from raw features
+    D2 ∈ R^(k1 × k2)           — fine patterns in higher-dimensional space
+
     Input x  →  α1 = sparse_code(D1, x)
-             →  h1 = D1 @ α1
-             →  α2 = sparse_code(D2, h1)
-             →  x̂  = D2 @ α2   (reconstruction)
+             →  α2 = sparse_code(D2, α1)
+             →  x̂  = (α2 @ D2ᵀ) @ D1ᵀ
              →  error = ||x - x̂||²  →  anomaly score
+
+Optional 3-layer architecture (set n_atoms_l3 > 0):
+    D3 ∈ R^(k2 × k3)  — deepest layer for complex pattern hierarchies
+    Reconstruction: (α3 @ D3ᵀ @ D2ᵀ) @ D1ᵀ
+    Based on: Tariyal et al. (2016) deep extension experiments.
+
+Threshold calibration (recommended):
+    Use calibrate_threshold() after fit() for F1-optimal anomaly threshold
+    instead of a fixed percentile. This accounts for class imbalance.
 
 References:
     - Tariyal et al., "Deep Dictionary Learning," IEEE Access, 2016
-    - CIC-IDS-2017 dataset (15 behavioral features)
+      (Research Papers/Detecting_Anomalies_in_Encrypted_Traffic_via_Deep_Dictionary_Learning.pdf)
+    - Use DDLModel/ddl_feature_extractor.py for the recommended 30-feature DDL input set.
 """
 
 import numpy as np
@@ -40,24 +52,40 @@ class DeepDictionaryLearning:
     Anomalies are flagged when reconstruction error exceeds a learned threshold.
     """
 
-    def __init__(self, n_features=15, n_atoms_l1=64, n_atoms_l2=128,
+    def __init__(self, n_features=30, n_atoms_l1=64, n_atoms_l2=128,
+                 n_atoms_l3=0,
                  sparsity_weight=0.1, learning_rate=0.001, n_epochs=100,
                  batch_size=32, threshold_percentile=95, random_state=42):
         """
         Args:
-            n_features: Number of input features (15 for CIC-IDS-2017).
+            n_features: Number of input features.
+                        15  — legacy (same as DT features, not recommended for DDL)
+                        30  — recommended (use DDLModel/ddl_feature_extractor.py)
             n_atoms_l1: Dictionary atoms in Layer 1 (coarse patterns).
+                        Recommended: 64 for n_features=30, 32 for n_features=15.
             n_atoms_l2: Dictionary atoms in Layer 2 (fine patterns).
+                        Recommended: 128 for n_features=30, 64 for n_features=15.
+            n_atoms_l3: Dictionary atoms in optional Layer 3 (deepest patterns).
+                        Set to 0 (default) to disable Layer 3 (2-layer mode).
+                        Recommended: 256 if enabled, for complex datasets.
+                        Based on Tariyal et al. (2016) 3-layer extension.
             sparsity_weight: L1 regularization strength for sparse coding (λ).
-            learning_rate: SGD learning rate for dictionary update.
-            n_epochs: Training epochs.
-            batch_size: Mini-batch size.
-            threshold_percentile: Percentile of training error to set as anomaly threshold.
+                             Too high → over-sparse, loses detail.
+                             Too low  → dense codes, dictionary collapses.
+                             Recommended range: 0.05 – 0.2.
+            learning_rate: SGD step size for dictionary update.
+            n_epochs: Training epochs. 100 is sufficient; 200+ for 30-feature.
+            batch_size: Mini-batch size. 32 recommended.
+            threshold_percentile: Percentile of training errors used as the
+                anomaly decision boundary. 95 means 5% of training (normal)
+                samples are above the threshold (false-positive rate ≤ 5%).
+                Use calibrate_threshold() for F1-optimal threshold instead.
             random_state: Reproducibility seed.
         """
         self.n_features = n_features
         self.n_atoms_l1 = n_atoms_l1
         self.n_atoms_l2 = n_atoms_l2
+        self.n_atoms_l3 = n_atoms_l3      # 0 = 2-layer mode (default)
         self.sparsity_weight = sparsity_weight
         self.learning_rate = learning_rate
         self.n_epochs = n_epochs
@@ -67,20 +95,24 @@ class DeepDictionaryLearning:
 
         np.random.seed(random_state)
 
-        # Dictionaries (initialized on fit)
-        self.D1 = None  # Layer 1: R^(n_features × n_atoms_l1)
-        self.D2 = None  # Layer 2: R^(n_atoms_l1 × n_atoms_l2)
+        # Dictionaries — initialized on fit()
+        self.D1 = None   # Layer 1: R^(n_features × n_atoms_l1)
+        self.D2 = None   # Layer 2: R^(n_atoms_l1 × n_atoms_l2)
+        self.D3 = None   # Layer 3: R^(n_atoms_l2 × n_atoms_l3)  — None when disabled
 
-        # Normalization params
+        # Normalization statistics (learned on training set)
         self.mean_ = None
-        self.std_ = None
+        self.std_  = None
 
-        # Anomaly threshold (learned from training data)
+        # Anomaly threshold (learned from training errors)
         self.threshold_ = None
-        
+
+        # Per-call latency (seconds) — populated by predict()
+        self.last_predict_ms: float = 0.0
+
         # Training metadata
-        self.training_history_ = []
-        self.is_fitted_ = False
+        self.training_history_: list = []
+        self.is_fitted_: bool = False
 
     def _normalize(self, X):
         """Z-score normalization using training statistics."""
@@ -191,9 +223,19 @@ class DeepDictionaryLearning:
         self.D2 = np.random.randn(self.n_atoms_l1, self.n_atoms_l2)
         self.D2 /= np.linalg.norm(self.D2, axis=0, keepdims=True)
 
+        # Optional Layer 3
+        if self.n_atoms_l3 > 0:
+            self.D3 = np.random.randn(self.n_atoms_l2, self.n_atoms_l3)
+            self.D3 /= np.linalg.norm(self.D3, axis=0, keepdims=True)
+        else:
+            self.D3 = None
+
         self.training_history_ = []
-        logger.info(f"Training DDL: {n_samples} samples, "
-                     f"L1={self.n_atoms_l1} atoms, L2={self.n_atoms_l2} atoms")
+        layer_str = f"L1={self.n_atoms_l1}, L2={self.n_atoms_l2}"
+        if self.D3 is not None:
+            layer_str += f", L3={self.n_atoms_l3}"
+        logger.info(f"Training DDL ({self.n_features} features, {layer_str}): "
+                     f"{n_samples} samples")
 
         for epoch in range(self.n_epochs):
             # Shuffle
@@ -205,23 +247,30 @@ class DeepDictionaryLearning:
                 batch_idx = indices[start:start + self.batch_size]
                 X_batch = X_norm[batch_idx]
 
-                # Forward pass — Layer 1: encode input into sparse codes
+                # Forward — Layer 1
                 alpha1 = self._sparse_code(self.D1, X_batch)  # (batch, k1)
 
-                # Forward pass — Layer 2: encode L1 sparse codes deeper
-                alpha2 = self._sparse_code(self.D2, alpha1)  # (batch, k2)
+                # Forward — Layer 2
+                alpha2 = self._sparse_code(self.D2, alpha1)   # (batch, k2)
 
-                # Reconstruction: chain both layers back to input space
-                # alpha1_hat = alpha2 @ D2.T → (batch, k1)
-                # x_hat = alpha1_hat @ D1.T → (batch, n_features)
-                alpha1_hat = alpha2 @ self.D2.T
-                x_hat = alpha1_hat @ self.D1.T
+                # Forward — optional Layer 3
+                if self.D3 is not None:
+                    alpha3 = self._sparse_code(self.D3, alpha2)  # (batch, k3)
+                    alpha2_hat = alpha3 @ self.D3.T
+                    alpha1_hat = alpha2_hat @ self.D2.T
+                    x_hat      = alpha1_hat @ self.D1.T
+                    # Layer-wise dictionary updates (L3 → L2 → L1)
+                    self.D3 = self._update_dictionary(self.D3, alpha2, alpha3)
+                else:
+                    alpha2_hat = None
+                    alpha1_hat = alpha2 @ self.D2.T
+                    x_hat      = alpha1_hat @ self.D1.T
 
                 # End-to-end reconstruction error
                 batch_error = np.mean(np.sum((X_batch - x_hat) ** 2, axis=1))
                 epoch_loss += batch_error
 
-                # Backward — update dictionaries (layer-wise)
+                # Backward — update remaining dictionaries (layer-wise)
                 self.D2 = self._update_dictionary(self.D2, alpha1, alpha2)
                 self.D1 = self._update_dictionary(self.D1, X_batch, alpha1)
 
@@ -245,39 +294,132 @@ class DeepDictionaryLearning:
 
     def _compute_errors(self, X_norm):
         """
-        Compute per-sample reconstruction errors through both layers.
-        
+        Compute per-sample reconstruction errors through all layers.
+
         Args:
-            X_norm: Normalized input (n × 15).
-            
+            X_norm: Normalized input (n × n_features).
+
         Returns:
             errors: Array of shape (n,) — reconstruction error per sample.
         """
         alpha1 = self._sparse_code(self.D1, X_norm)
         alpha2 = self._sparse_code(self.D2, alpha1)
-        alpha1_hat = alpha2 @ self.D2.T
-        x_hat = alpha1_hat @ self.D1.T
+        if self.D3 is not None:
+            alpha3     = self._sparse_code(self.D3, alpha2)
+            alpha2_hat = alpha3 @ self.D3.T
+            alpha1_hat = alpha2_hat @ self.D2.T
+        else:
+            alpha1_hat = alpha2 @ self.D2.T
+        x_hat  = alpha1_hat @ self.D1.T
         errors = np.sum((X_norm - x_hat) ** 2, axis=1)
         return errors
+
+    def calibrate_threshold(self, X_normal, X_anomaly,
+                             percentiles=None, metric="f1"):
+        """
+        Find the F1-optimal reconstruction error threshold.
+
+        Instead of using a fixed percentile of training errors, this method
+        searches a grid of candidate thresholds for the one that maximises
+        F1-score on a held-out calibration set containing both normal and
+        anomalous samples.
+
+        This is important for class-imbalanced datasets (far more normal than
+        attack flows) where a fixed percentile may be too conservative.
+
+        Based on: threshold calibration strategies reviewed in the SHAP paper
+        (Research Papers/Interpretable Anomaly Detection in Encrypted Traffic).
+
+        Args:
+            X_normal:  numpy array (n, n_features) — held-out normal samples.
+            X_anomaly: numpy array (m, n_features) — held-out anomaly samples.
+            percentiles: list of candidate threshold percentiles to search.
+                         Default: range(80, 100).
+            metric: Optimisation target — "f1" (default) or "balanced_accuracy".
+
+        Returns:
+            best_threshold: float — the selected threshold (also updates self.threshold_).
+            calibration_report: dict — F1/precision/recall at best threshold.
+        """
+        if not self.is_fitted_:
+            raise RuntimeError("DDL model not fitted. Call fit() first.")
+
+        percentiles = percentiles or list(range(80, 100))
+
+        X_norm_norm   = self._normalize(np.array(X_normal,  dtype=np.float64))
+        X_anom_norm   = self._normalize(np.array(X_anomaly, dtype=np.float64))
+
+        normal_errors = self._compute_errors(X_norm_norm)
+        anom_errors   = self._compute_errors(X_anom_norm)
+
+        all_errors  = np.concatenate([normal_errors, anom_errors])
+        all_labels  = np.concatenate([
+            np.zeros(len(normal_errors)),   # 0 = Normal
+            np.ones(len(anom_errors)),      # 1 = Anomaly
+        ])
+
+        best_thresh, best_f1 = self.threshold_, 0.0
+        best_report = {}
+
+        # Search thresholds at given percentiles of all errors
+        candidates = [np.percentile(all_errors, p) for p in percentiles]
+        candidates = sorted(set(candidates))
+
+        for t in candidates:
+            preds = (all_errors > t).astype(int)
+            TP = float(np.sum((preds == 1) & (all_labels == 1)))
+            FP = float(np.sum((preds == 1) & (all_labels == 0)))
+            FN = float(np.sum((preds == 0) & (all_labels == 1)))
+            TN = float(np.sum((preds == 0) & (all_labels == 0)))
+
+            precision = TP / (TP + FP + 1e-8)
+            recall    = TP / (TP + FN + 1e-8)
+            f1        = 2 * precision * recall / (precision + recall + 1e-8)
+            bal_acc   = 0.5 * (TP / (TP + FN + 1e-8) + TN / (TN + FP + 1e-8))
+
+            score = f1 if metric == "f1" else bal_acc
+            if score > best_f1:
+                best_f1    = score
+                best_thresh = t
+                best_report = {
+                    "threshold": round(t, 6),
+                    "f1":        round(f1, 4),
+                    "precision": round(precision, 4),
+                    "recall":    round(recall, 4),
+                    "balanced_accuracy": round(bal_acc, 4),
+                    "TP": int(TP), "FP": int(FP),
+                    "FN": int(FN), "TN": int(TN),
+                }
+
+        self.threshold_ = best_thresh
+        logger.info(f"Calibrated threshold → {best_thresh:.6f}  "
+                     f"(F1={best_report.get('f1',0):.4f}, "
+                     f"Recall={best_report.get('recall',0):.4f})")
+        return best_thresh, best_report
 
     def predict(self, X):
         """
         Predict anomaly labels for input samples.
-        
+
         Args:
-            X: numpy array (n_samples, 15) or (15,) for single sample.
-            
+            X: numpy array (n_samples, n_features) or (n_features,) for single.
+
         Returns:
             dict with:
-                labels:   array of "Normal" / "Anomaly" strings
-                scores:   raw reconstruction errors
-                threshold: the learned threshold value
+                labels:          "Normal" / "Anomaly" per sample
+                scores:          raw reconstruction error per sample
+                threshold:       the decision boundary
                 sparse_codes_l1: Layer 1 sparse codes (for XAI)
                 sparse_codes_l2: Layer 2 sparse codes (for XAI)
-                reconstructions: reconstructed feature vectors
+                sparse_codes_l3: Layer 3 sparse codes (for XAI) — None if 2-layer
+                reconstructions: reconstructed feature vectors (original scale)
+                predict_ms:      wall-clock time for this call (milliseconds)
         """
+        import time as _time
         if not self.is_fitted_:
             raise RuntimeError("DDL model not fitted. Call fit() first.")
+
+        _t0 = _time.perf_counter()
 
         X = np.array(X, dtype=np.float64)
         single = (X.ndim == 1)
@@ -292,30 +434,40 @@ class DeepDictionaryLearning:
         # Layer 2: encode sparse codes deeper
         alpha2 = self._sparse_code(self.D2, alpha1)
 
-        # Reconstruct back to input space
-        alpha1_hat = alpha2 @ self.D2.T
-        x_hat_norm = alpha1_hat @ self.D1.T
+        # Optional Layer 3
+        alpha3 = None
+        if self.D3 is not None:
+            alpha3     = self._sparse_code(self.D3, alpha2)
+            alpha2_hat = alpha3 @ self.D3.T
+            alpha1_hat = alpha2_hat @ self.D2.T
+        else:
+            alpha1_hat = alpha2 @ self.D2.T
 
-        errors = np.sum((X_norm - x_hat_norm) ** 2, axis=1)
-        labels = np.where(errors > self.threshold_, "Anomaly", "Normal")
-
-        # Denormalize reconstruction for interpretability
+        x_hat_norm   = alpha1_hat @ self.D1.T
+        errors       = np.sum((X_norm - x_hat_norm) ** 2, axis=1)
+        labels       = np.where(errors > self.threshold_, "Anomaly", "Normal")
         x_hat_denorm = x_hat_norm * (self.std_ + 1e-8) + self.mean_
 
+        elapsed_ms = (_time.perf_counter() - _t0) * 1000.0
+        self.last_predict_ms = elapsed_ms
+
         result = {
-            "labels": labels,
-            "scores": errors,
-            "threshold": self.threshold_,
+            "labels":          labels,
+            "scores":          errors,
+            "threshold":       self.threshold_,
             "sparse_codes_l1": alpha1,
             "sparse_codes_l2": alpha2,
-            "reconstructions": x_hat_denorm
+            "sparse_codes_l3": alpha3,
+            "reconstructions": x_hat_denorm,
+            "predict_ms":      round(elapsed_ms, 3),
         }
 
         if single:
-            result["labels"] = labels[0]
-            result["scores"] = errors[0]
+            result["labels"]          = labels[0]
+            result["scores"]          = errors[0]
             result["sparse_codes_l1"] = alpha1[0]
             result["sparse_codes_l2"] = alpha2[0]
+            result["sparse_codes_l3"] = alpha3[0] if alpha3 is not None else None
             result["reconstructions"] = x_hat_denorm[0]
 
         return result
@@ -393,16 +545,18 @@ class DeepDictionaryLearning:
         return result
 
     def save(self, path):
-        """Save model to disk."""
+        """Save model to disk (all layers + metadata)."""
         state = {
             "D1": self.D1,
             "D2": self.D2,
+            "D3": self.D3,
             "mean_": self.mean_,
             "std_": self.std_,
             "threshold_": self.threshold_,
             "n_features": self.n_features,
             "n_atoms_l1": self.n_atoms_l1,
             "n_atoms_l2": self.n_atoms_l2,
+            "n_atoms_l3": self.n_atoms_l3,
             "sparsity_weight": self.sparsity_weight,
             "training_history_": self.training_history_,
             "is_fitted_": self.is_fitted_,
@@ -412,20 +566,24 @@ class DeepDictionaryLearning:
 
     @classmethod
     def load(cls, path):
-        """Load model from disk."""
+        """Load model from disk (supports both 2-layer and 3-layer checkpoints)."""
         state = joblib.load(path)
         model = cls(
-            n_features=state["n_features"],
-            n_atoms_l1=state["n_atoms_l1"],
-            n_atoms_l2=state["n_atoms_l2"],
-            sparsity_weight=state["sparsity_weight"],
+            n_features    = state["n_features"],
+            n_atoms_l1    = state["n_atoms_l1"],
+            n_atoms_l2    = state["n_atoms_l2"],
+            n_atoms_l3    = state.get("n_atoms_l3", 0),   # backward-compatible
+            sparsity_weight = state["sparsity_weight"],
         )
         model.D1 = state["D1"]
         model.D2 = state["D2"]
-        model.mean_ = state["mean_"]
-        model.std_ = state["std_"]
-        model.threshold_ = state["threshold_"]
+        model.D3 = state.get("D3", None)
+        model.mean_             = state["mean_"]
+        model.std_              = state["std_"]
+        model.threshold_        = state["threshold_"]
         model.training_history_ = state["training_history_"]
-        model.is_fitted_ = state["is_fitted_"]
-        logger.info(f"DDL model loaded from {path}")
+        model.is_fitted_        = state["is_fitted_"]
+        logger.info(f"DDL model loaded from {path}  "
+                     f"({model.n_features} features, "
+                     f"{'3' if model.D3 is not None else '2'}-layer)")
         return model
