@@ -1,181 +1,288 @@
-# DemonstrationPlan.md — Research Demo Script
+# DemonstrationPlan.md — Full Demo Guide with Cisco/HP Switch
+# Zero-Trust XAI Anomaly Detection | University of Peradeniya
+# e20420Janith — Updated 2026-03-05
 
-**Project:** Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic  
-**Venue:** MDRG 2025 Research Demonstration  
-**Duration:** ~15 minutes + Q&A
+# Research Demonstration Plan
+
+## System Overview — What The Demo Shows
+
+The demo presents a **two-stage Zero-Trust pipeline** for detecting anomalies
+in encrypted network traffic:
+
+```
+Switch (Cisco/HP)
+  ↓ SPAN mirror (copies all traffic to controller laptop)
+Pipeline Laptop (running NFStream + DDL + XAI)
+  ↓ Stage 1: Decision Tree (15 features, <1ms) → Normal → FORWARD
+  ↓ Stage 2: DDL + XAI (30 features, ~45ms)  → Anomaly → DROP + Explain
+Ryu SDN Controller (installs DROP/ALLOW rules on switch)
+```
+
+**Zero-trust principle**: When in doubt, a flow is blocked. Every anomaly
+gets an XAI explanation naming the top features that triggered the alert.
 
 ---
 
 ## Hardware Setup
 
+### Primary: Cisco IOS / IOS-XE Switch
+
+| Role | Equipment | Port |
+|------|-----------|------|
+| Switch | Cisco IOS (any model) | — |
+| Traffic sources | Laptop A + Laptop B (or VMs) | Gi0/1, Gi0/2 |
+| Mirror/capture | Pipeline Laptop | **Gi0/3** (SPAN destination) |
+| Controller | Pipeline Laptop — Ryu | TCP 6653 (OpenFlow) |
+
+```cisco
+! Cisco SPAN configuration (run on switch):
+monitor session 1 source interface GigabitEthernet0/1 - 0/2 both
+monitor session 1 destination interface GigabitEthernet0/3
 ```
-[Laptop A — Traffic Generator]
-    │  (eth0 ──── eth0)
-[Physical Switch] ── Mirror port (SPAN) ──▶ [Laptop B — SDN Pipeline]
-    │
-[Laptop C — Destination / "Normal server"]
+
+Full config: `LiveTraffic/CISCO_SWITCH_SETUP.md`
+
+### Backup: HP ProCurve / Aruba L3 Switch
+
+```
+! HP CLI:
+mirror 1 port Trk1     (or the relevant trunk)
+interface A3
+  monitor all
 ```
 
-- Laptop A runs `LiveTraffic/traffic_generator.py` (sends benign + attack PCAP replay)
-- Laptop B runs the ZeroTrust pipeline listening on mirror port (`LiveTraffic/live_pipeline.py`)
-- Both dashboards (BaseCheckClassifier Streamlit + EnhancedPipeline dashboard) visible on Laptop B
+Full config: `LiveTraffic/HP_SWITCH_SETUP.md`
 
----
+### No Switch Available (Fallback)
 
-## Demonstration Script
-
-### Part 1: System Overview (2 min)
-
-> "Our system implements Zero-Trust network security for encrypted traffic.
-> Unlike traditional IDS that inspect payload content, we work purely from
-> packet metadata — because the traffic is encrypted."
-
-**Show:** Architecture diagram (PIPELINE_GUIDE.md, the flow diagram)
-
-Key points to state:
-- Zero-Trust means every flow is treated as untrusted until verified
-- Two-stage cascade: fast DT check (ms) → deep DDL+XAI analysis (seconds, only for flagged flows)
-- XAI provides human-readable explanation for every drop decision
-
----
-
-### Part 2: Scenario A — Normal Traffic (3 min)
-
-**Action:** Run normal PCAP traffic
+Use PCAP replay (Method 3 in `docs/LIVE_TRAFFIC_GUIDE.md`):
 ```bash
-# Terminal 1 (Laptop B)
-python LiveTraffic/live_pipeline.py --interface eth1 --log_path demo_normal.json
-
-# Terminal 2 (Laptop A — sends normal traffic)
-python LiveTraffic/traffic_generator.py --mode normal --count 20
+python LiveTraffic/pcap_replay_pipeline.py \
+    --mode fullday \
+    --pcap-file /scratch1/.../CICDataset/PCAP/Friday-WorkingHours.pcap \
+    --ddl-model models/ddl_30feat.pkl
 ```
-
-**Show:** Dashboard — flows continuously marked FORWARD (green)
-
-**Narrate:**
-- "20 benign flows sent. Decision Tree passes them all as Normal."
-- "No DDL analysis triggered — zero-trust overhead only when needed."
-- Show timing: DT decision in <5ms per flow
 
 ---
 
-### Part 3: Scenario B — Attack Traffic Caught (4 min)
+## Pre-Demo Checklist (T-30 min)
 
-**Action:** Send attack traffic
-```bash
-python LiveTraffic/traffic_generator.py --mode attack --count 10
-```
+### Models
+- [ ] `models/ddl_30feat.pkl` exists (`ls -lh models/ddl_30feat.pkl`)
+- [ ] `models/isolation_forest.pkl` exists
+- [ ] `models/train_report.json` — check F1 > 0.85
 
-**Show:** Dashboard — flows flagged, held in buffer, then DROPPED (red)
+### Software
+- [ ] venv activated: `source .venv/bin/activate`
+- [ ] Test demo mode: `python LiveTraffic/live_pipeline.py --demo --duration 10`
+- [ ] REST API starts: `python EnhancedPipeline/rest_api.py --port 5001 &`
+- [ ] Dashboard loads: `streamlit run EnhancedPipeline/dashboard.py`
 
-**Narrate step by step:**
-1. "Flow arrives at switch, mirrored to our pipeline"
-2. "DT feature extraction: 15 features in <1ms"
-3. "DT says: Anomaly — confidence 0.89"
-4. "Flow enters SDN buffer (held, not forwarded yet)"
-5. "30-feature extraction for DDL analysis"
-6. "DDL reconstruction error: 4.2× threshold → ANOMALY confirmed"
-7. "XAI report generated:"
+### Hardware (if switch demo)
+- [ ] Cisco/HP switch configured and powered
+- [ ] Pipeline laptop connected to mirror port (`eth1` or labeled port)
+- [ ] Promiscuous mode: `sudo ip link set eth1 promisc on`
+- [ ] Capture test: `sudo tcpdump -i eth1 -n -c 5` (should see traffic)
 
-**Show on screen:** XAI explanation output
-```
-ANOMALY DETECTED: Reconstruction error (8.34) exceeds threshold (1.98) by 321%.
-
-Top features driving the anomaly score:
-  1. Bwd IAT std: 78.4% of error (expected ≈ 0.003s, observed 2.81s, deviation 2.807)
-  2. Flow Bytes/s: 12.1% of error (expected ≈ 52,000, observed 8,200, deviation 43,800)
-  3. TCP SYN count: 5.3% of error (expected ≈ 1, observed 847, deviation 846)
-  
-SHAP confirms: Bwd IAT std, TCP SYN count most push toward anomaly.
-Both DDL and SHAP agree on: TCP SYN count — HIGH CONFIDENCE.
-Recommendation: DROP stream and alert SOC analyst.
-```
-
-**Key talking point:** "Notice the XAI tells the operator exactly WHY it was dropped and which features were anomalous — not just a black-box ANOMALY label."
+### Traffic Source (Attacker Laptop)
+- [ ] Traffic generator ready: `python LiveTraffic/traffic_generator.py --help`
+- [ ] tcpreplay installed: `sudo tcpreplay --version`
+- [ ] Demo PCAPs ready:
+  ```bash
+  python LiveTraffic/traffic_generator.py --mode normal --count 30 --output /tmp/normal.pcap
+  python LiveTraffic/traffic_generator.py --mode attack --count 20 --output /tmp/attack.pcap
+  ```
 
 ---
 
-### Part 4: Scenario C — DT False Positive (2 min)
+## Demo Script — Terminal Layout
 
-**Action:** Send borderline traffic (DT misclassifies but DDL corrects)
-```bash
-python LiveTraffic/traffic_generator.py --mode borderline --count 5
+Open **4 terminals** on the pipeline laptop:
+
 ```
-
-**Show:** Dashboard — DT says Anomaly → buffer → DDL says Normal → RELEASED
-
-**Narrate:**
-- "This is the cascade benefit. DT is conservative — catches 98% of attacks but has false positives."
-- "DDL provides the second opinion — reconstruction error is within normal range."
-- "Flow is released from buffer and forwarded. No disruption to legitimate traffic."
-- **Show timing:** DT=3ms, DDL+XAI=280ms — "The extra 280ms is only paid for flagged flows"
+┌─────────────────────┬──────────────────────────┐
+│   TERMINAL 1         │   TERMINAL 2              │
+│   Live Pipeline      │   REST API Server         │
+├─────────────────────┼──────────────────────────┤
+│   TERMINAL 3         │   TERMINAL 4              │
+│   Streamlit Dashboard│   Traffic Generator       │
+└─────────────────────┴──────────────────────────┘
+```
 
 ---
 
-### Part 5: Timing Comparison (2 min)
+## Demo Execution — Step by Step
 
-**Show:** Pre-generated latency benchmark chart
-```bash
-# Pre-run before demo:
-python -m profiling.latency_benchmark --n_flows 200 --output profiling/results/
-```
-
-**Show chart:** `profiling/results/latency_cdf.png`
-
-| Stage | Mean | 95th pct |
-|-------|------|----------|
-| Feature extraction (15) | 0.8 ms | 2.1 ms |
-| DT Base Check | 0.3 ms | 0.7 ms |
-| Feature extraction (30) | 1.4 ms | 3.2 ms |
-| DDL (2 layers, ISTA) | 45 ms | 92 ms |
-| DDL-native XAI | 8 ms | 15 ms |
-| SHAP KernelExplainer | 220 ms | 380 ms |
-
-**Key point:** "SHAP adds 220ms but only runs for confirmed anomalies. Total pipeline latency for normal traffic: ~1ms."
-
----
-
-### Part 6: EnhancedPipeline (2 min)
-
-**Show:** `EnhancedPipeline/docs/ARCHITECTURE.md`
-
-**Narrate:**
-- "We also propose and implement an enhanced architecture adding an Isolation Forest second vote"
-- "This further reduces false positives. Adaptive feature selection improves with each batch of seen anomalies."
-- "The REST API allows integration with any SDN controller — not just our simulation."
+### Step 1 — Start REST API Server (Terminal 2)
 
 ```bash
-# Show REST API working:
-curl -X POST http://localhost:5001/predict \
-  -H "Content-Type: application/json" \
-  -d '{"features": [...]}'
+source .venv/bin/activate
+python EnhancedPipeline/rest_api.py --port 5001
+```
+
+Verify:
+```bash
+curl http://localhost:5001/health
+# → {"status": "ok", "pipeline_ready": true}
+```
+
+### Step 2 — Launch Dashboard (Terminal 3)
+
+```bash
+streamlit run EnhancedPipeline/dashboard.py
+# → Opens browser at http://localhost:8501
+```
+
+The dashboard shows:
+- Live flow counter (FORWARD / DROP)
+- Anomaly score timeline
+- Latency CDF chart
+- XAI explanation for latest anomaly
+- Adaptive feature importance ranking
+
+### Step 3a — Demo Mode (No Switch)
+
+```bash
+# Terminal 1:
+python LiveTraffic/live_pipeline.py \
+    --demo \
+    --duration 120 \
+    --ddl_model models/ddl_30feat.pkl
+
+# Watch the dashboard light up with anomaly detections
+```
+
+### Step 3b — Live Switch Mode (With Hardware)
+
+```bash
+# Terminal 1 (pipeline laptop, mirror port):
+python LiveTraffic/live_pipeline.py \
+    --interface eth1 \
+    --ddl_model models/ddl_30feat.pkl \
+    --duration 300
+
+# Terminal 4 (attacker laptop — Laptop A):
+# First, send normal traffic (2 min):
+python LiveTraffic/traffic_generator.py \
+    --mode normal --count 50 --live --interface eth0
+
+# Then launch the attack (1 min):
+python LiveTraffic/traffic_generator.py \
+    --mode attack --count 30 --live --interface eth0
+# OR: replay real CIC-IDS-2017 DDoS traffic:
+sudo tcpreplay --intf=eth0 --mbps=5 \
+    /scratch1/.../CICDataset/PCAP/Friday-WorkingHours.pcap
+```
+
+### Step 4 — Show XAI Explanation
+
+When an anomaly is detected (shown as RED in dashboard), display the explanation:
+
+```bash
+# Get the last anomaly explanation:
+curl http://localhost:5001/explain/latest | python -m json.tool
+```
+
+Expected output:
+```json
+{
+    "flow_id": "10.0.1.0:56789->172.16.0.1:80/TCP",
+    "decision": "DROP",
+    "ddl_score": 0.847,
+    "threshold": 0.312,
+    "xai_top_features": [
+        {"feature": "syn_flag_count", "error_contribution": 42.3, "value": 500},
+        {"feature": "fwd_iat_mean_ms", "error_contribution": 38.7, "value": 0.4},
+        {"feature": "down_up_ratio", "error_contribution": 29.1, "value": 0.0}
+    ],
+    "interpretation": "SYN flood detected: 500 SYN packets, zero response, 0.4ms IAT"
+}
+```
+
+**Key talking points:**
+- Score 0.847 >> threshold 0.312 → clear anomaly
+- The XAI tells us WHY: high SYN count, zero backward traffic, tiny IAT
+- This is not a black box — every decision is explained
+
+### Step 5 — Show Pipeline Timing
+
+```bash
+python -m profiling.latency_benchmark --n_flows 100 --output /tmp/demo_bench/
+# Opens: /tmp/demo_bench/latency_cdf.png  (show on projector)
+```
+
+Expected timing summary:
+```
+DT Stage 1:          <1ms  (all flows)
+DDL Stage 2:        ~45ms  (flagged flows only, ~15%)
+XAI (native):        ~5ms  (anomalous flows only)
+XAI (SHAP):        ~220ms  (optional, anomalous flows only)
+Total latency 95%:  520ms  (anomaly path, less than 1s)
 ```
 
 ---
 
-## Anticipated Q&A
+## PCAP Replay Demo (Alternative — No Switch)
 
-**Q: How does it handle zero-day attacks?**
-> "DDL is a one-class model trained only on normal traffic. Any traffic that deviates from normal patterns — including attacks we've never seen — will have high reconstruction error. This is the key advantage over supervised classifiers."
+Show accuracy on real CIC-IDS-2017 data:
 
-**Q: What about performance at line rate?**
-> "DT runs at ~3ms — well within line rate for 1Gbps links. DDL only activates for DT-flagged flows (<15% in our experiments). The system is designed to scale horizontally — multiple DDL workers can be added behind a load balancer."
+```bash
+# Terminal 1:
+python LiveTraffic/pcap_replay_pipeline.py \
+    --mode labeled \
+    --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
+    --ddl-model models/ddl_30feat.pkl \
+    --max-files 500 \
+    --output logs/demo_friday.json
 
-**Q: Why use SHAP on top of DDL's native explanations?**
-> "DDL's native explanation identifies WHICH features had high reconstruction error. SHAP provides a complementary model-agnostic view of WHICH features pushed the anomaly SCORE up or down. When both methods agree, we have very high confidence in the decision."
-
-**Q: How does the physical switch integration work?**
-> "We use a SPAN/mirror port on the switch. The SDN pipeline runs on a separate machine connected to that mirror port. For actual DROP actions, we use an OpenFlow controller that installs flow entries on the switch. See our LiveTraffic/ documentation."
+# Results appear in ~5 minutes:
+# ════════════════════════════════════════════════════════
+# PCAP REPLAY — LABELED TEST RESULTS
+# ════════════════════════════════════════════════════════
+#   Flows: 500   Skipped: 0
+#   Accuracy:   0.91   F1: 0.90
+#   DDoS:     F1=0.93  Precision=0.91  Recall=0.95
+#   PortScan: F1=0.88  Precision=0.86  Recall=0.90
+#   Bot:      F1=0.82  Precision=0.80  Recall=0.85
+#   BENIGN:   F1=0.94  Precision=0.96  Recall=0.92
+```
 
 ---
 
-## Pre-Demo Checklist
+## Talking Points for Audience
 
-- [ ] Both laptops charged and connected to switch
-- [ ] Mirror port configured on switch (verify with `tcpdump -i eth1 -n`)
-- [ ] Models trained: `models/ddl_30feat.pkl` exists
-- [ ] Latency plots pre-generated: `profiling/results/latency_cdf.png`
-- [ ] Dashboard starts: `streamlit run EnhancedPipeline/dashboard.py`
-- [ ] API server running: `python EnhancedPipeline/rest_api.py --port 5001`
-- [ ] Demo PCAPs ready: `LiveTraffic/demo_pcaps/normal.pcap`, `attack.pcap`, `borderline.pcap`
-- [ ] Run `python -m tests.test_pipeline` — all 27 tests pass
+1. **Two-stage cascade**: DT (fast, 15 features) filters easy cases first,
+   sending only suspicious flows to the expensive DDL+XAI stage (~15% of traffic).
+
+2. **Flow-level, not packet-level**: DDL operates on aggregated flow statistics
+   — 30 features computed over all packets in a conversation. This is why DDoS
+   (which looks like normal individual packets) IS detectable.
+
+3. **One-class training**: DDL was trained **only on normal traffic** from Monday
+   (CIC-IDS-2017 benign day). It detects anomalies as flows that don't fit the
+   learned normal pattern — not by seeing attack examples.
+
+4. **Zero-trust default**: Ambiguous flows are blocked (timeout → DROP).
+
+5. **XAI explains every block**: No mystery — the system names the exact
+   statistical features that triggered the alert.
+
+6. **Research contribution**: Combination of DDL + Isolation Forest (second opinion)
+   + SHAP/LIME explanations for encrypted traffic is novel for this problem domain.
+
+---
+
+## Emergency Fallback
+
+If hardware fails during the demo:
+
+```bash
+# Full software demo in <60 seconds:
+python LiveTraffic/live_pipeline.py --demo --duration 60 &
+streamlit run EnhancedPipeline/dashboard.py
+```
+
+Switch to the pre-recorded timing chart:
+```bash
+ls profiling/results/   # pre-generated CDF and box plots
+```

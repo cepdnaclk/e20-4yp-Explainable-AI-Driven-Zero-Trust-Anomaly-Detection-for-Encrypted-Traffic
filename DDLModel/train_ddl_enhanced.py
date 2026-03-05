@@ -10,24 +10,38 @@ only (one-class), evaluates on the test set, and saves both the DDL and an
 Isolation Forest model.
 
 Usage:
-    # From project root:
-    python DDLModel/train_ddl_enhanced.py \\
-        --train dataset/TRAIN_Traffic.csv \\
-        --test  dataset/TEST_Traffic.csv \\
-        --ddl-output models/ddl_30feat.pkl \\
-        --if-output  models/isolation_forest.pkl \\
+    # CPU training (default):
+    python DDLModel/train_ddl_enhanced.py \
+        --train dataset/TRAIN_Traffic.csv \
+        --test  dataset/TEST_Traffic.csv \
         --epochs 150 --atoms-l1 64 --atoms-l2 128
 
-    # Quick run (fewer epochs for debugging):
-    python DDLModel/train_ddl_enhanced.py \\
-        --train dataset/TRAIN_Traffic.csv \\
-        --test  dataset/TEST_Traffic.csv \\
+    # GPU training (CUDA, auto-selects most-free RTX 6000):
+    python DDLModel/train_ddl_enhanced.py \
+        --train dataset/TRAIN_Traffic.csv \
+        --test  dataset/TEST_Traffic.csv \
+        --epochs 150 --atoms-l1 64 --atoms-l2 128 \
+        --gpu --batch-size 512
+
+    # Quick debug run (fewer epochs, limited rows):
+    python DDLModel/train_ddl_enhanced.py \
+        --train dataset/TRAIN_Traffic.csv \
+        --test  dataset/TEST_Traffic.csv \
         --epochs 30 --max-train-rows 50000
+
+    # GPU quick debug:
+    python DDLModel/train_ddl_enhanced.py \
+        --train dataset/TRAIN_Traffic.csv --test dataset/TEST_Traffic.csv \
+        --epochs 30 --max-train-rows 50000 --gpu --batch-size 512
 
 Output:
     models/ddl_30feat.pkl          — Trained DeepDictionaryLearning model
     models/isolation_forest.pkl    — Trained IsolationForestVoter model
     models/train_report.json       — Training metrics and feature mapping
+
+GPU Setup (if not yet done):
+    pip install torch --index-url https://download.pytorch.org/whl/cu124
+    See DDLModel/GPU_SETUP.md for full instructions.
 """
 
 import argparse
@@ -215,6 +229,7 @@ def train_ddl_enhanced(
     threshold_pct: int = CFG.DDL_THRESHOLD_PCT,
     max_train_rows: Optional[int] = None,
     max_test_rows:  Optional[int] = None,
+    use_gpu: bool = False,
 ) -> dict:
 
     os.makedirs(os.path.dirname(ddl_output),  exist_ok=True)
@@ -230,6 +245,9 @@ def train_ddl_enhanced(
 
     # ── Train DDL ─────────────────────────────────────────────────────────────
     logger.info("=== STAGE 2: Training Deep Dictionary Learning model ===")
+    if use_gpu:
+        logger.info("GPU mode requested — will use CUDA if available (see DDLModel/GPU_SETUP.md)")
+        logger.info("  Recommended: --batch-size 512 for GPU efficiency")
     t0 = time.time()
     ddl = DeepDictionaryLearning(
         n_features=N_DDL_FEATURES,
@@ -238,6 +256,7 @@ def train_ddl_enhanced(
         n_epochs=n_epochs,
         batch_size=batch_size,
         threshold_percentile=threshold_pct,
+        use_gpu=use_gpu,
     )
     ddl.fit(X_normal)
     ddl_train_time = time.time() - t0
@@ -296,6 +315,7 @@ def train_ddl_enhanced(
             "threshold_pct":     threshold_pct,
             "threshold_learned": float(ddl.threshold_),
             "training_time_s":   round(ddl_train_time, 2),
+            "device":            ddl.device,
         },
         "isolation_forest": {
             "trained":          if_trained,
@@ -346,6 +366,12 @@ if __name__ == "__main__":
     parser.add_argument("--batch-size",type=int, default=CFG.DDL_BATCH_SIZE)
     parser.add_argument("--threshold-pct", type=int, default=CFG.DDL_THRESHOLD_PCT)
     parser.add_argument(
+        "--gpu", action="store_true", default=False,
+        help="Use CUDA GPU for training (auto-selects most-free GPU). "
+             "Requires: pip install torch --index-url https://download.pytorch.org/whl/cu124. "
+             "See DDLModel/GPU_SETUP.md. Recommended batch-size: 512."
+    )
+    parser.add_argument(
         "--max-train-rows", type=int, default=None,
         help="Limit rows read from train CSV (useful for quick debug runs)"
     )
@@ -354,6 +380,13 @@ if __name__ == "__main__":
         help="Limit rows read from test CSV"
     )
     args = parser.parse_args()
+
+    # GPU tip
+    if args.gpu and args.batch_size < 256:
+        logger.warning(
+            "GPU mode with batch_size=%d is suboptimal. "
+            "Consider --batch-size 512 for GPU efficiency.", args.batch_size
+        )
 
     report = train_ddl_enhanced(
         train_csv=args.train,
@@ -367,6 +400,7 @@ if __name__ == "__main__":
         threshold_pct=args.threshold_pct,
         max_train_rows=args.max_train_rows,
         max_test_rows=args.max_test_rows,
+        use_gpu=args.gpu,
     )
 
     print("\n" + "=" * 55)

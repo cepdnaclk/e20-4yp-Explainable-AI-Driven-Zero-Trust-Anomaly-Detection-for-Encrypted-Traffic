@@ -42,6 +42,50 @@ from datetime import datetime
 
 logger = logging.getLogger("DDL")
 
+# ── Optional GPU (PyTorch) backend ───────────────────────────────────────────
+try:
+    import torch
+    _TORCH_AVAILABLE = True
+except ImportError:
+    _TORCH_AVAILABLE = False
+
+
+def _select_device(use_gpu: bool = False) -> str:
+    """
+    Select the best available device.
+    Returns 'cuda:N' (most free GPU), 'cpu', or 'cpu' if PyTorch unavailable.
+    """
+    if not use_gpu or not _TORCH_AVAILABLE:
+        return "cpu"
+    if not torch.cuda.is_available():
+        logger.warning("GPU requested but CUDA not available — falling back to CPU")
+        return "cpu"
+    # Pick the GPU with the most free memory
+    best_gpu = 0
+    best_free = 0
+    for i in range(torch.cuda.device_count()):
+        free, total = torch.cuda.mem_get_info(i)
+        logger.info(f"  GPU {i}: {torch.cuda.get_device_name(i)}  "
+                    f"free={free/1e9:.1f}GB/{total/1e9:.1f}GB")
+        if free > best_free:
+            best_free, best_gpu = free, i
+    device = f"cuda:{best_gpu}"
+    logger.info(f"Using GPU {best_gpu}: {torch.cuda.get_device_name(best_gpu)}")
+    return device
+
+
+def _to_torch(arr: np.ndarray, device: str):
+    """Convert numpy array to torch tensor on device."""
+    return torch.from_numpy(arr.astype(np.float32)).to(device)
+
+
+def _to_numpy(t) -> np.ndarray:
+    """Convert torch tensor to numpy (CPU)."""
+    if _TORCH_AVAILABLE and isinstance(t, torch.Tensor):
+        return t.detach().cpu().numpy().astype(np.float64)
+    return np.asarray(t, dtype=np.float64)
+
+
 
 class DeepDictionaryLearning:
     """
@@ -55,43 +99,43 @@ class DeepDictionaryLearning:
     def __init__(self, n_features=30, n_atoms_l1=64, n_atoms_l2=128,
                  n_atoms_l3=0,
                  sparsity_weight=0.1, learning_rate=0.001, n_epochs=100,
-                 batch_size=32, threshold_percentile=95, random_state=42):
+                 batch_size=32, threshold_percentile=95, random_state=42,
+                 use_gpu=False):
         """
         Args:
-            n_features: Number of input features.
-                        15  — legacy (same as DT features, not recommended for DDL)
-                        30  — recommended (use DDLModel/ddl_feature_extractor.py)
-            n_atoms_l1: Dictionary atoms in Layer 1 (coarse patterns).
-                        Recommended: 64 for n_features=30, 32 for n_features=15.
-            n_atoms_l2: Dictionary atoms in Layer 2 (fine patterns).
-                        Recommended: 128 for n_features=30, 64 for n_features=15.
-            n_atoms_l3: Dictionary atoms in optional Layer 3 (deepest patterns).
-                        Set to 0 (default) to disable Layer 3 (2-layer mode).
-                        Recommended: 256 if enabled, for complex datasets.
-                        Based on Tariyal et al. (2016) 3-layer extension.
-            sparsity_weight: L1 regularization strength for sparse coding (λ).
-                             Too high → over-sparse, loses detail.
-                             Too low  → dense codes, dictionary collapses.
-                             Recommended range: 0.05 – 0.2.
+            n_features: Number of input features (30 recommended for DDL).
+            n_atoms_l1: Dictionary atoms in Layer 1 (default 64).
+            n_atoms_l2: Dictionary atoms in Layer 2 (default 128).
+            n_atoms_l3: Dictionary atoms in optional Layer 3 (0 = 2-layer mode).
+            sparsity_weight: L1 regularization for ISTA (0.05–0.2).
             learning_rate: SGD step size for dictionary update.
-            n_epochs: Training epochs. 100 is sufficient; 200+ for 30-feature.
-            batch_size: Mini-batch size. 32 recommended.
-            threshold_percentile: Percentile of training errors used as the
-                anomaly decision boundary. 95 means 5% of training (normal)
-                samples are above the threshold (false-positive rate ≤ 5%).
-                Use calibrate_threshold() for F1-optimal threshold instead.
+            n_epochs: Training epochs (100 default; 150 recommended for 30-feat).
+            batch_size: Mini-batch size (32 default; 256–512 for GPU).
+            threshold_percentile: Anomaly threshold percentile of training errors.
             random_state: Reproducibility seed.
+            use_gpu: If True, use CUDA GPU via PyTorch (auto-selects best GPU).
+                     Falls back to CPU if PyTorch/CUDA unavailable.
+                     Recommended: True when training on RTX 6000 Ada.
         """
         self.n_features = n_features
         self.n_atoms_l1 = n_atoms_l1
         self.n_atoms_l2 = n_atoms_l2
-        self.n_atoms_l3 = n_atoms_l3      # 0 = 2-layer mode (default)
+        self.n_atoms_l3 = n_atoms_l3
         self.sparsity_weight = sparsity_weight
         self.learning_rate = learning_rate
         self.n_epochs = n_epochs
         self.batch_size = batch_size
         self.threshold_percentile = threshold_percentile
         self.random_state = random_state
+        self.use_gpu = use_gpu
+
+        # Device selection (CPU or best available CUDA GPU)
+        self.device = _select_device(use_gpu)
+        self._use_torch = (self.device != "cpu" and _TORCH_AVAILABLE)
+        if self._use_torch:
+            logger.info(f"DDL will use GPU backend: {self.device}")
+        else:
+            logger.info("DDL will use CPU backend (NumPy)")
 
         np.random.seed(random_state)
 
@@ -121,47 +165,60 @@ class DeepDictionaryLearning:
     def _sparse_code(self, D, x, n_iter=50):
         """
         ISTA (Iterative Shrinkage-Thresholding Algorithm) for sparse coding.
-        
         Solves: min_α  (1/2)||x - D @ α||² + λ||α||₁
-        
-        Args:
-            D: Dictionary matrix (d × k).
-            x: Input vector or batch (d,) or (n, d).
-            n_iter: Number of ISTA iterations.
-            
-        Returns:
-            α: Sparse coefficients (k,) or (n, k).
+        Supports both NumPy (CPU) and PyTorch (GPU) backends.
         """
+        if self._use_torch:
+            return self._sparse_code_gpu(D, x, n_iter)
+        return self._sparse_code_cpu(D, x, n_iter)
+
+    def _sparse_code_cpu(self, D, x, n_iter=50):
+        """NumPy ISTA (CPU path)."""
         single = (x.ndim == 1)
         if single:
             x = x.reshape(1, -1)
-
-        n_samples = x.shape[0]
-        k = D.shape[1]
-
-        # Lipschitz constant (step size)
+        n_samples, k = x.shape[0], D.shape[1]
         L = np.linalg.norm(D.T @ D, ord=2)
         if L < 1e-10:
             L = 1.0
         step = 1.0 / L
-
-        # Initialize
         alpha = np.zeros((n_samples, k))
-        lam = self.sparsity_weight * step
-
-        DtD = D.T @ D
-        Dtx = x @ D  # (n, k)
-
+        lam   = self.sparsity_weight * step
+        DtD   = D.T @ D
+        Dtx   = x @ D
         for _ in range(n_iter):
-            # Gradient step
             gradient = alpha @ DtD - Dtx
-            alpha = alpha - step * gradient
-            # Soft thresholding (proximal operator for L1)
-            alpha = np.sign(alpha) * np.maximum(np.abs(alpha) - lam, 0)
-
+            alpha    = alpha - step * gradient
+            alpha    = np.sign(alpha) * np.maximum(np.abs(alpha) - lam, 0)
         if single:
             return alpha[0]
         return alpha
+
+    def _sparse_code_gpu(self, D_np, x_np, n_iter=50):
+        """PyTorch ISTA (GPU path). D and x may be numpy; returned as numpy."""
+        import torch
+        single = (x_np.ndim == 1)
+        if single:
+            x_np = x_np.reshape(1, -1)
+        D = _to_torch(D_np if isinstance(D_np, np.ndarray) else _to_numpy(D_np), self.device)
+        x = _to_torch(x_np if isinstance(x_np, np.ndarray) else _to_numpy(x_np), self.device)
+        k = D.shape[1]
+        L = torch.linalg.norm(D.T @ D, ord=2).item()
+        if L < 1e-10:
+            L = 1.0
+        step = 1.0 / L
+        alpha = torch.zeros(x.shape[0], k, device=self.device, dtype=torch.float32)
+        lam   = self.sparsity_weight * step
+        DtD   = D.T @ D
+        Dtx   = x @ D
+        for _ in range(n_iter):
+            gradient = alpha @ DtD - Dtx
+            alpha    = alpha - step * gradient
+            alpha    = torch.sign(alpha) * torch.clamp(torch.abs(alpha) - lam, min=0)
+        result = _to_numpy(alpha)
+        if single:
+            return result[0]
+        return result
 
     def _update_dictionary(self, D, X, alpha):
         """
@@ -230,12 +287,15 @@ class DeepDictionaryLearning:
         else:
             self.D3 = None
 
-        self.training_history_ = []
+        # Log device
+        gpu_str = f" | device={self.device}" if self._use_torch else " | device=cpu"
         layer_str = f"L1={self.n_atoms_l1}, L2={self.n_atoms_l2}"
         if self.D3 is not None:
             layer_str += f", L3={self.n_atoms_l3}"
-        logger.info(f"Training DDL ({self.n_features} features, {layer_str}): "
+        logger.info(f"Training DDL ({self.n_features} features, {layer_str}){gpu_str}: "
                      f"{n_samples} samples")
+        if self.batch_size < 256 and self._use_torch:
+            logger.info("  Tip: for GPU training, batch_size=256 or 512 is faster")
 
         for epoch in range(self.n_epochs):
             # Shuffle
@@ -560,6 +620,7 @@ class DeepDictionaryLearning:
             "sparsity_weight": self.sparsity_weight,
             "training_history_": self.training_history_,
             "is_fitted_": self.is_fitted_,
+            "use_gpu": self.use_gpu,
         }
         joblib.dump(state, path)
         logger.info(f"DDL model saved to {path}")
@@ -572,9 +633,13 @@ class DeepDictionaryLearning:
             n_features    = state["n_features"],
             n_atoms_l1    = state["n_atoms_l1"],
             n_atoms_l2    = state["n_atoms_l2"],
-            n_atoms_l3    = state.get("n_atoms_l3", 0),   # backward-compatible
+            n_atoms_l3    = state.get("n_atoms_l3", 0),
             sparsity_weight = state["sparsity_weight"],
+            use_gpu       = state.get("use_gpu", False),  # preserve training device pref
         )
+        # Loaded models always run inference on CPU (safe across machines)
+        model.device     = "cpu"
+        model._use_torch = False
         model.D1 = state["D1"]
         model.D2 = state["D2"]
         model.D3 = state.get("D3", None)
@@ -585,5 +650,5 @@ class DeepDictionaryLearning:
         model.is_fitted_        = state["is_fitted_"]
         logger.info(f"DDL model loaded from {path}  "
                      f"({model.n_features} features, "
-                     f"{'3' if model.D3 is not None else '2'}-layer)")
+                     f"{'3' if model.D3 is not None else '2'}-layer, inference on CPU)")
         return model
