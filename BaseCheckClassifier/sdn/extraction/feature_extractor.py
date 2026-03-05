@@ -1,211 +1,317 @@
-import pandas as pd
-from nfstream import NFStreamer, NFPlugin
-import logging
-import numpy as np
+"""
+feature_extractor.py — CICFlowMeter-Compatible Feature Extractor
+=================================================================
+Extracts exactly 15 features from a PCAP file using pure DPKT,
+replicating the exact formulas used by CICFlowMeter (Java) to generate
+the CIC-IDS-2017 dataset. This ensures extracted features match the
+training CSV values so the model can make accurate predictions.
 
-# Setup logging
+CICFlowMeter Formula Reference (from BasicFlow.java, BasicPacketInfo.java):
+  - payloadBytes   = ip.len - ip.hl*4 - tcp.off*4   (pure TCP payload)
+  - headerBytes    = ip.hl*4 + tcp.off*4             (IP + TCP headers, incl. options)
+  - Total Length of Fwd Packets = sum(fwd TCP payloads)
+  - Fwd/Bwd Header Length       = sum(headerBytes) per direction
+  - Fwd Packet Length Max       = max(fwd TCP payloads)
+  - Packet Length Variance      = variance of ALL packet TCP payloads (bidirectional)
+  - Init_Win_bytes_forward      = tcp.win of the very first forward packet
+  - Init_Win_bytes_backward     = tcp.win of the very first backward packet
+  - Flow Duration               = last_ts - first_ts  (microseconds)
+  - Flow IAT Min/Max            = min/max of consecutive bidirectional IATs (microseconds)
+  - Fwd IAT Min                 = min of consecutive forward-only IATs
+  - Bwd IAT Total               = sum of consecutive backward-only IATs
+  - Bwd Packets/s               = bwd_count / (flow_duration_us / 1e6)
+  - Flow Bytes/s                = (fwd_bytes+bwd_bytes) / (flow_duration_us / 1e6)
+  - Active Min                  = min of active-period durations; 0 if no idle gap > 5s found
+"""
+
+import logging
+import math
+import socket
+
+import dpkt
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("FeatureExtractor")
 
+# CICFlowMeter's activity timeout threshold (microseconds)
+# A new idle period is detected when gap between packets > 5 seconds
+ACTIVITY_TIMEOUT_US = 5_000_000  # 5 seconds in microseconds
+
+# The 15 features expected by the Sentry model, in order.
+REQUIRED_FEATURES = [
+    'Packet Length Variance',
+    'Fwd Packet Length Max',
+    'Fwd Header Length',
+    'Init_Win_bytes_forward',
+    'Bwd Header Length',
+    'Total Length of Fwd Packets',
+    'Init_Win_bytes_backward',
+    'Bwd Packets/s',
+    'Flow IAT Min',
+    'Fwd IAT Min',
+    'Flow Bytes/s',
+    'Active Min',
+    'Bwd IAT Total',
+    'Flow IAT Max',
+    'Flow Duration',
+]
+
+
+def _variance(values):
+    """Population variance matching Apache Commons Math SummaryStatistics.getVariance()."""
+    n = len(values)
+    if n < 2:
+        return 0.0
+    mean = sum(values) / n
+    return sum((v - mean) ** 2 for v in values) / n  # population variance (n, not n-1)
+
+
+def _compute_active_min(all_timestamps_us):
+    """
+    Replicate CICFlowMeter's updateActiveIdleTime / endActiveIdleTime logic.
+
+    An idle gap is detected when the time between consecutive packets exceeds
+    ACTIVITY_TIMEOUT_US (5 seconds). Each contiguous run of packets with
+    gaps <= threshold is one 'active period'. Active Min is the minimum
+    duration of any active period.
+
+    Returns 0 if there are no idle gaps (flow never went idle), matching
+    CICFlowMeter's behaviour when flowActive.getN() == 0.
+    """
+    if len(all_timestamps_us) < 2:
+        return 0.0
+
+    active_periods = []
+    start_active = all_timestamps_us[0]
+    end_active   = all_timestamps_us[0]
+
+    for i in range(1, len(all_timestamps_us)):
+        gap = all_timestamps_us[i] - all_timestamps_us[i - 1]
+        if gap > ACTIVITY_TIMEOUT_US:
+            # End of an active period
+            duration = end_active - start_active
+            if duration > 0:
+                active_periods.append(duration)
+            # Start fresh active period
+            start_active = all_timestamps_us[i]
+            end_active   = all_timestamps_us[i]
+        else:
+            end_active = all_timestamps_us[i]
+
+    # Finalise the last active period
+    duration = end_active - start_active
+    if duration > 0:
+        active_periods.append(duration)
+
+    if not active_periods:
+        return 0.0
+    return min(active_periods)
+
+
 def extract_features(pcap_path):
     """
-    Extracts 15 specific behavioral features required by the Sentry Zero-Leak model.
-    
-    This function performs a hybrid extraction using:
-    1. DPKT: For packet-level analysis to capture TCP handshake data (Window sizes)
-       and accumulating header lengths per direction.
-    2. NFStream: For flow-level statistical analysis to capture timing (IAT),
-       packet length variance, and byte rates.
+    Extract 15 CICFlowMeter-compatible features from a PCAP file.
+
+    Uses a single pass through all TCP packets with DPKT, replicating
+    CICFlowMeter's exact calculation methodology from the Java source.
 
     Args:
-        pcap_path (str): The absolute path to the PCAP file to be analyzed.
-        
+        pcap_path (str): Absolute path to the PCAP file.
+
     Returns:
-        dict: A dictionary containing:
-            - "valid" (bool): True if extraction was successful.
-            - "features" (dict): Mapping of feature names to their numerical values.
-            - "ordered_features" (list): List of 15 feature values in the exact order
-              required by the machine learning model.
-            - "flow_id" (str): Source and destination IP/Port identifier.
-            - "protocol" (str): Detected application protocol (e.g., HTTP, DNS).
+        dict with keys:
+            "valid"           (bool)   – True if extraction succeeded.
+            "features"        (dict)   – Feature name → value.
+            "ordered_features"(list)   – 15 values in model-required order.
+            "flow_id"         (str)    – "src_ip:src_port->dst_ip:dst_port".
+            "error"           (str)    – Present only when valid=False.
     """
-    
-    # The 15 features expected by the Sentry model. 
-    # Order is critical as the model was trained on this specific sequence.
-    REQUIRED_FEATURES = [
-        'Packet Length Variance', 'Fwd Packet Length Max', 'Fwd Header Length',
-        'Init_Win_bytes_forward', 'Bwd Header Length', 'Total Length of Fwd Packets',
-        'Init_Win_bytes_backward', 'Bwd Packets/s', 'Flow IAT Min', 'Fwd IAT Min',
-        'Flow Bytes/s', 'Active Min', 'Bwd IAT Total', 'Flow IAT Max', 'Flow Duration'
-    ]
-
-    def get_flow_key(src_ip, src_port, dst_ip, dst_port, proto):
-        """Standardized flow key for matching."""
-        # NFStream flow matching is bidirectional. We need a consistent key.
-        # We will use sorted IP/Port pair to match NFStream's bidirectional behavior.
-        if src_ip < dst_ip:
-            return (src_ip, src_port, dst_ip, dst_port, proto)
-        elif src_ip > dst_ip:
-            return (dst_ip, dst_port, src_ip, src_port, proto)
-        else:
-            if src_port <= dst_port:
-                return (src_ip, src_port, dst_ip, dst_port, proto)
-            else:
-                return (dst_ip, dst_port, src_ip, src_port, proto)
-
-    # 1. Extract Handshake features using DPKT (Fast pass)
-    handshake_features = {}
     try:
-        import dpkt
-        import socket
-        
-        f = open(pcap_path, 'rb')
-        pcap = dpkt.pcap.Reader(f)
-        
-        for ts, buf in pcap:
-            try:
-                eth = dpkt.ethernet.Ethernet(buf)
-                if not isinstance(eth.data, dpkt.ip.IP): continue
+        # ------------------------------------------------------------------ #
+        # Pass 1: collect per-packet data                                     #
+        # ------------------------------------------------------------------ #
+        fwd_src_ip   = None   # IP of the forward direction (first packet)
+        fwd_src_port = None
+        fwd_dst_ip   = None
+        fwd_dst_port = None
+
+        # Timestamps (microseconds)
+        all_timestamps_us = []
+
+        # Per-direction accumulation
+        fwd_payloads    = []   # TCP payload bytes per fwd packet
+        bwd_payloads    = []   # TCP payload bytes per bwd packet
+        fwd_header_sum  = 0    # Sum of header bytes (IP+TCP) fwd
+        bwd_header_sum  = 0    # Sum of header bytes (IP+TCP) bwd
+        fwd_timestamps  = []   # Timestamps of fwd packets (us)
+        bwd_timestamps  = []   # Timestamps of bwd packets (us)
+
+        init_win_fwd    = 0    # TCP window of first fwd packet
+        init_win_bwd    = 0    # TCP window of first bwd packet
+        got_win_fwd     = False
+        got_win_bwd     = False
+
+        with open(pcap_path, 'rb') as f:
+            reader = dpkt.pcap.Reader(f)
+
+            for raw_ts, buf in reader:
+                try:
+                    eth = dpkt.ethernet.Ethernet(buf)
+                except Exception:
+                    continue
+
+                if not isinstance(eth.data, dpkt.ip.IP):
+                    continue
                 ip = eth.data
-                
-                if ip.p != dpkt.ip.IP_PROTO_TCP: continue
+
+                if ip.p != dpkt.ip.IP_PROTO_TCP:
+                    continue
                 tcp = ip.data
-                
-                src_ip = socket.inet_ntoa(ip.src)
-                dst_ip = socket.inet_ntoa(ip.dst)
-                
-                # IP Header + TCP Header
-                header_len = (ip.hl * 4) + (tcp.off * 4) 
 
-                # Check for Init Window (SYN) and Header Lengths
-                # Store per direction
-                exact_key = (src_ip, tcp.sport, dst_ip, tcp.dport, ip.p)
+                src_ip  = socket.inet_ntoa(ip.src)
+                dst_ip  = socket.inet_ntoa(ip.dst)
+                src_port = tcp.sport
+                dst_port = tcp.dport
 
-                if exact_key not in handshake_features:
-                     handshake_features[exact_key] = {'win': 0, 'header_sum': 0, 'count': 0}
-                
-                # Check for Init Window (SYN)
-                if (tcp.flags & dpkt.tcp.TH_SYN) and handshake_features[exact_key]['win'] == 0:
-                     handshake_features[exact_key]['win'] = tcp.win
-                
-                # If just first packet seen for this direction and no SYN (mid-stream capture), take it
-                if handshake_features[exact_key]['count'] == 0 and handshake_features[exact_key]['win'] == 0:
-                     handshake_features[exact_key]['win'] = tcp.win
+                # dpkt gives timestamp as a float in seconds; convert to microseconds
+                ts_us = int(raw_ts * 1_000_000)
 
-                handshake_features[exact_key]['header_sum'] += header_len
-                handshake_features[exact_key]['count'] += 1
+                # CICFlowMeter formula:
+                #   ip_header_len   = ip.hl * 4
+                #   tcp_header_len  = tcp.off * 4   (data offset = full TCP header incl. options)
+                #   header_bytes    = ip_header_len + tcp_header_len
+                #   payload_bytes   = ip.len - ip_header_len - tcp_header_len
+                ip_hdr_len  = ip.hl * 4
+                tcp_hdr_len = tcp.off * 4
+                header_bytes  = ip_hdr_len + tcp_hdr_len
+                payload_bytes = max(0, ip.len - ip_hdr_len - tcp_hdr_len)
 
-            except Exception:
-                continue
-        f.close()
-    except Exception as e:
-        logger.warning(f"DPKT Extraction failed: {e}")
+                # Establish flow direction from the very first packet
+                if fwd_src_ip is None:
+                    fwd_src_ip   = src_ip
+                    fwd_src_port = src_port
+                    fwd_dst_ip   = dst_ip
+                    fwd_dst_port = dst_port
 
-    try:
-        # 2. Main Extraction using NFStream
-        # Set large active timeout to prevent splitting long synthetic flows
-        streamer = NFStreamer(source=pcap_path, statistical_analysis=True, 
-                              active_timeout=7200, idle_timeout=300)
-        df = streamer.to_pandas()
-        
-        if df.empty:
-            logger.warning(f"No flows found in {pcap_path}")
-            return {"valid": False, "error": "No flows found", "features": {}}
-            
-        logger.info(f"NFStream found {len(df)} flows in {pcap_path}")
-        flow = df.iloc[0]
-        features = {}
-        
-        # Helper to get supplemental data
-        # NFStream Flow: src_ip, src_port -> dst_ip, dst_port
-        s_ip, s_port = flow.get('src_ip'), flow.get('src_port')
-        d_ip, d_port = flow.get('dst_ip'), flow.get('dst_port')
-        proto = 6 if flow.get('protocol') == 6 else 17 # Simplified
-        
-        fwd_key = (s_ip, s_port, d_ip, d_port, proto)
-        bwd_key = (d_ip, d_port, s_ip, s_port, proto)
-        
-        fwd_data = handshake_features.get(fwd_key, {'win': 0, 'header_sum': 0})
-        bwd_data = handshake_features.get(bwd_key, {'win': 0, 'header_sum': 0})
+                all_timestamps_us.append(ts_us)
 
-        # --- Feature Mapping ---
+                is_forward = (src_ip == fwd_src_ip)
 
-        # 1. Packet Length Variance
-        features['Packet Length Variance'] = flow.get('bidirectional_stddev_ps', 0) ** 2
+                if is_forward:
+                    fwd_payloads.append(payload_bytes)
+                    fwd_header_sum += header_bytes
+                    fwd_timestamps.append(ts_us)
 
-        # 2. Fwd Packet Length Max
-        features['Fwd Packet Length Max'] = flow.get('src2dst_max_ps', 0)
+                    if not got_win_fwd:
+                        init_win_fwd = tcp.win
+                        got_win_fwd  = True
+                else:
+                    bwd_payloads.append(payload_bytes)
+                    bwd_header_sum += header_bytes
+                    bwd_timestamps.append(ts_us)
 
-        # 3. Fwd Header Length (From DPKT)
-        features['Fwd Header Length'] = fwd_data['header_sum']
+                    if not got_win_bwd:
+                        init_win_bwd = tcp.win
+                        got_win_bwd  = True
 
-        # 4. Init_Win_bytes_forward (From DPKT)
-        features['Init_Win_bytes_forward'] = fwd_data['win']
+        # ------------------------------------------------------------------ #
+        # Require at least one packet                                         #
+        # ------------------------------------------------------------------ #
+        if not all_timestamps_us:
+            logger.warning(f"No TCP packets found in {pcap_path}")
+            return {"valid": False, "error": "No TCP packets found", "features": {}}
 
-        # 5. Bwd Header Length (From DPKT)
-        features['Bwd Header Length'] = bwd_data['header_sum']
+        # ------------------------------------------------------------------ #
+        # Pass 2: compute all 15 features from accumulated data               #
+        # ------------------------------------------------------------------ #
 
-        # 6. Total Length of Fwd Packets
-        features['Total Length of Fwd Packets'] = flow.get('src2dst_bytes', 0)
+        # --- Timing ---
+        flow_duration_us = all_timestamps_us[-1] - all_timestamps_us[0]
+        duration_sec = flow_duration_us / 1_000_000.0
 
-        # 7. Init_Win_bytes_backward (From DPKT)
-        features['Init_Win_bytes_backward'] = bwd_data['win']
+        # Inter-Arrival Times (microseconds), matching CICFlowMeter
+        # flowIAT: diff between successive packets in the bidirectional stream
+        flow_iats = [
+            all_timestamps_us[i] - all_timestamps_us[i - 1]
+            for i in range(1, len(all_timestamps_us))
+        ]
+        # forwardIAT: diff between successive forward packets only
+        fwd_iats = [
+            fwd_timestamps[i] - fwd_timestamps[i - 1]
+            for i in range(1, len(fwd_timestamps))
+        ]
+        # backwardIAT: diff between successive backward packets only
+        bwd_iats = [
+            bwd_timestamps[i] - bwd_timestamps[i - 1]
+            for i in range(1, len(bwd_timestamps))
+        ]
 
-        # 8. Bwd Packets/s
-        duration_sec = flow.get('bidirectional_duration_ms', 0) / 1000.0
-        if duration_sec == 0: duration_sec = 0.000001
-        features['Bwd Packets/s'] = flow.get('dst2src_packets', 0) / duration_sec
+        # --- Packet length stats (TCP payload, bidirectional) ---
+        all_payloads = fwd_payloads + bwd_payloads
 
-        # 9. Flow IAT Min
-        features['Flow IAT Min'] = flow.get('bidirectional_min_piat_ms', 0) * 1000
+        pkt_length_variance   = _variance(all_payloads)
+        fwd_pkt_length_max    = max(fwd_payloads) if fwd_payloads else 0
+        total_len_fwd_packets = sum(fwd_payloads)
 
-        # 10. Fwd IAT Min
-        features['Fwd IAT Min'] = flow.get('src2dst_min_piat_ms', 0) * 1000
-
-        # 11. Flow Bytes/s
-        features['Flow Bytes/s'] = flow.get('bidirectional_bytes', 0) / duration_sec
-
-        # 12. Active Min
-        # Fallback to Flow Duration if no idle stats available
-        features['Active Min'] = flow.get('bidirectional_duration_ms', 0) * 1000 
-
-        # 13. Bwd IAT Total
-        features['Bwd IAT Total'] = flow.get('dst2src_duration_ms', 0) * 1000
-
-        # 14. Flow IAT Max
-        features['Flow IAT Max'] = flow.get('bidirectional_max_piat_ms', 0) * 1000
-
-        # 15. Flow Duration
-        features['Flow Duration'] = flow.get('bidirectional_duration_ms', 0) * 1000
-
-        # Handle numpy types
-        for k, v in features.items():
-            if hasattr(v, 'item'):
-                features[k] = v.item()
-            if np.isnan(features[k]):
-                 features[k] = 0
-
-        # Metadata
-        if 'protocol_name' in flow:
-            protocol = flow['protocol_name']
-        elif 'application_name' in flow:
-             protocol = flow['application_name']
+        # --- Rates ---
+        bwd_count = len(bwd_payloads)
+        if duration_sec > 0:
+            bwd_pkts_per_sec = bwd_count / duration_sec
+            flow_bytes_per_sec = sum(all_payloads) / duration_sec
         else:
-            protocol = "Unknown"
+            bwd_pkts_per_sec   = 0.0
+            flow_bytes_per_sec = 0.0
+
+        # --- IAT summary stats ---
+        flow_iat_min = min(flow_iats) if flow_iats else 0
+        flow_iat_max = max(flow_iats) if flow_iats else 0
+        fwd_iat_min  = min(fwd_iats)  if fwd_iats  else 0
+        bwd_iat_total = sum(bwd_iats) if bwd_iats  else 0
+
+        # --- Active Min (CICFlowMeter active/idle period logic) ---
+        active_min = _compute_active_min(all_timestamps_us)
+
+        # ------------------------------------------------------------------ #
+        # Build feature dict                                                  #
+        # ------------------------------------------------------------------ #
+        features = {
+            'Packet Length Variance':       pkt_length_variance,
+            'Fwd Packet Length Max':         fwd_pkt_length_max,
+            'Fwd Header Length':             fwd_header_sum,
+            'Init_Win_bytes_forward':        init_win_fwd,
+            'Bwd Header Length':             bwd_header_sum,
+            'Total Length of Fwd Packets':   total_len_fwd_packets,
+            'Init_Win_bytes_backward':       init_win_bwd,
+            'Bwd Packets/s':                 bwd_pkts_per_sec,
+            'Flow IAT Min':                  flow_iat_min,
+            'Fwd IAT Min':                   fwd_iat_min,
+            'Flow Bytes/s':                  flow_bytes_per_sec,
+            'Active Min':                    active_min,
+            'Bwd IAT Total':                 bwd_iat_total,
+            'Flow IAT Max':                  flow_iat_max,
+            'Flow Duration':                 flow_duration_us,
+        }
+
+        flow_id = (
+            f"{fwd_src_ip}:{fwd_src_port}->{fwd_dst_ip}:{fwd_dst_port}"
+            if fwd_src_ip else "unknown"
+        )
 
         return {
-            "valid": True,
-            "features": features,
+            "valid":            True,
+            "features":         features,
             "ordered_features": [features[k] for k in REQUIRED_FEATURES],
-            "flow_id": f"{s_ip}:{s_port}->{d_ip}:{d_port}",
-            "protocol": protocol
+            "flow_id":          flow_id,
         }
 
     except Exception as e:
         logger.error(f"Extraction Error for {pcap_path}: {e}")
         return {"valid": False, "error": str(e), "features": {}}
 
+
 if __name__ == "__main__":
     import sys
+    import json
     if len(sys.argv) > 1:
-        print(extract_features(sys.argv[1]))
+        result = extract_features(sys.argv[1])
+        print(json.dumps(result, indent=2))

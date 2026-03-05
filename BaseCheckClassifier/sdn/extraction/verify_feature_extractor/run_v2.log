@@ -1,0 +1,16 @@
+[*] Loading CSV: /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/Machine-Learning-CSV/MachineLearningCVE/Monday-WorkingHours.pcap_ISCX.csv
+[*] CSV loaded: 529918 rows
+[*] Tasks: 268856 streams (1 skipped)
+[*] Sampled: 500
+[*] Running verification: 500 streams, 8 workers
+/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/extraction/verify_feature_extractor/run_verification.py:301: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+  200/500 (40.0%) | 212.1/s | ETA: 1s
+  400/500 (80.0%) | 212.2/s | ETA: 0s
+[*] Done in 2.5s
+[*] Report saved: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/extraction/verify_feature_extractor/MONDAY_FEATURE_VERIFICATION_REPORT.md
+
+[*] Done!
+    Valid:     273 / 500
+    All match: 0 (0.0%)
+    Output:    /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/extraction/verify_feature_extractor

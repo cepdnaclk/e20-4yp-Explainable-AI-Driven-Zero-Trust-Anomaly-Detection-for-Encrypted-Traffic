@@ -1,165 +1,246 @@
 {
-  "total_processed": 2000,
-  "valid_count": 2000,
-  "invalid_count": 0,
-  "invalid_rate_pct": 0.0,
+  "total_processed": 500,
+  "valid_count": 273,
+  "invalid_count": 227,
+  "invalid_rate_pct": 45.4,
   "all_features_match": 0,
   "all_features_match_pct": 0.0,
-  "pkt_count_match": 1002,
-  "pkt_count_match_pct": 50.1,
-  "pkt_fwd_mean_abs_diff": 7.62,
-  "pkt_fwd_mean_rel_pct": 245.1,
+  "pkt_count_match": 83,
+  "pkt_count_match_pct": 30.4,
+  "pkt_fwd_mean_abs_diff": 13.34,
+  "pkt_fwd_mean_rel_pct": 558.29,
   "per_feature": {
     "Packet Length Variance": {
-      "match_count": 228,
-      "total": 2000,
-      "match_rate_pct": 11.4,
-      "mean_abs_diff": 129973.6647,
-      "median_abs_diff": 9089.7118,
-      "max_abs_diff": 2577131.597,
-      "mean_rel_diff_pct": 114.27,
-      "median_rel_diff_pct": 89.99
+      "match_count": 38,
+      "total": 273,
+      "match_rate_pct": 13.92,
+      "mean_abs_diff": 175804.4553,
+      "median_abs_diff": 47236.4958,
+      "max_abs_diff": 1528533.515,
+      "mean_rel_diff_pct": 101.32,
+      "median_rel_diff_pct": 90.87
     },
     "Fwd Packet Length Max": {
-      "match_count": 81,
-      "total": 2000,
-      "match_rate_pct": 4.05,
-      "mean_abs_diff": 359.863,
-      "median_abs_diff": 74.0,
-      "max_abs_diff": 5751.0,
-      "mean_rel_diff_pct": 142.06,
-      "median_rel_diff_pct": 83.6
+      "match_count": 50,
+      "total": 273,
+      "match_rate_pct": 18.32,
+      "mean_abs_diff": 473.315,
+      "median_abs_diff": 271.0,
+      "max_abs_diff": 4022.0,
+      "mean_rel_diff_pct": 131.49,
+      "median_rel_diff_pct": 68.81
     },
     "Fwd Header Length": {
-      "match_count": 695,
-      "total": 2000,
-      "match_rate_pct": 34.75,
-      "mean_abs_diff": 347.616,
-      "median_abs_diff": 80.0,
+      "match_count": 46,
+      "total": 273,
+      "match_rate_pct": 16.85,
+      "mean_abs_diff": 641.5092,
+      "median_abs_diff": 272.0,
       "max_abs_diff": 66328.0,
-      "mean_rel_diff_pct": 167.83,
-      "median_rel_diff_pct": 100.0
+      "mean_rel_diff_pct": 247.51,
+      "median_rel_diff_pct": 112.25
     },
     "Init_Win_bytes_forward": {
-      "match_count": 1082,
-      "total": 2000,
-      "match_rate_pct": 54.1,
-      "mean_abs_diff": 12348.686,
-      "median_abs_diff": 120.0,
+      "match_count": 103,
+      "total": 273,
+      "match_rate_pct": 37.73,
+      "mean_abs_diff": 16446.4066,
+      "median_abs_diff": 6025.0,
       "max_abs_diff": 65536.0,
-      "mean_rel_diff_pct": 87.25,
-      "median_rel_diff_pct": 100.0
+      "mean_rel_diff_pct": 76.74,
+      "median_rel_diff_pct": 0.0
     },
     "Bwd Header Length": {
-      "match_count": 958,
-      "total": 2000,
-      "match_rate_pct": 47.9,
-      "mean_abs_diff": 273.454,
-      "median_abs_diff": 60.0,
-      "max_abs_diff": 48064.0,
-      "mean_rel_diff_pct": 103.23,
+      "match_count": 90,
+      "total": 273,
+      "match_rate_pct": 32.97,
+      "mean_abs_diff": 296.2784,
+      "median_abs_diff": 116.0,
+      "max_abs_diff": 7864.0,
+      "mean_rel_diff_pct": 117.73,
       "median_rel_diff_pct": 100.0
     },
     "Total Length of Fwd Packets": {
-      "match_count": 69,
-      "total": 2000,
-      "match_rate_pct": 3.45,
-      "mean_abs_diff": 2127.0455,
-      "median_abs_diff": 240.5,
-      "max_abs_diff": 460845.0,
-      "mean_rel_diff_pct": 170.32,
-      "median_rel_diff_pct": 96.16
+      "match_count": 41,
+      "total": 273,
+      "match_rate_pct": 15.02,
+      "mean_abs_diff": 2438.0256,
+      "median_abs_diff": 423.0,
+      "max_abs_diff": 120066.0,
+      "mean_rel_diff_pct": 114.57,
+      "median_rel_diff_pct": 60.56
     },
     "Init_Win_bytes_backward": {
-      "match_count": 1263,
-      "total": 2000,
-      "match_rate_pct": 63.15,
-      "mean_abs_diff": 8029.235,
-      "median_abs_diff": 32.0,
+      "match_count": 118,
+      "total": 273,
+      "match_rate_pct": 43.22,
+      "mean_abs_diff": 13261.4322,
+      "median_abs_diff": 972.0,
       "max_abs_diff": 65536.0,
-      "mean_rel_diff_pct": 99.34,
+      "mean_rel_diff_pct": 108.26,
       "median_rel_diff_pct": 100.0
     },
     "Bwd Packets/s": {
-      "match_count": 597,
-      "total": 2000,
-      "match_rate_pct": 29.85,
-      "mean_abs_diff": 217017.4148,
-      "median_abs_diff": 29.807,
-      "max_abs_diff": 2000000.0,
-      "mean_rel_diff_pct": 91.82,
-      "median_rel_diff_pct": 99.77
+      "match_count": 124,
+      "total": 273,
+      "match_rate_pct": 45.42,
+      "mean_abs_diff": 5189.1661,
+      "median_abs_diff": 9.6833,
+      "max_abs_diff": 500000.0,
+      "mean_rel_diff_pct": 82.74,
+      "median_rel_diff_pct": 100.0
     },
     "Flow IAT Min": {
-      "match_count": 1388,
-      "total": 2000,
-      "match_rate_pct": 69.4,
-      "mean_abs_diff": 558265.875,
-      "median_abs_diff": 35.0,
-      "max_abs_diff": 64068997.0,
-      "mean_rel_diff_pct": 95.23,
-      "median_rel_diff_pct": 100.0
+      "match_count": 234,
+      "total": 273,
+      "match_rate_pct": 85.71,
+      "mean_abs_diff": 270991.348,
+      "median_abs_diff": 18.0,
+      "max_abs_diff": 64063375.0,
+      "mean_rel_diff_pct": 110.29,
+      "median_rel_diff_pct": 88.24
     },
     "Fwd IAT Min": {
-      "match_count": 1610,
-      "total": 2000,
-      "match_rate_pct": 80.5,
-      "mean_abs_diff": 2984712.499,
-      "median_abs_diff": 3.0,
-      "max_abs_diff": 109394000.0,
-      "mean_rel_diff_pct": 78.7,
-      "median_rel_diff_pct": 100.0
+      "match_count": 231,
+      "total": 273,
+      "match_rate_pct": 84.62,
+      "mean_abs_diff": 1482760.5201,
+      "median_abs_diff": 45.0,
+      "max_abs_diff": 102061347.0,
+      "mean_rel_diff_pct": 74.36,
+      "median_rel_diff_pct": 66.67
     },
     "Flow Bytes/s": {
-      "match_count": 271,
-      "total": 2000,
-      "match_rate_pct": 13.55,
-      "mean_abs_diff": 63408885.0024,
-      "median_abs_diff": 18756.7417,
-      "max_abs_diff": 3564888888.8889,
-      "mean_rel_diff_pct": 121.81,
-      "median_rel_diff_pct": 97.41
+      "match_count": 78,
+      "total": 273,
+      "match_rate_pct": 28.57,
+      "mean_abs_diff": 1386504.4064,
+      "median_abs_diff": 4991.078,
+      "max_abs_diff": 36994511.1054,
+      "mean_rel_diff_pct": 95.03,
+      "median_rel_diff_pct": 96.32
     },
     "Active Min": {
-      "match_count": 1369,
-      "total": 2000,
-      "match_rate_pct": 68.45,
-      "mean_abs_diff": 11003744.244,
-      "median_abs_diff": 104573.0,
-      "max_abs_diff": 120621000.0,
-      "mean_rel_diff_pct": 47.41,
-      "median_rel_diff_pct": 0.0
+      "match_count": 212,
+      "total": 273,
+      "match_rate_pct": 77.66,
+      "mean_abs_diff": 502552.7509,
+      "median_abs_diff": 113960.0,
+      "max_abs_diff": 5463197.0,
+      "mean_rel_diff_pct": 92.13,
+      "median_rel_diff_pct": 13.65
     },
     "Bwd IAT Total": {
-      "match_count": 1218,
-      "total": 2000,
-      "match_rate_pct": 60.9,
-      "mean_abs_diff": 9385224.5125,
-      "median_abs_diff": 4.0,
-      "max_abs_diff": 120457721.0,
-      "mean_rel_diff_pct": 53.17,
-      "median_rel_diff_pct": 81.22
+      "match_count": 127,
+      "total": 273,
+      "match_rate_pct": 46.52,
+      "mean_abs_diff": 8809195.0366,
+      "median_abs_diff": 71962.0,
+      "max_abs_diff": 117387941.0,
+      "mean_rel_diff_pct": 51.77,
+      "median_rel_diff_pct": 53.18
     },
     "Flow IAT Max": {
-      "match_count": 458,
-      "total": 2000,
-      "match_rate_pct": 22.9,
-      "mean_abs_diff": 5990842.855,
-      "median_abs_diff": 59817.0,
-      "max_abs_diff": 119432479.0,
-      "mean_rel_diff_pct": 99.11,
-      "median_rel_diff_pct": 98.95
+      "match_count": 74,
+      "total": 273,
+      "match_rate_pct": 27.11,
+      "mean_abs_diff": 5667870.2674,
+      "median_abs_diff": 120918.0,
+      "max_abs_diff": 105172488.0,
+      "mean_rel_diff_pct": 90.73,
+      "median_rel_diff_pct": 65.86
     },
     "Flow Duration": {
-      "match_count": 439,
-      "total": 2000,
-      "match_rate_pct": 21.95,
-      "mean_abs_diff": 10267373.2625,
-      "median_abs_diff": 107292.0,
-      "max_abs_diff": 120368925.0,
-      "mean_rel_diff_pct": 97.59,
-      "median_rel_diff_pct": 98.84
+      "match_count": 69,
+      "total": 273,
+      "match_rate_pct": 25.27,
+      "mean_abs_diff": 10091973.9597,
+      "median_abs_diff": 313524.0,
+      "max_abs_diff": 117578255.0,
+      "mean_rel_diff_pct": 85.84,
+      "median_rel_diff_pct": 47.4
     }
   },
-  "invalid_samples": []
+  "invalid_samples": [
+    {
+      "folder": "Row_528448_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_145432_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_375169_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_153461_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_27999_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_113962_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_230309_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_28492_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_378154_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_439724_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_148489_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_484569_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_462943_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_447444_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_12273_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_483153_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_394277_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_21850_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_123960_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_390283_BENIGN",
+      "error": "No TCP packets found"
+    }
+  ]
 }
