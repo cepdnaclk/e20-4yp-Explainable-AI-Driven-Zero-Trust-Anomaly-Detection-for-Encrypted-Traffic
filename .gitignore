@@ -26,3 +26,20 @@ Thumbs.db
 
 #
 script.md
+
+# Large data files — do NOT commit (reproduce with train_ddl_enhanced.py)
+dataset/*.csv
+dataset/*.parquet
+
+# Trained model binaries — do NOT commit (reproduce with train_ddl_enhanced.py)
+models/*.pkl
+models/*.h5
+models/*.pt
+models/training_log.txt
+models/train_report.json
+
+# Profiling results (regenerate before demo)
+profiling/results/
+
+# Temp demo PCAPs
+/tmp/demo_*.pcap

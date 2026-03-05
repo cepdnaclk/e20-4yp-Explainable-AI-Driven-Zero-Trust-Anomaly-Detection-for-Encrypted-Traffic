@@ -1,7 +1,9 @@
 # WORKPLAN.md — Zero-Trust Anomaly Detection Pipeline
 
 > **HOW TO RESUME:** Read this file first. Start from the first unchecked `[ ]` item.
-> Project root: `e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/`
+> Project root: `e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/`
+> Dataset: `dataset/TRAIN_Traffic.csv` and `dataset/TEST_Traffic.csv` (copied from `CICDataset/Processed-Data/`)
+> Hardware: **Cisco IOS switch** (primary) or **HP L3 switch** (backup); laptop wired to mirror port (no WiFi)
 
 ---
 
@@ -100,34 +102,80 @@ Better architecture proposal (separate folder, does not replace existing):
 
 ---
 
+## SECTION 7 — Session 2 (2026-03-05) ✅ DONE
+
+**Switch hardware clarified:** Cisco IOS (primary), HP ProCurve L3 (backup). Laptop wired to dedicated SPAN port.
+
+### New Files Created
+- ✅ `dataset/` — CIC-IDS-2017 CSV files copied from `CICDataset/Processed-Data/`
+- ✅ `dataset/README.md` — dataset documentation and training commands
+- ✅ `EnhancedPipeline/config.py` — centralized hyperparameter config
+- ✅ `EnhancedPipeline/enhanced_pipeline.py` — main orchestrator (DDL + IF + DualXAI)
+- ✅ `EnhancedPipeline/adaptive_features.py` — MI-based adaptive feature selector
+- ✅ `EnhancedPipeline/rest_api.py` — FastAPI REST server
+- ✅ `EnhancedPipeline/dashboard.py` — Streamlit real-time dashboard
+- ✅ `EnhancedPipeline/docs/SWITCH_SETUP.md` — physical switch topology guide
+- ✅ `LiveTraffic/traffic_generator.py` — normal/attack/borderline PCAP generator (scapy)
+- ✅ `LiveTraffic/CISCO_SWITCH_SETUP.md` — Cisco IOS/IOS-XE SPAN config with full CLI
+- ✅ `LiveTraffic/HP_SWITCH_SETUP.md` — HP ProCurve + Aruba mirroring CLI
+- ✅ `DDLModel/train_ddl_enhanced.py` — 30-feature DDL training script (reads CIC-IDS-2017 CSV)
+- ✅ `profiling/TIMING_GUIDE.md` — how to run benchmarks and interpret timing results
+- ✅ `docs/FEATURE_ANALYSIS.md` — justification for 15 DT features vs 30 DDL features
+
+### Remaining Steps
+- [ ] Run DDL training: `python DDLModel/train_ddl_enhanced.py --train dataset/TRAIN_Traffic.csv --test dataset/TEST_Traffic.csv`
+- [ ] Check `models/ddl_30feat.pkl` and `models/isolation_forest.pkl` generated
+- [ ] Run test suite: `python -m tests.test_pipeline`
+- [ ] Commit session 2 work (commits 6–10)
+
+---
+
 ## Quick Command Reference
 
 ```bash
-# Activate venv
-source .venv/bin/activate
+# ── Setup ────────────────────────────────────────────────────────────
+# Activate shared venv (from project root)
+source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-# Run existing pipeline tests
+# ── Training (run once before demo) ──────────────────────────────────
+# Full training (may take 5–20 min):
+python DDLModel/train_ddl_enhanced.py \
+    --train dataset/TRAIN_Traffic.csv \
+    --test  dataset/TEST_Traffic.csv \
+    --ddl-output models/ddl_30feat.pkl \
+    --if-output  models/isolation_forest.pkl \
+    --epochs 150
+
+# Quick debug training (50k rows, 30 epochs):
+python DDLModel/train_ddl_enhanced.py \
+    --train dataset/TRAIN_Traffic.csv \
+    --test  dataset/TEST_Traffic.csv \
+    --epochs 30 --max-train-rows 50000
+
+# ── Testing ───────────────────────────────────────────────────────────
 python -m tests.test_pipeline
 
-# Train enhanced DDL (30 features, requires CIC-IDS-2017 CSV)
-python DDLModel/train_ddl_enhanced.py \
-    --dataset path/to/cicids2017_benign.csv \
-    --output models/ddl_30feat.pkl
+# ── Demo traffic (from Laptop A — requires sudo for live send) ────────
+python LiveTraffic/traffic_generator.py --mode normal --count 20 --output /tmp/demo_normal.pcap
+python LiveTraffic/traffic_generator.py --mode attack --count 10 --output /tmp/demo_attack.pcap
+python LiveTraffic/traffic_generator.py --mode borderline --count 5 --output /tmp/demo_borderline.pcap
 
-# Run live traffic pipeline (physical switch mirror port)
+# ── Live capture (on Laptop B, from switch mirror port) ─────────────
 python LiveTraffic/live_pipeline.py --interface eth1 --duration 300
 
-# Run timing benchmark
-python -m profiling.latency_benchmark --n_flows 500
+# ── Enhanced Pipeline demo mode (no hardware needed) ─────────────────
+python EnhancedPipeline/enhanced_pipeline.py --demo --n_flows 10
 
-# Start Enhanced Pipeline demo
-python EnhancedPipeline/enhanced_pipeline.py --demo
-
-# Start REST API server
+# ── REST API ──────────────────────────────────────────────────────────
 python EnhancedPipeline/rest_api.py --port 5001
+curl http://localhost:5001/health                           # verify
+curl http://localhost:5001/feature_names                   # see feature order
 
-# Start Streamlit dashboard
+# ── Streamlit dashboard ────────────────────────────────────────────────
 streamlit run EnhancedPipeline/dashboard.py
+
+# ── Timing benchmark ──────────────────────────────────────────────────
+python -m profiling.latency_benchmark --n_flows 200 --output profiling/results/demo/
 ```
 
 ---
@@ -164,4 +212,4 @@ streamlit run EnhancedPipeline/dashboard.py
 | Flow-Level | Duration, total bytes fwd/bwd; init window fwd/bwd; down/up ratio |
 
 ---
-*Last updated: 2026-03-05 (Session 1)*
+*Last updated: 2026-03-05 (Session 2 — all missing files created, DDL trainer ready)*
