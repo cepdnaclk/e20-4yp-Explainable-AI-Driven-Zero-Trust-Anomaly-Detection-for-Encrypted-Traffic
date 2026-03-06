@@ -9,7 +9,7 @@ Provides wall-clock and CPU time for every stage in the pipeline:
 
   Stage 0 — Feature extraction (15 features, DT input)
   Stage 1 — Base Check Classifier (DT predict)
-  Stage 2 — Feature extraction (30 features, DDL input)
+  Stage 2 — Feature extraction (40 features, DDL input)
   Stage 3 — DDL forward pass (all layers + reconstruction)
   Stage 4 — DDL-native XAI (reconstruction decomposition)
   Stage 5 — SHAP KernelExplainer
@@ -57,7 +57,7 @@ STAGES = [
 STAGE_LABELS = {
     "feat_extract_15": "Feature Extraction (15 feat, DT)",
     "base_check_dt":   "Base Check Classifier (DT)",
-    "feat_extract_30": "Feature Extraction (30 feat, DDL)",
+    "feat_extract_30": "Feature Extraction (40-feat DDL)",
     "ddl_forward":     "DDL Forward Pass (all layers)",
     "xai_native":      "XAI DDL-Native (reconstruction)",
     "xai_shap":        "XAI SHAP KernelExplainer",

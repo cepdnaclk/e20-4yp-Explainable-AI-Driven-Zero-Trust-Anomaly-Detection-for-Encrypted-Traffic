@@ -109,7 +109,7 @@ ls /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/
 python DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
-    --ddl-output models/ddl_30feat.pkl \
+    --ddl-output models/ddl_40feat.pkl \
     --if-output  models/isolation_forest.pkl \
     --epochs 150 \
     --atoms-l1 64 --atoms-l2 128
@@ -157,7 +157,7 @@ python DDLModel/train_ddl_enhanced.py \
 
 ```bash
 ls -lh models/
-# Should show: ddl_30feat.pkl  isolation_forest.pkl  train_report.json  training_log.txt
+# Should show: ddl_40feat.pkl  isolation_forest.pkl  train_report.json  training_log.txt
 
 # View metrics:
 python -c "import json; r=json.load(open('models/train_report.json')); \
@@ -188,7 +188,7 @@ Tests DDL accuracy using ground-truth labels from CIC-IDS-2017:
 python LiveTraffic/pcap_replay_pipeline.py \
     --mode labeled \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
-    --ddl-model models/ddl_30feat.pkl \
+    --ddl-model models/ddl_40feat.pkl \
     --output logs/test_friday_labeled.json \
     --max-files 2000
 
@@ -207,14 +207,14 @@ Simulates how the pipeline performs on continuous mixed traffic:
 python LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-WorkingHours.pcap \
-    --ddl-model models/ddl_30feat.pkl \
+    --ddl-model models/ddl_40feat.pkl \
     --output logs/test_friday_fullday.json
 
 # Monday (all BENIGN — should get 0% false positives from DDL):
 python LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Monday-WorkingHours.pcap \
-    --ddl-model models/ddl_30feat.pkl \
+    --ddl-model models/ddl_40feat.pkl \
     --output logs/test_monday_benign.json
 ```
 
@@ -279,7 +279,7 @@ sudo tcpdump -i eth1 -n -c 10
 # 4. Start live pipeline:
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \
-    --ddl_model models/ddl_30feat.pkl \
+    --ddl_model models/ddl_40feat.pkl \
     --duration 300
 ```
 
@@ -330,7 +330,7 @@ cat profiling/results/demo/timing_summary.json
 |---------|----------|
 | `nfstream not installed` | `pip install nfstream` |
 | `torch not installed` | `pip install torch --index-url https://download.pytorch.org/whl/cu124` |
-| `models/ddl_30feat.pkl not found` | Run Step 5 first |
+| `models/ddl_40feat.pkl not found` | Run Step 5 first |
 | NFStream sees 0 flows on live interface | `sudo ip link set <iface> promisc on` |
 | `Operation not permitted` on tcpdump | Use `sudo` or run as root |
 | GPU training: `CUDA out of memory` | Reduce `--batch-size` to 128 or 256 |

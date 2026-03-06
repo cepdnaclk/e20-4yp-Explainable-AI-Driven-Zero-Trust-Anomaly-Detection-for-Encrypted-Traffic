@@ -44,7 +44,7 @@ class IsolationForestVoter:
     Trained on the same normal (benign) traffic as the DDL model.
     Anomaly score = average path length in isolation trees (shorter → more anomalous).
 
-    Features: uses the same 30 DDL features from ddl_feature_extractor.py
+    Features: uses the same 40 DDL features from ddl_feature_extractor.py
     """
 
     def __init__(self, n_estimators: int = 100, contamination: float = 0.05,
@@ -101,7 +101,7 @@ class IsolationForestVoter:
         Predict anomaly for one or more samples.
 
         Args:
-            X: numpy array (n, 30) or (30,).
+            X: numpy array (n, 30) or (40,).
 
         Returns:
             dict with:
@@ -171,7 +171,7 @@ class EnsembleVoter:
         Run DDL + IF vote on features X.
 
         Args:
-            X: numpy array (30,) — single flow.
+            X: numpy array (40,) — single flow.
 
         Returns:
             dict with: action (DROP/FORWARD), confidence, ddl_result, if_result

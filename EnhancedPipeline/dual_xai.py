@@ -104,7 +104,7 @@ class DualXAIExplainer:
             from lime.lime_tabular import LimeTabularExplainer
 
             # Determine whether each feature is categorical or continuous
-            # All 30 DDL features are continuous (flag counts treated as continuous)
+            # All 40 DDL features are continuous (flag counts treated as continuous)
             self._lime_explainer = LimeTabularExplainer(
                 training_data   = self.background,
                 feature_names   = self.feature_names,
@@ -273,7 +273,7 @@ class DualXAIExplainer:
         Full dual XAI explanation for a single flow.
 
         Args:
-            features: numpy array (30,) — DDL feature vector.
+            features: numpy array (40,) — DDL feature vector.
 
         Returns:
             dict with all three explanations and an agreement report.

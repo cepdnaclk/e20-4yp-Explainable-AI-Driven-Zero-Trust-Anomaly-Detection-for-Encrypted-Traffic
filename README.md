@@ -1,182 +1,94 @@
-# Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic
+# Zero-Trust XAI Anomaly Detection for Encrypted Traffic
 
-> **University of Peradeniya — FYP 2025/2026**
-> Department of Computer Engineering
-
----
-
-## What This System Does
-
-Modern network traffic is almost entirely encrypted (HTTPS/TLS 1.3).
-Traditional deep packet inspection cannot read it.
-This system detects malicious behaviour **without decrypting traffic** by analysing
-flow-level metadata (packet timing, sizes, directions, TCP flags).
-
-Every blocking decision comes with an **XAI explanation** — it names which
-statistical features triggered the alert and by how much.
-
----
+**University of Peradeniya | e20420Janith**
 
 ## Pipeline Architecture
 
 ```
-  [Laptop A]──────────┐
-  Traffic Source       │ Ethernet
-                       ▼
-             ┌─────────────────┐
-             │  Cisco / HP     │
-             │  L3 Switch      │
-             │                 │
-             │  SPAN session   │ ← copies all traffic to mirror port
-             └────────┬────────┘
-                      │ Mirror port (passive, read-only)
-                      ▼
-          ┌───────────────────────┐
-          │   Pipeline Machine    │  eth1 (promiscuous)
-          │                       │
-          │  NFStream             │  assembles raw packets → flow stats
-          │      │                │
-          │      ▼                │
-          │  Stage 1 — DT         │  15 features, < 1 ms  [TEAMMATE]
-          │  Base Check           │
-          │   │         │         │
-          │ Normal    Anomaly     │
-          │   │         │         │
-          │   ▼         ▼         │
-          │ FORWARD  SDN Buffer   │  holds suspicious flow
-          │          (software)   │
-          │              │        │
-          │              ▼        │
-          │  Stage 2 — DDL + XAI  │  30 features, ~45 ms  [OUR WORK]
-          │  Deep Dict. Learning  │
-          │   │         │         │
-          │ Normal    Anomaly     │
-          │   │         │         │
-          │   ▼         ▼         │
-          │ FORWARD    DROP       │  + XAI explanation (which features)
-          └───────────────────────┘
+PacketIN (from switch)
+   |
+   +-- Unified Feature Extraction (DPKT, single pass)
+          |
+          +-- 28 features --> BCC v2 (Decision Tree, <100us)
+          |                     |
+          |                  BENIGN -> FORWARD + ALLOW rule
+          |                  ATTACK -> SDN Buffer (hold)
+          |                              |
+          +-- 40 features --> DDL + IF + XAI (<50ms)
+                                |
+                             Normal  -> FORWARD + ALLOW rule
+                             Anomaly -> DROP rule + XAI explanation
 ```
 
-**Key principle:** DT uses 15 coarse features for a fast first pass.
-DDL uses 30 richer flow statistics for a more sensitive second opinion.
-Both operate on **flow-level data** — never individual packets.
+**Design:** Features extracted ONCE. BCC v2 uses 28, DDL uses 40 (22 shared).
 
----
-
-## Repository Layout
+## Repository Structure
 
 ```
-├── BaseCheckClassifier/           ← Stage 1 DT (teammate — do not modify)
-│   └── BaseCheckClassifierSimulation/
-│
-├── DDLModel/                      ← Stage 2 DDL model
-│   ├── ddl_model.py               ← Two-layer DDL with ISTA + GPU support
-│   ├── ddl_feature_extractor.py   ← 30-feature extractor from NFStream flows
-│   ├── train_ddl_enhanced.py      ← Training script (--gpu flag for Apptainer)
-│   └── GPU_SETUP.md               ← Apptainer + PyTorch setup
-│
-├── XAIExplainer/                  ← XAI explanations
-│   └── explainer.py               ← DDL-native + SHAP
-│
-├── SDNBuffer/                     ← Software buffer between Stage 1 and Stage 2
-│   ├── sdn_buffer.py              ← Original
-│   └── sdn_buffer_v2.py           ← Improved (OpenFlow rule push via Ryu REST)
-│
-├── LiveTraffic/                   ← Live capture and traffic generation
-│   ├── live_pipeline.py           ← NFStream → full cascade pipeline
-│   ├── pcap_replay_pipeline.py    ← Offline PCAP accuracy testing
-│   ├── traffic_generator.py       ← Synthetic attack/normal PCAP generator
-│   └── SWITCH_SETUP_GUIDE.md      ← Cisco + HP switch mirror config
-│
-├── EnhancedPipeline/              ← Extended pipeline with IF + Streamlit dashboard
-│   ├── enhanced_pipeline.py       ← DDL + Isolation Forest + DualXAI
-│   ├── rest_api.py                ← FastAPI server
-│   ├── dashboard.py               ← Streamlit real-time monitoring
-│   └── config.py                  ← Centralised hyperparameters
-│
-├── ZeroTrustPipeline/             ← Original orchestrator (PCAP-based)
-│   └── pipeline.py
-│
-├── profiling/                     ← Latency benchmarking
-│   ├── timing_profiler.py
-│   └── latency_benchmark.py
-│
-├── tests/                         ← Integration tests
-│   └── test_pipeline.py
-│
-├── dataset/                       ← CIC-IDS-2017 CSV training data
-│   ├── TRAIN_Traffic.csv          ← 70-column, ~2.5M rows
-│   └── TEST_Traffic.csv
-│
-├── models/                        ← Trained model files (generated by training)
-│   ├── ddl_30feat.pkl
-│   └── isolation_forest.pkl
-│
-├── docs/                          ← Technical documents
-│   ├── DDL_XAI_INSIGHT.md         ← How DDL + XAI work (flow-level analysis)
-│   ├── FEATURE_ANALYSIS.md        ← 15 DT features vs 30 DDL features
-│   ├── REPRODUCTION_GUIDE.md      ← Full 12-step reproduction guide
-│   └── LIVE_TRAFFIC_GUIDE.md      ← All 6 traffic simulation methods
-│
-├── QUICK_START.md                 ← ⭐ Start here — end-to-end in one page
-├── PIPELINE_GUIDE.md              ← Architecture deep-dive
-├── DemonstrationPlan.md           ← Demo script (4-terminal layout, talking points)
-└── WORKPLAN.md                    ← Development history and command reference
+e20420Janith/e20-4yp-.../
+|-- FullSDNPipeline/              <<< MAIN PIPELINE
+|   |-- sdn_pipeline.py          Single unified SDN script
+|   |-- unified_feature_extractor.py  Shared extraction (28+40)
+|   |-- packet_shooter.py        PCAP replay with real timing
+|   +-- run_demo.sh              One-command launcher
+|
+|-- BaseCheckClassifier/
+|   +-- feature_extractor_v2.py   BCC v2 (28-feat, Sandaru's DPKT)
+|
+|-- DDLModel/
+|   |-- ddl_model.py             Deep Dictionary Learning (2-layer ISTA)
+|   |-- ddl_feature_extractor.py  40-feature DDL extractor
+|   +-- train_ddl_enhanced.py    Train DDL + IF (GPU/CPU)
+|
+|-- models/
+|   |-- sentry_model_v2.pkl      BCC v2 DT (28 features)
+|   |-- ddl_40feat.pkl           DDL model (40 features)
+|   +-- isolation_forest.pkl     IF consensus voter
+|
+|-- dataset/
+|   |-- TRAIN_Traffic.csv        CIC-IDS-2017 training data
+|   +-- TEST_Traffic.csv         CIC-IDS-2017 test data
+|
+|-- QUICK_START.md               Step-by-step guide
+|-- PIPELINE_GUIDE.md            Full architecture doc
+|-- DemonstrationPlan.md         Demo script
++-- WORKPLAN.md                  Session tracking
 ```
 
----
-
-## Quickest Way to Start
+## Quick Start
 
 ```bash
-# 1. Go to project root and activate the shared venv:
 cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-# 2. Train DDL on GPU via Apptainer (~30 min):
-apptainer exec --nv \
-    /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif \
-    python DDLModel/train_ddl_enhanced.py \
-        --train dataset/TRAIN_Traffic.csv --test dataset/TEST_Traffic.csv \
-        --epochs 150 --gpu --batch-size 512
+# Demo mode:
+python FullSDNPipeline/sdn_pipeline.py --demo --n-flows 30
 
-# 3. Run demo mode (no hardware needed):
-python LiveTraffic/live_pipeline.py --demo --duration 60
-
-# 4. Run tests:
-python -m tests.test_pipeline
+# Real PCAPs:
+python FullSDNPipeline/sdn_pipeline.py \
+    --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
+    --limit 500
 ```
 
-**→ See `QUICK_START.md` for tomorrow's live switch demo (step-by-step).**
+## Feature Sets
 
----
+| Model | Features | Purpose |
+|-------|----------|---------|
+| BCC v2 | 28 (DT) | Fast pre-screening (<100us) |
+| DDL | 40 (ISTA) | Deep anomaly detection (~45ms) |
+| IF | 40 (same) | Consensus vote (reduces FP) |
 
-## Requirements
+## Models
 
-```bash
-pip install numpy pandas scikit-learn joblib nfstream scapy \
-            fastapi uvicorn pydantic streamlit plotly \
-            requests shap lime matplotlib seaborn
-```
+| File | Description | Training |
+|------|-------------|----------|
+| `sentry_model_v2.pkl` | BCC v2 Decision Tree (Sandaru) | Pre-trained |
+| `ddl_40feat.pkl` | 2-layer DDL (ISTA sparse coding) | `train_ddl_enhanced.py` |
+| `isolation_forest.pkl` | Isolation Forest voter | `train_ddl_enhanced.py` |
 
-GPU training (optional):
-```bash
-# Via Apptainer (recommended — SIF already on server):
-apptainer exec --nv /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif python ...
+## Key Documents
 
-# Or install PyTorch directly into venv:
-pip install torch --index-url https://download.pytorch.org/whl/cu124
-```
-
----
-
-## Research Team
-
-| Name | Email |
-|------|-------|
-| Chalaka Perera | e20288@eng.pdn.ac.lk |
-| Janith Wanasinghe | e20420@eng.pdn.ac.lk |
-| Sandaru Wijewardhana | e20449@eng.pdn.ac.lk |
-
-**Supervisors:** Dr. Suneth Namal Karunarathna & Dr. Upul Jayasinghe
-**Department of Computer Engineering, University of Peradeniya, Sri Lanka**
+- **[QUICK_START.md](QUICK_START.md)** — Step-by-step demo guide
+- **[PIPELINE_GUIDE.md](PIPELINE_GUIDE.md)** — Full architecture documentation
+- **[DemonstrationPlan.md](DemonstrationPlan.md)** — Demo day script
+- **[WORKPLAN.md](WORKPLAN.md)** — Session tracking

@@ -4,7 +4,7 @@ adaptive_features.py — MI-Based Adaptive Feature Selection
 Zero-Trust XAI Anomaly Detection | University of Peradeniya
 e20420Janith
 
-Periodically re-ranks the 30 DDL features by Mutual Information (MI) with
+Periodically re-ranks the 40 DDL features by Mutual Information (MI) with
 the anomaly/normal labels observed in the last N flows. Then retrains the
 DDL on the top-K features if the ranking changes significantly.
 
@@ -52,7 +52,7 @@ class AdaptiveFeatureSelector:
         self.retrain_every = retrain_every
         self.window_size = window_size
 
-        # Sliding window: deque of (np.ndarray(30,), int) where label 0=normal, 1=anomaly
+        # Sliding window: deque of (np.ndarray(40,), int) where label 0=normal, 1=anomaly
         self._window_X: deque = deque(maxlen=window_size)
         self._window_y: deque = deque(maxlen=window_size)
 
@@ -72,8 +72,8 @@ class AdaptiveFeatureSelector:
 
         Parameters
         ----------
-        features : np.ndarray, shape (30,)
-            The 30 DDL features for this flow.
+        features : np.ndarray, shape (40,)
+            The 40 DDL features for this flow.
         label : int
             0 = Normal, 1 = Anomaly.
 
@@ -144,7 +144,7 @@ class AdaptiveFeatureSelector:
 
         Parameters
         ----------
-        feature_vector : np.ndarray, shape (30,)
+        feature_vector : np.ndarray, shape (40,)
 
         Returns
         -------

@@ -4,7 +4,7 @@ LiveTraffic/live_pipeline.py — Live Traffic Processing Pipeline
 Zero-Trust Anomaly Detection | University of Peradeniya
 
 Captures live network traffic from a physical switch SPAN/mirror port using
-NFStream, extracts 30 DDL features per terminated flow, classifies using the
+NFStream, extracts 40 DDL features per terminated flow, classifies using the
 DDL model + XAI, and logs all decisions.
 
 PREREQUISITES
@@ -13,7 +13,7 @@ PREREQUISITES
   2. Network interface in promiscuous mode:
        sudo ip link set eth1 promisc on
   3. Models trained (or use demo mode):
-       python DDLModel/train_ddl_enhanced.py --output models/ddl_30feat.pkl
+       python DDLModel/train_ddl_enhanced.py --output models/ddl_40feat.pkl
 
 USAGE
 -----
@@ -59,7 +59,7 @@ class LivePipeline:
     Processes live flows from an NFStream capture.
 
     For each terminated flow:
-      1. Extract 30 DDL features using DDLFeatureExtractor.from_nfstream()
+      1. Extract 40 DDL features using DDLFeatureExtractor.from_nfstream()
       2. Run DDL.predict()
       3. If anomaly → run XAI explanation → log as DROP
       4. If normal   → log as FORWARD

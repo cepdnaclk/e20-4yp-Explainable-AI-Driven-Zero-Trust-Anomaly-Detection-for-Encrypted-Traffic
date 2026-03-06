@@ -18,7 +18,7 @@ USAGE
 python LiveTraffic/pcap_replay_pipeline.py \\
     --mode labeled \\
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \\
-    --ddl-model models/ddl_30feat.pkl \\
+    --ddl-model models/ddl_40feat.pkl \\
     --output logs/test_friday_labeled.json \\
     --max-files 2000
 
@@ -26,14 +26,14 @@ python LiveTraffic/pcap_replay_pipeline.py \\
 python LiveTraffic/pcap_replay_pipeline.py \\
     --mode fullday \\
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-WorkingHours.pcap \\
-    --ddl-model models/ddl_30feat.pkl \\
+    --ddl-model models/ddl_40feat.pkl \\
     --output logs/test_friday_fullday.json
 
 # Quick sanity check (first 100 labeled PCAPs only):
 python LiveTraffic/pcap_replay_pipeline.py \\
     --mode labeled \\
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \\
-    --ddl-model models/ddl_30feat.pkl \\
+    --ddl-model models/ddl_40feat.pkl \\
     --max-files 100 --output logs/sanity.json
 
 HOW IT WORKS
@@ -137,7 +137,7 @@ def _process_pcap_with_nfstream(pcap_path: str, extractor: DDLFeatureExtractor,
                                  idle_timeout: int = 120,
                                  active_timeout: int = 600) -> List[np.ndarray]:
     """
-    Use NFStream to read a PCAP file and extract 30-feature vectors.
+    Use NFStream to read a PCAP file and extract 40-feature vectors.
     Returns a list of feature vectors (one per terminated flow).
     """
     try:
@@ -463,7 +463,7 @@ if __name__ == "__main__":
     parser.add_argument("--pcap-file", default=None,
                         help="[fullday mode] Path to full-day PCAP file")
     parser.add_argument("--ddl-model",
-                        default=os.path.join(PROJECT_ROOT, "models", "ddl_30feat.pkl"),
+                        default=os.path.join(PROJECT_ROOT, "models", "ddl_40feat.pkl"),
                         help="Path to trained DDL model .pkl")
     parser.add_argument("--output",
                         default=os.path.join(PROJECT_ROOT, "logs", "pcap_replay.json"),

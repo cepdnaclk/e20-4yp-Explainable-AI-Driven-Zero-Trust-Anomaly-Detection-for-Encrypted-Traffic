@@ -30,7 +30,7 @@ Threshold calibration (recommended):
 References:
     - Tariyal et al., "Deep Dictionary Learning," IEEE Access, 2016
       (Research Papers/Detecting_Anomalies_in_Encrypted_Traffic_via_Deep_Dictionary_Learning.pdf)
-    - Use DDLModel/ddl_feature_extractor.py for the recommended 30-feature DDL input set.
+    - Use DDLModel/ddl_feature_extractor.py for the recommended 40-feature DDL input set.
 """
 
 import numpy as np

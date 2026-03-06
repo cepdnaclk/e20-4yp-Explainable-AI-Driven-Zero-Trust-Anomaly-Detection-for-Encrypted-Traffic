@@ -13,3 +13,4 @@
 2026-03-05 18:56:11,244 [INFO] DDL will use GPU backend: cuda:1
 2026-03-05 18:56:11,862 [INFO] Training DDL (30 features, L1=64, L2=128) | device=cuda:1: 1682457 samples
 2026-03-05 18:57:21,668 [INFO]   Epoch 1/150 — Loss: 1.410670
+2026-03-05 19:32:41,896 [INFO]   Epoch 20/150 — Loss: 0.437764

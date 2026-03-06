@@ -109,7 +109,7 @@ Physical capture (NFStream)
         ├──[15 DT features]──► BaseCheckClassifier (teammate's code)
         │   Extracted by: BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/
         │
-        └──[30 DDL features]──► Enhanced Pipeline (e20420Janith)
+        └──[40 DDL features]──► Enhanced Pipeline (e20420Janith)
             Extracted by: DDLModel/ddl_feature_extractor.py
             - from_nfstream()   — for live NFStream flows
             - from_dict()       — for dict from teammate's extractor
@@ -143,4 +143,4 @@ Using the DT features for DDL would be suboptimal because:
 - Run mutual information ranking on the full CIC-IDS-2017 dataset to empirically
   validate the top-30 feature choice (implemented in `adaptive_features.py`)
 - Extend to 40 features by adding subflow-level stats from NFStream if needed
-- Evaluate DDL with 15 features vs 30 features on test set for quantitative comparison
+- Evaluate DDL 40 features on test set for quantitative comparison

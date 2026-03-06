@@ -65,7 +65,7 @@ source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 nohup python DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
-    --ddl-output models/ddl_30feat.pkl \
+    --ddl-output models/ddl_40feat.pkl \
     --if-output  models/isolation_forest.pkl \
     --epochs 150 \
     --gpu --batch-size 512 \

@@ -66,7 +66,7 @@ python -m profiling.timing_profiler \
 |-------|-----------------|
 | `feat_extract_dt` | 15-feature extraction for Base Check Classifier |
 | `dt_decision` | Decision Tree inference time |
-| `feat_extract_ddl` | 30-feature extraction (DDL path, triggered for anomalies) |
+| `feat_extract_ddl` | 40-feature extraction (DDL path, triggered for anomalies) |
 | `ddl_inference` | DDL reconstruction + error score |
 | `if_inference` | Isolation Forest second opinion |
 | `xai_native` | DDL native per-feature reconstruction error report |

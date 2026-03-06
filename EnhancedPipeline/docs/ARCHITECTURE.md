@@ -32,7 +32,7 @@ Physical Switch (SPAN port)
     ┌────┴──────────────────────────────────┐
     │           FEATURE EXTRACTION           │
     │  ├─ 15 DT features → Base Check       │
-    │  └─ 30 DDL features → Enhanced check  │
+    │  └─ 40 DDL features → Enhanced check  │
     └────┬──────────────────────────────────┘
          │
     ┌────▼──────────────────────┐
@@ -53,7 +53,7 @@ Physical Switch (SPAN port)
     │              ENHANCED DEEP ANALYSIS                │
     │                                                    │
     │  ┌─────────────────┐    ┌──────────────────────┐  │
-    │  │  DDL (30 feat)  │    │  Isolation Forest     │  │
+    │  │  DDL (40 feat)  │    │  Isolation Forest     │  │
     │  │  Reconstruction │    │  Second Opinion       │  │
     │  │  error check    │    │  (trained on same     │  │
     │  └────────┬────────┘    │   normal data)        │  │
@@ -94,7 +94,7 @@ Physical Switch (SPAN port)
 
 ## Adaptive Feature Selection
 
-Instead of fixed 30 features, the system periodically re-ranks features by **mutual information** with detected anomalies, allowing the DDL to focus on the most discriminative features for the current attack pattern.
+Instead of fixed 40 features (DDL to focus on the most discriminative features for the current attack pattern.
 
 ```
 Every N_BATCH flows:

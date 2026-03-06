@@ -1,57 +1,40 @@
 """
-ddl_feature_extractor.py — 30-Feature DDL-Specific Extractor
+ddl_feature_extractor.py — 40-Feature DDL-Specific Extractor
 =============================================================
 Zero-Trust Anomaly Detection | University of Peradeniya
 
-WHY DIFFERENT FROM DT FEATURES?
+WHY 40 FEATURES (vs BCC's 28)?
 ---------------------------------
-The Base Check Classifier uses 15 lightweight CIC-IDS-2017 features optimised
-for fast Decision Tree classification. DDL is a *reconstructive* model that
-learns the statistical fingerprint of normal traffic — it benefits from a much
-richer, statistically diverse feature set covering:
+The BCC v2 uses 28 CIC-IDS-2017 features for fast Decision Tree classification.
+DDL is a *reconstructive* model that learns the statistical fingerprint of
+normal traffic — it benefits from a richer, more diverse feature set covering:
 
-  - Packet size distributions (fwd + bwd)
-  - Inter-arrival time (IAT) statistics (fwd + bwd)
-  - TCP flag counts
-  - Byte/packet rate statistics
-  - Flow-level aggregate features
+  - Packet size distributions (fwd + bwd, full min/max/mean/std)
+  - Inter-arrival time (IAT) statistics (flow + fwd + bwd)
+  - TCP flag counts (6 types)
+  - Byte/packet rate statistics (flow + per-direction)
+  - Flow-level aggregate features (duration, header len, active time)
 
-Design basis:
-  Tariyal et al. (2016): DDL paper in Research Papers/ — uses 30+ packet stats
-  SHAP paper in Research Papers/: "78 NFStream features → top-30 by MI"
-  CIC-IDS-2017/2018: Extended feature lists used by robust IDS implementations
-
-FEATURES (30 total):
-  [0]  fwd_pkt_len_mean       — forward packet mean length
-  [1]  fwd_pkt_len_std        — forward packet length std dev
-  [2]  fwd_pkt_len_min        — forward packet minimum length
-  [3]  fwd_pkt_len_max        — forward packet maximum length
-  [4]  bwd_pkt_len_mean       — backward packet mean length
-  [5]  bwd_pkt_len_std        — backward packet length std dev
-  [6]  fwd_iat_mean           — forward inter-arrival mean (s)
-  [7]  fwd_iat_std            — forward inter-arrival std dev
-  [8]  fwd_iat_max            — forward inter-arrival max (s)
-  [9]  bwd_iat_mean           — backward inter-arrival mean (s)
-  [10] bwd_iat_std            — backward inter-arrival std dev
-  [11] bwd_iat_max            — backward inter-arrival max (s)
-  [12] flow_bytes_per_s       — total flow throughput (bytes/s)
-  [13] flow_pkts_per_s        — total flow packet rate (pkts/s)
-  [14] fwd_bytes_per_s        — forward throughput
-  [15] bwd_bytes_per_s        — backward throughput
-  [16] pkt_len_variance       — variance across all packet sizes
-  [17] pkt_len_mean           — mean across all packet sizes (fwd+bwd)
-  [18] syn_flag_count         — number of SYN flags in flow
-  [19] ack_flag_count         — number of ACK flags in flow
-  [20] fin_flag_count         — number of FIN flags in flow
-  [21] rst_flag_count         — number of RST flags in flow
-  [22] psh_flag_count         — number of PSH flags (forward)
-  [23] urg_flag_count         — number of URG flags
-  [24] total_fwd_bytes        — total forward payload bytes
-  [25] total_bwd_bytes        — total backward payload bytes
-  [26] flow_duration          — total flow duration (s)
-  [27] init_win_fwd           — initial TCP window size (forward)
-  [28] init_win_bwd           — initial TCP window size (backward)
-  [29] down_up_ratio          — download/upload byte ratio
+FEATURES (40 total):
+  [0-3]   fwd packet length (mean, std, min, max)
+  [4-5]   bwd packet length (mean, std)
+  [6-8]   fwd IAT (mean, std, max)
+  [9-11]  bwd IAT (mean, std, max)
+  [12-15] rates (flow bytes/s, flow pkts/s, fwd bytes/s, bwd bytes/s)
+  [16-17] packet length (variance, mean)
+  [18-23] TCP flags (SYN, ACK, FIN, RST, PSH, URG)
+  [24-25] total bytes (fwd, bwd)
+  [26]    flow duration (s)
+  [27-28] init TCP window (fwd, bwd)
+  [29]    down/up ratio
+  ── New 10 features for improved detection ──
+  [30-31] bwd packet length (min, max)
+  [32-33] flow IAT (mean, std)
+  [34]    fwd IAT total
+  [35]    bwd IAT min
+  [36-37] packet rates (fwd pkts/s, bwd pkts/s)
+  [38]    fwd header length
+  [39]    active min
 """
 
 import numpy as np
@@ -93,39 +76,46 @@ DDL_FEATURE_NAMES: List[str] = [
     "init_win_fwd",         # 27
     "init_win_bwd",         # 28
     "down_up_ratio",        # 29
+    # ── New 10 features (v2 expansion) ──
+    "bwd_pkt_len_min",      # 30
+    "bwd_pkt_len_max",      # 31
+    "flow_iat_mean",        # 32
+    "flow_iat_std",         # 33
+    "fwd_iat_total",        # 34
+    "bwd_iat_min",          # 35
+    "fwd_pkts_per_s",       # 36
+    "bwd_pkts_per_s",       # 37
+    "fwd_header_len",       # 38
+    "active_min",           # 39
 ]
 
-N_DDL_FEATURES = len(DDL_FEATURE_NAMES)  # 30
+N_DDL_FEATURES = len(DDL_FEATURE_NAMES)  # 40
 
 
 # ── Core extractor class ───────────────────────────────────────────────────────
 
 class DDLFeatureExtractor:
     """
-    Extracts 30 DDL-specific features from network flow data.
+    Extracts 40 DDL-specific features from network flow data.
 
     Accepts input in three modes:
       1. NFStream flow object (online / offline capture)
       2. Dictionary with raw flow statistics (from feature_extractor.py output)
       3. DPKT packet list (manual extraction from pcap)
 
-    All modes return a numpy array of shape (30,) with float64 values.
+    All modes return a numpy array of shape (40,) with float64 values.
     Missing or unavailable features are filled with 0.0.
     """
 
     def from_nfstream(self, flow) -> np.ndarray:
         """
-        Extract 30 DDL features from an nfstream NFFlow object.
-
-        NFStream exposes statistical fields per direction that map directly
-        to our DDL feature set. Available after nfstream processes a terminated
-        or idle-timed-out flow.
+        Extract 40 DDL features from an nfstream NFFlow object.
 
         Args:
             flow: nfstream.NFFlow object.
 
         Returns:
-            numpy array (30,).
+            numpy array (40,).
         """
         feat = np.zeros(N_DDL_FEATURES, dtype=np.float64)
 
@@ -138,7 +128,7 @@ class DDLFeatureExtractor:
         feat[5]  = _safe(flow, "dst2src_stddev_ps", 0.0)
 
         # ── IAT stats ──
-        feat[6]  = _safe(flow, "src2dst_mean_piat_ms", 0.0) / 1000.0  # → seconds
+        feat[6]  = _safe(flow, "src2dst_mean_piat_ms", 0.0) / 1000.0
         feat[7]  = _safe(flow, "src2dst_stddev_piat_ms", 0.0) / 1000.0
         feat[8]  = _safe(flow, "src2dst_max_piat_ms", 0.0) / 1000.0
         feat[9]  = _safe(flow, "dst2src_mean_piat_ms", 0.0) / 1000.0
@@ -151,6 +141,8 @@ class DDLFeatureExtractor:
         fwd_bytes   = _safe(flow, "src2dst_bytes", 0.0)
         bwd_bytes   = _safe(flow, "dst2src_bytes", 0.0)
         total_pkts  = max(_safe(flow, "bidirectional_packets", 1.0), 1.0)
+        fwd_pkts    = max(_safe(flow, "src2dst_packets", 0.0), 0.0)
+        bwd_pkts    = max(_safe(flow, "dst2src_packets", 0.0), 0.0)
 
         feat[12] = total_bytes / duration_s
         feat[13] = total_pkts / duration_s
@@ -191,11 +183,23 @@ class DDLFeatureExtractor:
         # ── Down/Up ratio ──
         feat[29] = bwd_bytes / (fwd_bytes + 1e-6)
 
+        # ── New 10 features (30-39) ──
+        feat[30] = _safe(flow, "dst2src_min_ps", 0.0)
+        feat[31] = _safe(flow, "dst2src_max_ps", 0.0)
+        feat[32] = _safe(flow, "bidirectional_mean_piat_ms", 0.0) / 1000.0
+        feat[33] = _safe(flow, "bidirectional_stddev_piat_ms", 0.0) / 1000.0
+        feat[34] = _safe(flow, "src2dst_duration_ms", 0.0) / 1000.0
+        feat[35] = _safe(flow, "dst2src_min_piat_ms", 0.0) / 1000.0
+        feat[36] = fwd_pkts / duration_s
+        feat[37] = bwd_pkts / duration_s
+        feat[38] = _safe(flow, "src2dst_header_bytes", 0.0)
+        feat[39] = 0.0  # active_min not in NFStream; set via from_dict path
+
         return _sanitize(feat)
 
     def from_dict(self, raw: dict) -> np.ndarray:
         """
-        Extract 30 DDL features from a raw flow statistics dictionary.
+        Extract 40 DDL features from a raw flow statistics dictionary.
 
         Works with the output format of the BaseCheckClassifier's feature_extractor.py
         (which uses DPKT + NFStream). Missing keys default to 0.0.
@@ -204,7 +208,7 @@ class DDLFeatureExtractor:
             raw: dict — keys are feature names, values are floats.
 
         Returns:
-            numpy array (30,).
+            numpy array (40,).
         """
         feat = np.zeros(N_DDL_FEATURES, dtype=np.float64)
         g = lambda k: float(raw.get(k, 0.0) or 0.0)
@@ -215,7 +219,7 @@ class DDLFeatureExtractor:
         feat[3]  = g("Fwd Packet Length Max")
         feat[4]  = g("Bwd Packet Length Mean")
         feat[5]  = g("Bwd Packet Length Std")
-        feat[6]  = g("Fwd IAT Mean") / 1e6   # μs → s
+        feat[6]  = g("Fwd IAT Mean") / 1e6
         feat[7]  = g("Fwd IAT Std")  / 1e6
         feat[8]  = g("Fwd IAT Max")  / 1e6
         feat[9]  = g("Bwd IAT Mean") / 1e6
@@ -235,11 +239,23 @@ class DDLFeatureExtractor:
         feat[23] = g("URG Flag Count")
         feat[24] = g("Total Length of Fwd Packets")
         feat[25] = g("Total Length of Bwd Packets") or g("Total Backward Packets") * g("Bwd Packet Length Mean")
-        feat[26] = g("Flow Duration") / 1e6   # μs → s
+        feat[26] = g("Flow Duration") / 1e6
         feat[27] = g("Init_Win_bytes_forward")
         feat[28] = g("Init_Win_bytes_backward")
         fwd = feat[24] + 1e-6
         feat[29] = feat[25] / fwd
+
+        # ── New 10 features (30-39) ──
+        feat[30] = g("Bwd Packet Length Min")
+        feat[31] = g("Bwd Packet Length Max")
+        feat[32] = g("Flow IAT Mean") / 1e6
+        feat[33] = g("Flow IAT Std") / 1e6
+        feat[34] = g("Fwd IAT Total") / 1e6
+        feat[35] = g("Bwd IAT Min") / 1e6
+        feat[36] = g("Fwd Packets/s")
+        feat[37] = g("Bwd Packets/s")
+        feat[38] = g("Fwd Header Length")
+        feat[39] = g("Active Min") / 1e6
 
         return _sanitize(feat)
 
@@ -247,14 +263,12 @@ class DDLFeatureExtractor:
         """
         Build DDL feature vector by matching named features from an ordered list.
 
-        Useful when the upstream extractor returns a parallel (names, values) pair.
-
         Args:
             values: list of floats — feature values (same order as feature_names).
             feature_names: list of str — names corresponding to values.
 
         Returns:
-            numpy array (30,).
+            numpy array (40,).
         """
         raw = dict(zip(feature_names, values))
         return self.from_dict(raw)
@@ -288,7 +302,7 @@ def _sanitize(feat: np.ndarray) -> np.ndarray:
 
 def extract_ddl_features_from_dict(raw_feature_dict: dict) -> np.ndarray:
     """
-    Convenience wrapper: raw feature dict → 30-element DDL feature vector.
+    Convenience wrapper: raw feature dict -> 40-element DDL feature vector.
 
     Use this in the pipeline when you already have a feature dict from the
     BaseCheckClassifier's extraction layer and want to add the DDL feature vector.
@@ -296,8 +310,8 @@ def extract_ddl_features_from_dict(raw_feature_dict: dict) -> np.ndarray:
     Example:
         from DDLModel.ddl_feature_extractor import extract_ddl_features_from_dict
 
-        ext_result   = extract_features(pcap_path)          # 15-feat DT extraction
-        ddl_feats    = extract_ddl_features_from_dict(ext_result["features"])  # 30-feat DDL
+        ext_result   = extract_features(pcap_path)          # 28-feat DT extraction
+        ddl_feats    = extract_ddl_features_from_dict(ext_result["features"])  # 40-feat DDL
         ddl_result   = ddl.predict(ddl_feats)
     """
     return DDLFeatureExtractor().from_dict(raw_feature_dict)
@@ -327,16 +341,25 @@ if __name__ == "__main__":
         "RST Flag Count": 0, "PSH Flag Count": 12, "URG Flag Count": 0,
         "Total Length of Fwd Packets": 18900.0,
         "Total Length of Bwd Packets": 15200.0,
-        "Flow Duration": 1500000.0,   # 1.5 seconds in μs
+        "Flow Duration": 1500000.0,   # 1.5 seconds in us
         "Init_Win_bytes_forward": 65535.0,
         "Init_Win_bytes_backward": 65535.0,
+        # New 10:
+        "Bwd Packet Length Min": 40.0,
+        "Bwd Packet Length Max": 1400.0,
+        "Flow IAT Mean": 4800.0, "Flow IAT Std": 1500.0,
+        "Fwd IAT Total": 45000.0,
+        "Bwd IAT Min": 200.0,
+        "Fwd Packets/s": 60.0, "Bwd Packets/s": 55.0,
+        "Fwd Header Length": 1200,
+        "Active Min": 500000.0,
     }
 
     extractor = DDLFeatureExtractor()
     vec = extractor.from_dict(sample_dict)
     named = extractor.as_named_dict(vec)
 
-    print("\nExtracted 30 DDL features:")
+    print(f"\nExtracted {N_DDL_FEATURES} DDL features:")
     for name, val in named.items():
         print(f"  {name:30s}: {val:.4f}")
     print(f"\nShape: {vec.shape}, dtype: {vec.dtype}")

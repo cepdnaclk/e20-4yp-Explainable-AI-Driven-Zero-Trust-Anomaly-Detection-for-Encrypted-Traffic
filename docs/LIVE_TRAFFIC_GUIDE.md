@@ -42,7 +42,7 @@ Ground truth available from folder names (Row_X_BENIGN, Row_X_DDoS, etc.)
 python LiveTraffic/pcap_replay_pipeline.py \
     --mode labeled \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
-    --ddl-model models/ddl_30feat.pkl \
+    --ddl-model models/ddl_40feat.pkl \
     --output logs/test_friday.json \
     --max-files 2000
 
@@ -51,7 +51,7 @@ for day in Monday Tuesday Wednesday Thursday Friday; do
     python LiveTraffic/pcap_replay_pipeline.py \
         --mode labeled \
         --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/$day \
-        --ddl-model models/ddl_30feat.pkl \
+        --ddl-model models/ddl_40feat.pkl \
         --output logs/test_${day,,}.json
 done
 ```
@@ -71,14 +71,14 @@ mixed traffic — normal business hours traffic mixed with attacks.
 python LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-WorkingHours.pcap \
-    --ddl-model models/ddl_30feat.pkl \
+    --ddl-model models/ddl_40feat.pkl \
     --output logs/fullday_friday.json
 
 # Monday (all BENIGN — to verify false positive rate):
 python LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Monday-WorkingHours.pcap \
-    --ddl-model models/ddl_30feat.pkl \
+    --ddl-model models/ddl_40feat.pkl \
     --output logs/fullday_monday.json
 ```
 
@@ -106,7 +106,7 @@ sudo tcpreplay \
 # Meanwhile, on Laptop B (pipeline machine):
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \
-    --ddl_model models/ddl_30feat.pkl \
+    --ddl_model models/ddl_40feat.pkl \
     --duration 600
 ```
 
@@ -154,14 +154,14 @@ sudo tcpdump -i eth1 -n -c 10
 # Step 3: Start pipeline on mirror port
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \
-    --ddl_model models/ddl_30feat.pkl \
+    --ddl_model models/ddl_40feat.pkl \
     --duration 300
 
 # Step 4 (optional): Connect to REST API
 python EnhancedPipeline/rest_api.py --port 5001 &
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \
-    --ddl_model models/ddl_30feat.pkl \
+    --ddl_model models/ddl_40feat.pkl \
     --api http://localhost:5001 \
     --duration 300
 ```
@@ -198,5 +198,5 @@ For DDoS testing, reduce `idle_timeout=5` to get flow decisions faster:
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --idle_timeout 5 \
-    --ddl_model models/ddl_30feat.pkl
+    --ddl_model models/ddl_40feat.pkl
 ```

@@ -1,10 +1,10 @@
 """
-train_ddl_enhanced.py — Train DDL with 30 Features on CIC-IDS-2017 CSV
+train_ddl_enhanced.py — Train DDL with 40 Features on CIC-IDS-2017 CSV
 =======================================================================
 Zero-Trust XAI Anomaly Detection | University of Peradeniya
 e20420Janith
 
-Reads the 70-column CIC-IDS-2017 processed CSV, maps the 30 DDL features
+Reads the 70-column CIC-IDS-2017 processed CSV, maps the 40 DDL features
 by column name, trains the Deep Dictionary Learning model on Normal rows
 only (one-class), evaluates on the test set, and saves both the DDL and an
 Isolation Forest model.
@@ -35,7 +35,7 @@ Usage:
         --epochs 30 --max-train-rows 50000 --gpu --batch-size 512
 
 Output:
-    models/ddl_30feat.pkl          — Trained DeepDictionaryLearning model
+    models/ddl_40feat.pkl          — Trained DeepDictionaryLearning model
     models/isolation_forest.pkl    — Trained IsolationForestVoter model
     models/train_report.json       — Training metrics and feature mapping
 
@@ -68,13 +68,13 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
-logger = logging.getLogger("DDL-30-Trainer")
+logger = logging.getLogger("DDL-40-Trainer")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Column mapping: DDL feature name → CIC-IDS-2017 CSV column name
 # ─────────────────────────────────────────────────────────────────────────────
 # CIC-IDS-2017 column names are stripped for safety (they sometimes have spaces).
-# All 30 DDL features have direct column equivalents in the 70-column CSV.
+# All 40 DDL features have direct column equivalents in the 70-column CSV.
 
 DDL_TO_CSV: dict = {
     "fwd_pkt_len_mean":    "Fwd Packet Length Mean",
@@ -107,9 +107,20 @@ DDL_TO_CSV: dict = {
     "init_win_fwd":        "Init_Win_bytes_forward",
     "init_win_bwd":        "Init_Win_bytes_backward",
     "down_up_ratio":       "Down/Up Ratio",
+    # ── New 10 features ──
+    "bwd_pkt_len_min":     "Bwd Packet Length Min",
+    "bwd_pkt_len_max":     "Bwd Packet Length Max",
+    "flow_iat_mean":       "Flow IAT Mean",
+    "flow_iat_std":        "Flow IAT Std",
+    "fwd_iat_total":       "Fwd IAT Total",
+    "bwd_iat_min":         "Bwd IAT Min",
+    "fwd_pkts_per_s":      "Fwd Packets/s",
+    "bwd_pkts_per_s":      "Bwd Packets/s",
+    "fwd_header_len":      "Fwd Header Length",
+    "active_min":          "Active Min",
 }
 
-# Verify all 30 DDL features are mapped
+# Verify all 40 DDL features are mapped
 assert len(DDL_TO_CSV) == N_DDL_FEATURES, (
     f"Mapping mismatch: expected {N_DDL_FEATURES}, got {len(DDL_TO_CSV)}"
 )
@@ -125,7 +136,7 @@ def load_and_map_csv(
     normal_only: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Load a CIC-IDS-2017 CSV and extract the 30 DDL features.
+    Load a CIC-IDS-2017 CSV and extract the 40 DDL features.
 
     Parameters
     ----------
@@ -137,7 +148,7 @@ def load_and_map_csv(
 
     Returns
     -------
-    X       : np.ndarray shape (N, 30)  — feature matrix
+    X       : np.ndarray shape (N, 40)  — feature matrix
     y       : np.ndarray shape (N,)     — 0=Normal, 1=Anomaly
     is_norm : np.ndarray shape (N,)     — boolean mask for normal rows
     """
@@ -157,7 +168,7 @@ def load_and_map_csv(
     is_norm = (y_raw.str.lower() == normal_label.lower()).values
     y = (~is_norm).astype(int)   # 0=Normal, 1=Anomaly
 
-    # Build 30-feature matrix in canonical DDL order
+    # Build 40-feature matrix in canonical DDL order
     col_order = [DDL_TO_CSV[name] for name in DDL_FEATURE_NAMES]
     missing = [c for c in col_order if c not in df.columns]
     if missing:
@@ -301,7 +312,7 @@ def train_ddl_enhanced(
 
     # ── Write report ──────────────────────────────────────────────────────────
     report = {
-        "model": "Deep Dictionary Learning (30 features)",
+        "model": "Deep Dictionary Learning (40 features)",
         "n_features": N_DDL_FEATURES,
         "feature_names": DDL_FEATURE_NAMES,
         "feature_to_csv_column": DDL_TO_CSV,
@@ -342,7 +353,7 @@ def train_ddl_enhanced(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Train 30-feature DDL + Isolation Forest on CIC-IDS-2017 CSV"
+        description="Train 40-feature DDL + Isolation Forest on CIC-IDS-2017 CSV"
     )
     parser.add_argument(
         "--train", required=True,
@@ -353,8 +364,8 @@ if __name__ == "__main__":
         help="Path to TEST CSV for evaluation (optional)"
     )
     parser.add_argument(
-        "--ddl-output", default=os.path.join(PROJECT_ROOT, "models", "ddl_30feat.pkl"),
-        help="Output path for DDL model (default: models/ddl_30feat.pkl)"
+        "--ddl-output", default=os.path.join(PROJECT_ROOT, "models", "ddl_40feat.pkl"),
+        help="Output path for DDL model (default: models/ddl_40feat.pkl)"
     )
     parser.add_argument(
         "--if-output", default=os.path.join(PROJECT_ROOT, "models", "isolation_forest.pkl"),

@@ -168,7 +168,7 @@ This is the critical difference from a black-box detector.
 
 Per-feature reconstruction error:
 ```python
-per_feature_error = (x_norm - x̂_norm)²    # shape: (30,)
+per_feature_error = (x_norm - x̂_norm)²    # shape: (40,)
 # Feature i contributed error[i] to the anomaly score
 ```
 
@@ -374,7 +374,7 @@ python LiveTraffic/live_pipeline.py --demo --duration 60
 # Run against CIC-IDS-2017 labeled PCAPs:
 python LiveTraffic/pcap_replay_pipeline.py \
   --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
-  --ddl-model models/ddl_30feat.pkl --max-files 500
+  --ddl-model models/ddl_40feat.pkl --max-files 500
 
 # Expected output: F1, precision, recall per attack type:
 # DDoS:     F1=0.91, precision=0.89, recall=0.94
@@ -404,7 +404,7 @@ sudo python LiveTraffic/traffic_generator.py \
 | "DDoS cannot be detected because packets look normal" | ❌ The FLOW statistics (high SYN count, zero backward traffic, tiny IAT) clearly indicate DDoS |
 | "The buffer stores packets in the switch" | ❌ The buffer is in SDN controller memory (Python dict). The switch limitation is documented in Part 4. |
 | "SHAP is needed for every flow" | ❌ SHAP only runs for anomalous flows (~15% of traffic). Normal flows get no XAI (fast path). |
-| "The 30 DDL features are the same as the 15 DT features" | ❌ See docs/FEATURE_ANALYSIS.md — completely different feature sets, chosen for different model characteristics |
+| "The 40 DDL features are the same as the 15 DT features" | ❌ See docs/FEATURE_ANALYSIS.md — completely different feature sets, chosen for different model characteristics |
 | "NFStream processes packets one by one" | ❌ NFStream delivers one complete flow object after the flow terminates/times out |
 
 ---
@@ -416,11 +416,11 @@ sudo python LiveTraffic/traffic_generator.py \
 | NFStream flow assembly | raw packets on wire | 15–120s (flow lifetime) | depends on traffic |
 | DT feature extraction | flow object | <1ms | 3ms |
 | DT inference | 15-feature vector | <0.5ms | 1ms |
-| DDL 30-feat extraction | flow object | <2ms | 5ms |
-| DDL inference (ISTA) | 30-feature vector | 45ms | 90ms |
-| Isolation Forest | 30-feature vector | 5ms | 15ms |
+| DDL 40-feat extraction | flow object | <2ms | 5ms |
+| DDL inference (ISTA) | 40-feature vector | 45ms | 90ms |
+| Isolation Forest | 40-feature vector | 5ms | 15ms |
 | DDL-native XAI | reconstruction errors | 5ms | 10ms |
-| SHAP explanation | 30-feature vector | 220ms | 400ms |
+| SHAP explanation | 40-feature vector | 220ms | 400ms |
 | **Total — normal flow** | **any flow** | **<2ms** | **5ms** |
 | **Total — anomaly + XAI** | **flagged flow** | **280ms** | **520ms** |
 

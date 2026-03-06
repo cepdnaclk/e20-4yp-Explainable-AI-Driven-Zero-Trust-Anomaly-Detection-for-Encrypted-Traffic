@@ -9,7 +9,7 @@ Architecture:
       ↓
   SDN Buffer (hold packets)
       ↓
-  30-feature DDL extraction
+  40-feature DDL extraction
       ↓
   DDL reconstruction-error check
   Isolation Forest second-opinion vote
@@ -209,8 +209,8 @@ class EnhancedPipeline:
 
         Parameters
         ----------
-        features : np.ndarray, shape (30,)
-            30 DDL features extracted by DDLFeatureExtractor.
+        features : np.ndarray, shape (40,)
+            40 DDL features extracted by DDLFeatureExtractor.
         flow_id : str, optional
             Identifier for this flow (used to retrieve explanation later).
         run_xai : bool

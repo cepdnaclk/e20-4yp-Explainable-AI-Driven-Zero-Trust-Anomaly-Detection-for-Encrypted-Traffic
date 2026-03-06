@@ -66,8 +66,8 @@ ddl = DeepDictionaryLearning(
 )
 ddl.fit(X_normal)
 import os; os.makedirs('models', exist_ok=True)
-ddl.save('models/ddl_30feat_synthetic.pkl')
-print('Model saved to models/ddl_30feat_synthetic.pkl')
+ddl.save('models/ddl_40feat_synthetic.pkl')
+print('Model saved to models/ddl_40feat_synthetic.pkl')
 "
 ```
 
@@ -81,14 +81,14 @@ Expected file: `data/cicids2017/Wednesday-workingHours.pcap_ISCX.csv`
 ```bash
 python DDLModel/train_ddl_enhanced.py \
     --dataset data/cicids2017/Wednesday-workingHours.pcap_ISCX.csv \
-    --output  models/ddl_30feat_real.pkl \
+    --output  models/ddl_40feat_real.pkl \
     --n_atoms_l1 64 \
     --n_atoms_l2 128 \
     --epochs 150 \
     --threshold f1_optimal
 
 # Training takes 5-15 minutes depending on dataset size.
-# Output: models/ddl_30feat_real.pkl
+# Output: models/ddl_40feat_real.pkl
 ```
 
 ---
@@ -100,7 +100,7 @@ python DDLModel/train_ddl_enhanced.py \
 python LiveTraffic/live_pipeline.py \
     --demo \
     --duration 60 \
-    --ddl_model models/ddl_30feat_synthetic.pkl \
+    --ddl_model models/ddl_40feat_synthetic.pkl \
     --log_path  logs/demo_test.json
 
 # Expected output every 30s:
@@ -123,7 +123,7 @@ sudo tcpdump -i eth1 -n -c 20
 sudo python LiveTraffic/live_pipeline.py \
     --interface  eth1 \
     --duration   60 \
-    --ddl_model  models/ddl_30feat_real.pkl \
+    --ddl_model  models/ddl_40feat_real.pkl \
     --log_path   logs/live_test_$(date +%Y%m%d_%H%M%S).json
 
 # Verbose: show every FORWARD/DROP decision

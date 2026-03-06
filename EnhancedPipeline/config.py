@@ -38,7 +38,7 @@ class EnhancedPipelineConfig:
     NORMAL_LABEL: str = "Normal"
 
     # ── Model paths ──────────────────────────────────────────────────────────
-    DDL_MODEL_PATH: str = os.path.join(MODEL_DIR, "ddl_30feat.pkl")
+    DDL_MODEL_PATH: str = os.path.join(MODEL_DIR, "ddl_40feat.pkl")
     IF_MODEL_PATH:  str = os.path.join(MODEL_DIR, "isolation_forest.pkl")
 
     # ── DDL hyperparameters ──────────────────────────────────────────────────

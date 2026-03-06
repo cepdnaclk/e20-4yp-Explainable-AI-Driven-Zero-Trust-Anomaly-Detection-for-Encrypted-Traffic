@@ -139,7 +139,7 @@ source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 python LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --duration 300 \
-    --ddl_model models/ddl_30feat.pkl \
+    --ddl_model models/ddl_40feat.pkl \
     --log_path logs/live_run_$(date +%Y%m%d_%H%M%S).json
 ```
 

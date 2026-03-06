@@ -106,7 +106,7 @@ cd ~/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # Ensure models are trained first:
-ls models/ddl_30feat.pkl          # must exist — see DDLModel/train_ddl_enhanced.py
+ls models/ddl_40feat.pkl          # must exist — see DDLModel/train_ddl_enhanced.py
 ls models/isolation_forest.pkl    # must exist
 
 # Terminal 1 — REST API (optional, for dashboard connection)
@@ -142,7 +142,7 @@ sudo python LiveTraffic/traffic_generator.py --mode borderline --count 5 --inter
 
 - [ ] Cisco OR HP switch SPAN session confirmed with `show monitor session 1`
 - [ ] `tcpdump -i eth1 -n -c 5` shows traffic on SPAN destination port
-- [ ] `models/ddl_30feat.pkl` exists (run `train_ddl_enhanced.py` first)
+- [ ] `models/ddl_40feat.pkl` exists (run `train_ddl_enhanced.py` first)
 - [ ] `models/isolation_forest.pkl` exists
 - [ ] Streamlit dashboard loads: `http://localhost:8501`
 - [ ] REST API health: `curl http://localhost:5001/health` → `{"status":"ok"}`
