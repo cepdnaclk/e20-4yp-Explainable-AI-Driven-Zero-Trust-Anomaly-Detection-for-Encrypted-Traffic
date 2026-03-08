@@ -1,240 +1,204 @@
-# Pipeline Guide — Zero-Trust XAI Anomaly Detection
-
-**University of Peradeniya | e20420Janith**
+# Pipeline Architecture Guide
+**Zero-Trust XAI Anomaly Detection | e20420Janith**
 
 ---
 
-## Architecture Overview
+## System Overview
+
+The pipeline implements a **two-stage zero-trust anomaly detection system** for SDN environments. Every packet flow is analyzed — no traffic is inherently trusted.
 
 ```
-                    +---------------------+
-                    |    Network Switch   |
-                    |  SPAN Mirror Port   |
-                    +---------------------+
-                              |
-                              v
-                    +---------------------+
-                    | Unified Feature     |
-                    | Extraction (DPKT)   |
-                    | One pass, 46 feats  |
-                    +--------+------------+
-                             |
-               +-------------+-------------+
-               |                           |
-        28 features                  40 features
-               |                           |
-               v                           |
-      +-----------------+                  |
-      | Stage 1: BCC v2 |                  |
-      | Decision Tree   |                  |
-      | Threshold: 0.5  |                  |
-      +--------+--------+                  |
-               |                           |
-        +------+------+                    |
-        |             |                    |
-     BENIGN        ATTACK                  |
-        |             |                    |
-   FORWARD +     SDN Buffer               |
-   ALLOW rule    (hold flows)              |
-                      |                    |
-                      +--------------------+
-                      |
-                      v
-              +-----------------+
-              | Stage 2: DDL    |
-              | 40 features     |
-              | 2-layer ISTA    |
-              +--------+--------+
-                       |
-                +------+------+
-                |             |
-             Normal        Anomaly
-                |             |
-           +----+----+   +----+----+
-           |         |   |         |
-        FORWARD   ALLOW  DROP    XAI
-           +     rule    rule    explain
+┌─────────────────────────────────────────────────────────────────────┐
+│                    SDN Controller (Pipeline Host)                    │
+│                                                                     │
+│  PacketIN ──→ Feature Extraction ──→ Stage 1 (BCC) ──→ Decision    │
+│                    │                      │                         │
+│                    │                   BENIGN → FORWARD             │
+│                    │                   ATTACK → Buffer → Stage 2    │
+│                    │                                      │         │
+│                    └──────────→ DDL + IF + XAI ──→ Decision         │
+│                                    │                                │
+│                                 Normal → FORWARD                   │
+│                                 Anomaly → DROP + Explanation        │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Stage 1: BCC v2 (28 features)
+## Stage 1: Base Check Classifier (BCC v2)
 
-**Model:** `models/sentry_model_v2.pkl` (Sandaru's gatekeeper DT)
-**Latency:** <100 us per flow
-**Purpose:** Fast pre-screening. Allows benign, flags attacks for deeper analysis.
+**Model**: Decision Tree (scikit-learn `DecisionTreeClassifier`)
+**Features**: 28 network flow features
+**Latency**: **0.05 µs per flow**
+**Role**: Fast binary filter — pass benign traffic instantly, flag suspicious traffic
 
-### BCC v2 Feature Set (28)
+### How It Works
+1. Extract 28 flow features (packet sizes, timing, flags, header lengths)
+2. Decision Tree predicts P(ATTACK)
+3. If P(ATTACK) ≥ 0.5 → flag to Stage 2
+4. If P(ATTACK) < 0.5 → FORWARD immediately
 
-| # | Feature | CIC-IDS Column |
-|---|---------|---------------|
-| 0 | Packet Length Variance | Packet Length Variance |
-| 1 | Fwd Packet Length Max | Fwd Packet Length Max |
-| 2 | Fwd Header Length | Fwd Header Length |
-| 3 | Init Win bytes forward | Init_Win_bytes_forward |
-| 4 | Bwd Header Length | Bwd Header Length |
-| 5 | Total Length of Fwd Packets | Total Length of Fwd Packets |
-| 6 | Init Win bytes backward | Init_Win_bytes_backward |
-| 7 | Bwd Packets/s | Bwd Packets/s |
-| 8 | Flow IAT Min | Flow IAT Min |
-| 9 | Fwd IAT Min | Fwd IAT Min |
-| 10 | Flow Bytes/s | Flow Bytes/s |
-| 11 | Active Min | Active Min |
-| 12 | Bwd IAT Total | Bwd IAT Total |
-| 13 | Flow IAT Max | Flow IAT Max |
-| 14 | Flow Duration | Flow Duration |
-| 15 | Total Fwd Packets | Total Fwd Packets |
-| 16 | Total Bwd Packets | Total Backward Packets |
-| 17 | Fwd Packet Length Mean | Fwd Packet Length Mean |
-| 18 | Bwd Packet Length Mean | Bwd Packet Length Mean |
-| 19 | Fwd Packet Length Std | Fwd Packet Length Std |
-| 20 | Bwd Packet Length Max | Bwd Packet Length Max |
-| 21 | Flow IAT Mean | Flow IAT Mean |
-| 22 | Flow IAT Std | Flow IAT Std |
-| 23 | Fwd IAT Total | Fwd IAT Total |
-| 24 | Fwd Packets/s | Fwd Packets/s |
-| 25 | Down/Up Ratio | Down/Up Ratio |
-| 26 | SYN Flag Count | SYN Flag Count |
-| 27 | RST Flag Count | RST Flag Count |
+### Features Used (28)
+`Packet Length Variance`, `Fwd Packet Length Max`, `Fwd Header Length`,
+`Init_Win_bytes_forward`, `Bwd Header Length`, `Total Length of Fwd Packets`,
+`Init_Win_bytes_backward`, `Bwd Packets/s`, `Flow IAT Min`, `Fwd IAT Min`,
+`Flow Bytes/s`, `Active Min`, `Bwd IAT Total`, `Flow IAT Max`,
+`Flow Duration`, `Total Fwd Packets`, `Total Bwd Packets`,
+`Fwd Packet Length Mean`, `Bwd Packet Length Mean`, `Fwd Packet Length Std`,
+`Bwd Packet Length Max`, `Flow IAT Mean`, `Flow IAT Std`, `Fwd IAT Total`,
+`Fwd Packets/s`, `Down/Up Ratio`, `SYN Flag Count`, `RST Flag Count`
+
+### Performance
+- **On preprocessed data**: 99.89% attack recall, 96.3% precision
+- **On raw CIC-IDS CSV**: 21.25% recall, 87.5% precision (different feature distributions)
 
 ---
 
-## Stage 2: DDL + IF + XAI (40 features)
+## Stage 2: Deep Analysis (DDL + IF + XAI)
 
-**Model:** `models/ddl_40feat.pkl`
-**Latency:** ~45 ms per flow
-**Purpose:** Deep anomaly detection on flows flagged by BCC.
+Only flows flagged by BCC (~5% of traffic) reach Stage 2.
 
-### DDL Feature Set (40)
+### Deep Dictionary Learning (DDL)
 
-| # | Feature | CIC-IDS Column |
-|---|---------|---------------|
-| 0-3 | Fwd pkt len (mean, std, min, max) | Fwd Packet Length Mean/Std/Min/Max |
-| 4-5 | Bwd pkt len (mean, std) | Bwd Packet Length Mean/Std |
-| 6-8 | Fwd IAT (mean, std, max) | Fwd IAT Mean/Std/Max |
-| 9-11 | Bwd IAT (mean, std, max) | Bwd IAT Mean/Std/Max |
-| 12-13 | Flow rates (bytes/s, pkts/s) | Flow Bytes/s, Flow Packets/s |
-| 14-15 | Dir rates (fwd bytes/s, bwd bytes/s) | derived |
-| 16-17 | Pkt len (variance, mean) | Packet Length Variance/Mean |
-| 18-23 | TCP flags (SYN, ACK, FIN, RST, PSH, URG) | *Flag Count columns |
-| 24-25 | Total bytes (fwd, bwd) | Total Length of Fwd/Bwd Packets |
-| 26 | Flow duration (s) | Flow Duration |
-| 27-28 | Init TCP window (fwd, bwd) | Init_Win_bytes_forward/backward |
-| 29 | Down/Up ratio | Down/Up Ratio |
-| **30-31** | **Bwd pkt len (min, max)** | **Bwd Packet Length Min/Max** |
-| **32-33** | **Flow IAT (mean, std)** | **Flow IAT Mean/Std** |
-| **34** | **Fwd IAT total** | **Fwd IAT Total** |
-| **35** | **Bwd IAT min** | **Bwd IAT Min** |
-| **36-37** | **Dir pkt rates (fwd/bwd pkts/s)** | **Fwd/Bwd Packets/s** |
-| **38** | **Fwd header length** | **Fwd Header Length** |
-| **39** | **Active min** | **Active Min** |
+**Model**: 2-layer ISTA (Iterative Shrinkage-Thresholding Algorithm)
+**Features**: 40 flow features (superset of BCC's 28)
+**Latency**: **133 µs per flow**
+**Training**: One-class — trained on 1,682,457 **normal** flows only
 
-> **Bold rows** = 10 new features added in v2 expansion for improved detection.
-> 22 features overlap between BCC-28 and DDL-40 — extracted ONCE by the unified extractor.
+#### How It Works
+1. DDL learns a dictionary of "normal" traffic patterns
+2. Each flow is reconstructed using the learned dictionary
+3. **Reconstruction error** = anomaly score
+4. If error > threshold (0.7597) → anomalous
 
-### Isolation Forest (Consensus Vote)
+#### Architecture
+```
+Input (40 features)
+  ↓
+Layer 1: ISTA sparse coding (64 atoms)
+  ↓
+Layer 2: ISTA sparse coding (128 atoms)
+  ↓
+Reconstruction → Error computation → Threshold check
+```
 
-**Model:** `models/isolation_forest.pkl`
-**Input:** Same 40 DDL features
-**Purpose:** Second opinion on DDL anomalies to reduce false positives.
+### Isolation Forest (IF)
 
-A flow is only **DROPPED** when BOTH DDL AND IF agree it's anomalous.
+**Model**: 100-tree ensemble (scikit-learn `IsolationForest`)
+**Features**: Same 40 as DDL
+**Latency**: **2.83 µs per flow**
+**Training**: One-class — same 1,682,457 normal samples as DDL
 
-### XAI Explanations
+#### How It Works
+1. IF builds random trees that isolate data points
+2. Anomalies are points that require **fewer splits** to isolate
+3. Returns isolation score: negative = anomalous
 
-For each dropped flow, the pipeline generates:
-- **Top contributing features** — which of the 40 features drove the anomaly score
-- **Reconstruction error** — how far from "normal" this flow's pattern is
-- **Feature deviation** — which features deviate most from learned normal dictionaries
+### Consensus Decision
+A flow is **DROPped only if BOTH DDL AND IF agree it's anomalous**. This dual-verification reduces false positives from ~5% (either model alone) to **0.25%** (consensus).
+
+```
+DDL says Anomaly + IF says Anomaly → DROP (consensus)
+DDL says Anomaly + IF says Normal  → FORWARD (no consensus)
+DDL says Normal  + IF says Anomaly → FORWARD (no consensus)
+DDL says Normal  + IF says Normal  → FORWARD
+```
 
 ---
 
-## Decision Logic
+## XAI: Explainable AI (LIME + SHAP)
+
+### Why XAI?
+
+In a zero-trust environment, automated decisions must be **auditable**. When the pipeline DROPs a flow, LIME and SHAP explain **which features** triggered the detection and **how much** each contributed.
+
+### LIME (Local Interpretable Model-agnostic Explanations)
+
+- Creates **local perturbations** around the flagged flow
+- Fits a simple linear model to the perturbations
+- Outputs feature weights showing contribution direction and magnitude
+- **Timing**: ~44ms per flow (DDL), ~20ms per flow (IF)
+
+### SHAP (SHapley Additive exPlanations)
+
+- Uses **Shapley values** from cooperative game theory
+- Theoretically optimal: only method with consistency, local accuracy, and missingness guarantees
+- Shows each feature's contribution to the anomaly score
+- **Timing**: ~100ms+ per flow (computationally heavier)
+
+### XAI in Practice
+
+Both LIME and SHAP explain **DDL AND IF decisions separately**:
+
+| XAI | Explains DDL | Explains IF | Per-flow Time |
+|-----|:---:|:---:|:---:|
+| LIME | ✓ Top features → DDL anomaly score | ✓ Top features → IF isolation score | ~64ms |
+| SHAP | ✓ Feature SHAP values for DDL | ✓ Feature SHAP values for IF | ~200ms |
+
+#### Example Explanation
+For a DROPped flow (true attack):
+```
+DDL-LIME:  syn_flag_count=-0.037 | fwd_iat_total=+0.032 | flow_iat_std=+0.026
+IF-LIME:   bwd_pkt_len_mean=+0.031 | fwd_iat_total=+0.029 | flow_duration=+0.028
+```
+**Interpretation**: The flow has no SYN flags (abnormal), very high forward idle time, and unusual timing patterns — consistent with a scanning or DDoS attack.
+
+---
+
+## Unified Feature Extraction
+
+Features are extracted **once** and shared between stages:
 
 ```python
-# Stage 1: BCC v2
-bcc_score = bcc_model.predict_proba(bcc_28_features)
-if bcc_score < 0.5:
-    decision = "FORWARD"   # ALLOW rule
-else:
-    send_to_buffer(flow)   # Hold for Stage 2
+# Single extraction pass
+superset = unified_extractor.extract(packet_data)
 
-# Stage 2: DDL + IF
-ddl_recon_error = ddl_model.compute_error(ddl_40_features)
-if ddl_recon_error > ddl_threshold:
-    if isolation_forest.predict(ddl_40_features) == -1:
-        decision = "DROP"  # Both agree = anomaly
-    else:
-        decision = "FORWARD"  # DDL says anomaly, IF disagrees
-else:
-    decision = "FORWARD"  # DDL says normal
+# Stage 1 gets 28 features
+bcc_features = superset["bcc_28"]
+
+# Stage 2 gets 40 features (superset of BCC's 28)
+ddl_features = superset["ddl_40"]
 ```
+
+### DDL's 10 Additional Features (beyond BCC's 28)
+
+| Feature | Why Added |
+|---------|-----------|
+| `bwd_pkt_len_min` | Backward packet size profile |
+| `bwd_pkt_len_max` | DDoS signature (identical sizes) |
+| `flow_iat_mean` | Flow-level timing average |
+| `flow_iat_std` | Timing variability |
+| `fwd_iat_total` | Total forward idle time |
+| `bwd_iat_min` | Fast backward bursts = scanning |
+| `fwd_pkts_per_s` | Forward packet rate |
+| `bwd_pkts_per_s` | Backward packet rate |
+| `fwd_header_len` | Header overhead ratio |
+| `active_min` | Shortest active period |
 
 ---
 
-## Training
+## Timing Breakdown
 
-### BCC v2 (already trained)
-Pre-trained by Sandaru. Model file: `models/sentry_model_v2.pkl`
+| Component | Per-Flow | Applies To | Percentage of Traffic |
+|-----------|:--------:|:----------:|:---------------------:|
+| Feature extraction | ~50 µs | All flows | 100% |
+| **BCC v2** | **0.05 µs** | All flows | 100% |
+| **DDL** | **133 µs** | Flagged only | ~5% |
+| **IF** | **2.83 µs** | Flagged only | ~5% |
+| **LIME** | **~64 ms** | Anomalous only | ~1% |
+| **SHAP** | **~200 ms** | Anomalous only | ~1% |
 
-### DDL + IF Training
-
-```bash
-# GPU (recommended, ~30 min):
-apptainer exec --nv \
-    /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif \
-    python DDLModel/train_ddl_enhanced.py \
-        --train dataset/TRAIN_Traffic.csv \
-        --test  dataset/TEST_Traffic.csv \
-        --epochs 150 --gpu --batch-size 512
-
-# CPU (~9 hours):
-python DDLModel/train_ddl_enhanced.py \
-    --train dataset/TRAIN_Traffic.csv \
-    --test  dataset/TEST_Traffic.csv \
-    --epochs 150
-```
-
-**Output files:**
-- `models/ddl_40feat.pkl` — Trained 2-layer DDL
-- `models/isolation_forest.pkl` — Trained IF voter
-- `models/train_report.json` — Metrics and feature mapping
-
-### Training Data
-
-CIC-IDS-2017 processed CSV files:
-- `dataset/TRAIN_Traffic.csv` — Training set (70 columns, ~2M rows)
-- `dataset/TEST_Traffic.csv` — Test set (~500K rows)
-
-Labels: `Normal` = benign, everything else = attack.
+**Average total latency per flow**: ~8 µs (since only 5% go to Stage 2)
 
 ---
 
-## Running the Pipeline
+## How to Deploy in Your SDN
 
-```bash
-# Demo mode (synthetic flows):
-python FullSDNPipeline/sdn_pipeline.py --demo --n-flows 30
+1. **Install models** on the SDN controller
+2. **Configure switch port mirroring** to send packet copies
+3. **Run `sdn_pipeline.py`** — it processes PacketIN events
+4. **Pipeline outputs**:
+   - `FORWARD` + ALLOW rule → benign traffic passes
+   - `DROP` + XAI explanation → attack traffic blocked with audit trail
 
-# CIC-IDS-2017 labeled PCAPs:
-python FullSDNPipeline/sdn_pipeline.py \
-    --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
-    --limit 500
-
-# Packet replay with real timing:
-python FullSDNPipeline/packet_shooter.py \
-    --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
-    --rate-multiplier 1.0
-```
-
----
-
-## Target Metrics
-
-| Metric | Target | Notes |
-|--------|--------|-------|
-| Attack Recall | > 99% | Zero leaks goal |
-| False Positive Rate | < 5% | IF consensus reduces FP |
-| Stage 1 latency | < 1 ms | DT inference |
-| Stage 2 latency | < 100 ms | DDL + IF + XAI |
-| Throughput | > 50 flows/s | Pipeline aggregate |
+See `QUICK_START.md` for exact commands and `DemonstrationPlan.md` for demo procedure.

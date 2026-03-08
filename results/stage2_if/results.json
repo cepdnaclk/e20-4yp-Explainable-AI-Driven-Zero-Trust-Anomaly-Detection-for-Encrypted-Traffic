@@ -1,0 +1,22 @@
+{
+  "name": "Isolation Forest Standalone",
+  "confusion_matrix": {
+    "TP": 3176,
+    "TN": 37856,
+    "FP": 1898,
+    "FN": 7070
+  },
+  "metrics": {
+    "accuracy": 0.82064,
+    "precision": 0.625936,
+    "recall": 0.309975,
+    "f1": 0.414621,
+    "fpr": 0.047744,
+    "fnr": 0.690025
+  },
+  "timing": {
+    "total_s": 0.1414,
+    "per_flow_us": 2.83,
+    "n_flows": 50000
+  }
+}

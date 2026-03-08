@@ -1,0 +1,46 @@
+nohup: ignoring input
+2026-03-08 15:28:45,231 [INFO] Loading BCC v2 model...
+2026-03-08 15:28:45,266 [INFO]   BCC loaded: DecisionTreeClassifier, threshold=0.5
+2026-03-08 15:28:45,266 [INFO] Loading DDL model...
+2026-03-08 15:28:45,266 [INFO] DDL will use CPU backend (NumPy)
+2026-03-08 15:28:45,266 [INFO] DDL model loaded from /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/models/ddl_40feat.pkl  (40 features, 2-layer, inference on CPU)
+2026-03-08 15:28:45,266 [INFO]   DDL loaded: 40 features, threshold=0.759687
+2026-03-08 15:28:45,266 [INFO] Loading Isolation Forest...
+2026-03-08 15:28:45,289 [INFO]   IF loaded: IsolationForest
+2026-03-08 15:28:45,289 [INFO] Loading test CSV: /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/dataset/TEST_Traffic.csv
+2026-03-08 15:28:48,158 [INFO]   Loaded 531,490 rows x 70 columns
+2026-03-08 15:28:48,262 [INFO]   Normal=420,615  Attack=110,875
+2026-03-08 15:28:48,262 [INFO] Extracting BCC-28 features from CSV...
+2026-03-08 15:28:48,262 [INFO]   Aliased: 'Total Backward Packets' → 'Total Bwd Packets'
+2026-03-08 15:28:48,433 [INFO] Extracting DDL-40 features from CSV...
+2026-03-08 15:28:48,714 [INFO] ============================================================
+2026-03-08 15:28:48,714 [INFO] Running Two-Stage Pipeline Evaluation
+2026-03-08 15:28:48,714 [INFO] ============================================================
+2026-03-08 15:28:48,759 [INFO] Stage 1 (BCC): BENIGN=504,656  ATTACK(to DDL)=26,834  (0.04s)
+2026-03-08 15:28:51,856 [INFO] Stage 2 (DDL+IF): FORWARD=10,118  DROP=16,716
+2026-03-08 15:28:51,856 [INFO] ============================================================
+2026-03-08 15:28:51,856 [INFO] CONFUSION MATRIX — Full Two-Stage Pipeline
+2026-03-08 15:28:51,856 [INFO] ============================================================
+2026-03-08 15:28:51,958 [INFO] Results saved to logs/pipeline_test_full.json
+
+============================================================
+  Full Pipeline Confusion Matrix (Two-Stage)
+============================================================
+                     Predicted
+                  FORWARD   DROP
+  Actual Normal     419604    1011
+  Actual Attack      95170   15705
+
+  Accuracy:   0.8190
+  Precision:  0.9395
+  Recall:     0.1416
+  F1 Score:   0.2462
+  FPR:        0.0024
+  FNR:        0.8584
+
+  Stage 1 (BCC):  504,656 FORWARD, 26,834 → Stage 2  (0.04s)
+  Stage 2 (DDL):  10,118 FORWARD, 16,716 DROP   (3.10s)
+
+  ⚠️  95170 attack flows leaked through (FN)
+  ⚠️  1011 normal flows falsely dropped (FP)
+============================================================

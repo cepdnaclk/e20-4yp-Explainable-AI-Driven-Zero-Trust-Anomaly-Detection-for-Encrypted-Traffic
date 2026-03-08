@@ -1,0 +1,137 @@
+{
+  "timestamp": "2026-03-08 16:38:00",
+  "config": {
+    "test_csv": "/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/dataset/TEST_Traffic.csv",
+    "bcc_model": "/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/models/sentry_model_v2.pkl",
+    "ddl_model": "/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/models/ddl_40feat.pkl",
+    "if_model": "/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/models/isolation_forest.pkl",
+    "max_rows": 50000,
+    "xai_samples": 3,
+    "results_dir": "/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/results"
+  },
+  "stage1_bcc": {
+    "name": "BCC v2 Standalone",
+    "confusion_matrix": {
+      "TP": 2177,
+      "TN": 39443,
+      "FP": 311,
+      "FN": 8069
+    },
+    "metrics": {
+      "accuracy": 0.8324,
+      "precision": 0.875,
+      "recall": 0.212473,
+      "f1": 0.341919,
+      "fpr": 0.007823,
+      "fnr": 0.787527
+    },
+    "timing": {
+      "total_s": 0.0027,
+      "per_flow_us": 0.05,
+      "n_flows": 50000
+    },
+    "n_flagged_attack": 2488,
+    "n_passed_benign": 47512
+  },
+  "stage1_bcc_sandaru": {
+    "name": "BCC v2 on Sandaru's test_raw.csv",
+    "confusion_matrix": {
+      "TP": 17967,
+      "TN": 33679,
+      "FP": 688,
+      "FN": 20
+    },
+    "metrics": {
+      "accuracy": 0.986477,
+      "precision": 0.96312,
+      "recall": 0.998888,
+      "f1": 0.980678,
+      "fpr": 0.020019,
+      "fnr": 0.001112
+    }
+  },
+  "stage2_ddl": {
+    "name": "DDL Standalone",
+    "confusion_matrix": {
+      "TP": 4649,
+      "TN": 37756,
+      "FP": 1998,
+      "FN": 5597
+    },
+    "metrics": {
+      "accuracy": 0.8481,
+      "precision": 0.699413,
+      "recall": 0.453738,
+      "f1": 0.550405,
+      "fpr": 0.050259,
+      "fnr": 0.546262
+    },
+    "timing": {
+      "total_s": 6.6675,
+      "per_flow_us": 133.35,
+      "n_flows": 50000
+    },
+    "threshold": 0.7596870490447678,
+    "mean_score": 0.44790787444149943,
+    "max_score": 47.14618784893902
+  },
+  "stage2_if": {
+    "name": "Isolation Forest Standalone",
+    "confusion_matrix": {
+      "TP": 3176,
+      "TN": 37856,
+      "FP": 1898,
+      "FN": 7070
+    },
+    "metrics": {
+      "accuracy": 0.82064,
+      "precision": 0.625936,
+      "recall": 0.309975,
+      "f1": 0.414621,
+      "fpr": 0.047744,
+      "fnr": 0.690025
+    },
+    "timing": {
+      "total_s": 0.1414,
+      "per_flow_us": 2.83,
+      "n_flows": 50000
+    }
+  },
+  "full_pipeline": {
+    "name": "Full Pipeline (BCC\u2192DDL+IF)",
+    "confusion_matrix": {
+      "TP": 1440,
+      "TN": 39656,
+      "FP": 98,
+      "FN": 8806
+    },
+    "metrics": {
+      "accuracy": 0.82192,
+      "precision": 0.936281,
+      "recall": 0.140543,
+      "f1": 0.244399,
+      "fpr": 0.002465,
+      "fnr": 0.859457
+    },
+    "timing": {
+      "total_s": 0.3942,
+      "stage1_bcc_s": 0.0001,
+      "stage2_ddl_if_s": 0.3941,
+      "per_flow_total_us": 7.88,
+      "n_flows": 50000
+    },
+    "flow_routing": {
+      "bcc_passed_benign": 47512,
+      "bcc_flagged_to_ddl": 2488,
+      "ddl_if_forward": 950,
+      "ddl_if_drop": 1538
+    }
+  },
+  "xai": {
+    "n_explained": 3,
+    "timing": {
+      "total_s": 0.1898,
+      "per_flow_s": 0.0633
+    }
+  }
+}

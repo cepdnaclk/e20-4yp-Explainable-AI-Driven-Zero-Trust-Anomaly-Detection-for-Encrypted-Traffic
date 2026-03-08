@@ -1,8 +1,8 @@
 {
-  "run_timestamp": "2026-03-06T05:11:39.006783+00:00",
+  "run_timestamp": "2026-03-08T15:09:10.992525+00:00",
   "stats": {
-    "total_flows": 5,
-    "bcc_benign": 5,
+    "total_flows": 50,
+    "bcc_benign": 50,
     "bcc_attack": 0,
     "ddl_normal": 0,
     "ddl_anomaly": 0,
@@ -15,35 +15,350 @@
       "action": "ALLOW",
       "reason": "BCC-BENIGN",
       "timeout_s": 60,
-      "installed_at": "2026-03-06T05:11:39.006404+00:00"
+      "installed_at": "2026-03-08T15:09:10.988418+00:00"
     },
     {
       "flow_id": "10.0.0.1:50001->8.8.8.8:443/TCP",
       "action": "ALLOW",
       "reason": "BCC-BENIGN",
       "timeout_s": 60,
-      "installed_at": "2026-03-06T05:11:39.006512+00:00"
+      "installed_at": "2026-03-08T15:09:10.988585+00:00"
     },
     {
       "flow_id": "10.0.0.2:50002->8.8.8.8:443/TCP",
       "action": "ALLOW",
       "reason": "BCC-BENIGN",
       "timeout_s": 60,
-      "installed_at": "2026-03-06T05:11:39.006591+00:00"
+      "installed_at": "2026-03-08T15:09:10.988710+00:00"
     },
     {
       "flow_id": "10.0.0.3:50003->8.8.8.8:443/TCP",
       "action": "ALLOW",
       "reason": "BCC-BENIGN",
       "timeout_s": 60,
-      "installed_at": "2026-03-06T05:11:39.006657+00:00"
+      "installed_at": "2026-03-08T15:09:10.988805+00:00"
     },
     {
       "flow_id": "10.0.0.4:50004->8.8.8.8:443/TCP",
       "action": "ALLOW",
       "reason": "BCC-BENIGN",
       "timeout_s": 60,
-      "installed_at": "2026-03-06T05:11:39.006721+00:00"
+      "installed_at": "2026-03-08T15:09:10.988895+00:00"
+    },
+    {
+      "flow_id": "10.0.0.5:50005->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.988975+00:00"
+    },
+    {
+      "flow_id": "10.0.0.6:50006->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989051+00:00"
+    },
+    {
+      "flow_id": "10.0.0.7:50007->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989127+00:00"
+    },
+    {
+      "flow_id": "10.0.0.8:50008->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989207+00:00"
+    },
+    {
+      "flow_id": "10.0.0.9:50009->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989283+00:00"
+    },
+    {
+      "flow_id": "10.0.0.10:50010->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989357+00:00"
+    },
+    {
+      "flow_id": "10.0.0.11:50011->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989441+00:00"
+    },
+    {
+      "flow_id": "10.0.0.12:50012->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989519+00:00"
+    },
+    {
+      "flow_id": "10.0.0.13:50013->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989594+00:00"
+    },
+    {
+      "flow_id": "10.0.0.14:50014->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989673+00:00"
+    },
+    {
+      "flow_id": "10.0.0.15:50015->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989750+00:00"
+    },
+    {
+      "flow_id": "10.0.0.16:50016->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989828+00:00"
+    },
+    {
+      "flow_id": "10.0.0.17:50017->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989908+00:00"
+    },
+    {
+      "flow_id": "10.0.0.18:50018->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.989986+00:00"
+    },
+    {
+      "flow_id": "10.0.0.19:50019->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990062+00:00"
+    },
+    {
+      "flow_id": "10.0.0.20:50020->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990137+00:00"
+    },
+    {
+      "flow_id": "10.0.0.21:50021->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990218+00:00"
+    },
+    {
+      "flow_id": "10.0.0.22:50022->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990294+00:00"
+    },
+    {
+      "flow_id": "10.0.0.23:50023->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990369+00:00"
+    },
+    {
+      "flow_id": "10.0.0.24:50024->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990444+00:00"
+    },
+    {
+      "flow_id": "10.0.0.25:50025->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990520+00:00"
+    },
+    {
+      "flow_id": "10.0.0.26:50026->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990600+00:00"
+    },
+    {
+      "flow_id": "10.0.0.27:50027->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990677+00:00"
+    },
+    {
+      "flow_id": "10.0.0.28:50028->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990753+00:00"
+    },
+    {
+      "flow_id": "10.0.0.29:50029->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990828+00:00"
+    },
+    {
+      "flow_id": "10.0.0.30:50030->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990903+00:00"
+    },
+    {
+      "flow_id": "10.0.0.31:50031->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.990976+00:00"
+    },
+    {
+      "flow_id": "10.0.0.32:50032->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991049+00:00"
+    },
+    {
+      "flow_id": "10.0.0.33:50033->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991123+00:00"
+    },
+    {
+      "flow_id": "10.0.0.34:50034->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991196+00:00"
+    },
+    {
+      "flow_id": "10.0.0.35:50035->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991283+00:00"
+    },
+    {
+      "flow_id": "10.0.0.36:50036->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991359+00:00"
+    },
+    {
+      "flow_id": "10.0.0.37:50037->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991432+00:00"
+    },
+    {
+      "flow_id": "10.0.0.38:50038->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991506+00:00"
+    },
+    {
+      "flow_id": "10.0.0.39:50039->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991578+00:00"
+    },
+    {
+      "flow_id": "10.0.0.40:50040->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991660+00:00"
+    },
+    {
+      "flow_id": "10.0.0.41:50041->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991733+00:00"
+    },
+    {
+      "flow_id": "10.0.0.42:50042->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991809+00:00"
+    },
+    {
+      "flow_id": "10.0.0.43:50043->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991882+00:00"
+    },
+    {
+      "flow_id": "10.0.0.44:50044->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.991954+00:00"
+    },
+    {
+      "flow_id": "10.0.0.45:50045->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.992028+00:00"
+    },
+    {
+      "flow_id": "10.0.0.46:50046->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.992104+00:00"
+    },
+    {
+      "flow_id": "10.0.0.47:50047->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.992178+00:00"
+    },
+    {
+      "flow_id": "10.0.0.48:50048->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.992257+00:00"
+    },
+    {
+      "flow_id": "10.0.0.49:50049->8.8.8.8:443/TCP",
+      "action": "ALLOW",
+      "reason": "BCC-BENIGN",
+      "timeout_s": 60,
+      "installed_at": "2026-03-08T15:09:10.992329+00:00"
     }
   ],
   "decisions": [
@@ -51,7 +366,7 @@
       "flow_id": "10.0.0.0:50000->8.8.8.8:443/TCP",
       "pcap": "synthetic_0.pcap",
       "ground_truth": "ATTACK",
-      "timestamp": "2026-03-06T05:11:39.006136+00:00",
+      "timestamp": "2026-03-08T15:09:10.988018+00:00",
       "bcc_prediction": "BENIGN",
       "bcc_proba": 0.0,
       "action": "FORWARD",
@@ -61,7 +376,7 @@
       "flow_id": "10.0.0.1:50001->8.8.8.8:443/TCP",
       "pcap": "synthetic_1.pcap",
       "ground_truth": "BENIGN",
-      "timestamp": "2026-03-06T05:11:39.006418+00:00",
+      "timestamp": "2026-03-08T15:09:10.988444+00:00",
       "bcc_prediction": "BENIGN",
       "bcc_proba": 0.0,
       "action": "FORWARD",
@@ -71,7 +386,7 @@
       "flow_id": "10.0.0.2:50002->8.8.8.8:443/TCP",
       "pcap": "synthetic_2.pcap",
       "ground_truth": "BENIGN",
-      "timestamp": "2026-03-06T05:11:39.006520+00:00",
+      "timestamp": "2026-03-08T15:09:10.988602+00:00",
       "bcc_prediction": "BENIGN",
       "bcc_proba": 0.0,
       "action": "FORWARD",
@@ -81,7 +396,7 @@
       "flow_id": "10.0.0.3:50003->8.8.8.8:443/TCP",
       "pcap": "synthetic_3.pcap",
       "ground_truth": "BENIGN",
-      "timestamp": "2026-03-06T05:11:39.006597+00:00",
+      "timestamp": "2026-03-08T15:09:10.988723+00:00",
       "bcc_prediction": "BENIGN",
       "bcc_proba": 0.0,
       "action": "FORWARD",
@@ -91,7 +406,457 @@
       "flow_id": "10.0.0.4:50004->8.8.8.8:443/TCP",
       "pcap": "synthetic_4.pcap",
       "ground_truth": "BENIGN",
-      "timestamp": "2026-03-06T05:11:39.006662+00:00",
+      "timestamp": "2026-03-08T15:09:10.988817+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.5:50005->8.8.8.8:443/TCP",
+      "pcap": "synthetic_5.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.988906+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.6:50006->8.8.8.8:443/TCP",
+      "pcap": "synthetic_6.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.988986+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.7:50007->8.8.8.8:443/TCP",
+      "pcap": "synthetic_7.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989062+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.8:50008->8.8.8.8:443/TCP",
+      "pcap": "synthetic_8.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989139+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.9:50009->8.8.8.8:443/TCP",
+      "pcap": "synthetic_9.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989218+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.10:50010->8.8.8.8:443/TCP",
+      "pcap": "synthetic_10.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.989294+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.11:50011->8.8.8.8:443/TCP",
+      "pcap": "synthetic_11.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989369+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.12:50012->8.8.8.8:443/TCP",
+      "pcap": "synthetic_12.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989453+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.13:50013->8.8.8.8:443/TCP",
+      "pcap": "synthetic_13.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989530+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.14:50014->8.8.8.8:443/TCP",
+      "pcap": "synthetic_14.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989606+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.15:50015->8.8.8.8:443/TCP",
+      "pcap": "synthetic_15.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.989685+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.16:50016->8.8.8.8:443/TCP",
+      "pcap": "synthetic_16.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989761+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.17:50017->8.8.8.8:443/TCP",
+      "pcap": "synthetic_17.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989840+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.18:50018->8.8.8.8:443/TCP",
+      "pcap": "synthetic_18.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989920+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.19:50019->8.8.8.8:443/TCP",
+      "pcap": "synthetic_19.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.989997+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.20:50020->8.8.8.8:443/TCP",
+      "pcap": "synthetic_20.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.990073+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.21:50021->8.8.8.8:443/TCP",
+      "pcap": "synthetic_21.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990148+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.22:50022->8.8.8.8:443/TCP",
+      "pcap": "synthetic_22.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990228+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.23:50023->8.8.8.8:443/TCP",
+      "pcap": "synthetic_23.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990304+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.24:50024->8.8.8.8:443/TCP",
+      "pcap": "synthetic_24.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990379+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.25:50025->8.8.8.8:443/TCP",
+      "pcap": "synthetic_25.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.990455+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.26:50026->8.8.8.8:443/TCP",
+      "pcap": "synthetic_26.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990532+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.27:50027->8.8.8.8:443/TCP",
+      "pcap": "synthetic_27.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990612+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.28:50028->8.8.8.8:443/TCP",
+      "pcap": "synthetic_28.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990688+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.29:50029->8.8.8.8:443/TCP",
+      "pcap": "synthetic_29.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990764+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.30:50030->8.8.8.8:443/TCP",
+      "pcap": "synthetic_30.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.990839+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.31:50031->8.8.8.8:443/TCP",
+      "pcap": "synthetic_31.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990914+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.32:50032->8.8.8.8:443/TCP",
+      "pcap": "synthetic_32.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.990987+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.33:50033->8.8.8.8:443/TCP",
+      "pcap": "synthetic_33.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991060+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.34:50034->8.8.8.8:443/TCP",
+      "pcap": "synthetic_34.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991134+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.35:50035->8.8.8.8:443/TCP",
+      "pcap": "synthetic_35.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.991218+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.36:50036->8.8.8.8:443/TCP",
+      "pcap": "synthetic_36.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991295+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.37:50037->8.8.8.8:443/TCP",
+      "pcap": "synthetic_37.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991370+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.38:50038->8.8.8.8:443/TCP",
+      "pcap": "synthetic_38.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991443+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.39:50039->8.8.8.8:443/TCP",
+      "pcap": "synthetic_39.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991516+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.40:50040->8.8.8.8:443/TCP",
+      "pcap": "synthetic_40.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.991589+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.41:50041->8.8.8.8:443/TCP",
+      "pcap": "synthetic_41.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991671+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.42:50042->8.8.8.8:443/TCP",
+      "pcap": "synthetic_42.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991744+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.43:50043->8.8.8.8:443/TCP",
+      "pcap": "synthetic_43.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991819+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.44:50044->8.8.8.8:443/TCP",
+      "pcap": "synthetic_44.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.991892+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.45:50045->8.8.8.8:443/TCP",
+      "pcap": "synthetic_45.pcap",
+      "ground_truth": "ATTACK",
+      "timestamp": "2026-03-08T15:09:10.991965+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.46:50046->8.8.8.8:443/TCP",
+      "pcap": "synthetic_46.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.992038+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.47:50047->8.8.8.8:443/TCP",
+      "pcap": "synthetic_47.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.992115+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.48:50048->8.8.8.8:443/TCP",
+      "pcap": "synthetic_48.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.992189+00:00",
+      "bcc_prediction": "BENIGN",
+      "bcc_proba": 0.0,
+      "action": "FORWARD",
+      "stage": "BCC"
+    },
+    {
+      "flow_id": "10.0.0.49:50049->8.8.8.8:443/TCP",
+      "pcap": "synthetic_49.pcap",
+      "ground_truth": "BENIGN",
+      "timestamp": "2026-03-08T15:09:10.992267+00:00",
       "bcc_prediction": "BENIGN",
       "bcc_proba": 0.0,
       "action": "FORWARD",
