@@ -1,0 +1,1314 @@
+---
+layout: null
+permalink: /
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XAI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f172a;
+      --bg-card:   #1e293b;
+      --bg-card2:  #334155;
+      --accent:    #38bdf8;
+      --accent2:   #818cf8;
+      --accent3:   #34d399;
+      --warn:      #fb923c;
+      --danger:    #f87171;
+      --text:      #e2e8f0;
+      --text-dim:  #94a3b8;
+      --border:    #475569;
+      --radius:    12px;
+      --font:      'Segoe UI', system-ui, -apple-system, sans-serif;
+      --mono:      'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    /* ── Navigation ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    nav .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      height: 60px;
+      overflow-x: auto;
+    }
+    nav .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--accent); }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 3rem;
+      background: linear-gradient(180deg, #1e293b 0%, var(--bg) 100%);
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+    .hero .subtitle {
+      color: var(--text-dim);
+      font-size: 1.15rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+    .badge-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.9rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge.blue   { background: rgba(56,189,248,0.15); color: var(--accent); border: 1px solid rgba(56,189,248,0.3); }
+    .badge.purple { background: rgba(129,140,248,0.15); color: var(--accent2); border: 1px solid rgba(129,140,248,0.3); }
+    .badge.green  { background: rgba(52,211,153,0.15); color: var(--accent3); border: 1px solid rgba(52,211,153,0.3); }
+
+    /* ── Section ── */
+    section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+    section h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+    section h2 .num {
+      color: var(--accent);
+      margin-right: 0.5rem;
+    }
+    section h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 2rem 0 0.8rem;
+      color: var(--accent2);
+    }
+    p { margin-bottom: 1rem; }
+    a { color: var(--accent); }
+
+    /* ── Cards ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .card p, .card li { font-size: 0.95rem; color: var(--text-dim); }
+    .card ul { margin: 0.5rem 0 0 1.2rem; }
+    .card li { margin-bottom: 0.3rem; }
+
+    /* ── Team Cards ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.2rem;
+      margin: 1.5rem 0;
+    }
+    .team-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      text-align: center;
+    }
+    .team-card .initials {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.8rem;
+      font-weight: 700; font-size: 1.2rem;
+      color: var(--bg);
+    }
+    .team-card .name { font-weight: 600; }
+    .team-card .enum { font-size: 0.85rem; color: var(--text-dim); }
+    .team-card a { font-size: 0.85rem; }
+
+    /* ── Tables ── */
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1.2rem 0;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+    thead { background: var(--bg-card2); }
+    th, td {
+      padding: 0.7rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th { font-weight: 600; color: var(--accent); }
+    tbody tr:hover { background: rgba(56,189,248,0.06); }
+    .metric-good { color: var(--accent3); font-weight: 600; }
+    .metric-warn { color: var(--warn); font-weight: 600; }
+    .metric-bad  { color: var(--danger); font-weight: 600; }
+
+    /* ── Architecture SVG ── */
+    .arch-diagram {
+      margin: 2rem auto;
+      max-width: 100%;
+      overflow-x: auto;
+      text-align: center;
+    }
+    .arch-diagram svg { max-width: 100%; height: auto; }
+
+    /* ── Timeline ── */
+    .timeline {
+      position: relative;
+      padding-left: 2.5rem;
+      margin: 1.5rem 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.8rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent), var(--accent2), var(--accent3));
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2.17rem;
+      top: 0.4rem;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background: var(--bg);
+    }
+    .timeline-item.archived::before { border-color: var(--danger); }
+    .timeline-item.current::before  { border-color: var(--accent3); background: var(--accent3); }
+    .timeline-item .tl-date {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      font-family: var(--mono);
+    }
+    .timeline-item .tl-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin: 0.2rem 0;
+    }
+    .timeline-item .tl-body { color: var(--text-dim); font-size: 0.93rem; }
+
+    /* ── Reason Box ── */
+    .reason-box {
+      background: rgba(248,113,113,0.08);
+      border-left: 4px solid var(--danger);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+    }
+    .reason-box h5 {
+      color: var(--danger);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+    .reason-box ul {
+      margin: 0.3rem 0 0 1.2rem;
+      font-size: 0.92rem;
+      color: var(--text-dim);
+    }
+    .reason-box li { margin-bottom: 0.25rem; }
+
+    .success-box {
+      background: rgba(52,211,153,0.08);
+      border-left: 4px solid var(--accent3);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+    }
+    .success-box h5 {
+      color: var(--accent3);
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── Code ── */
+    code {
+      font-family: var(--mono);
+      background: var(--bg-card2);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    /* ── Feature Pills ── */
+    .feature-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .feature-pill {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.82rem;
+      font-family: var(--mono);
+      color: var(--text-dim);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-top: 2rem;
+    }
+    footer a { color: var(--accent); }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      section { padding: 2rem 1rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      nav .nav-inner { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ Navigation ============ -->
+<nav>
+  <div class="nav-inner">
+    <span class="logo">ZT-XAI</span>
+    <a href="#abstract">Abstract</a>
+    <a href="#team">Team</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#experiments">Experiments</a>
+    <a href="#implementation">Implementation</a>
+    <a href="#testing-plan">Testing Plan</a>
+    <a href="#results">Results</a>
+    <a href="#conclusion">Conclusion</a>
+    <a href="#links">Links</a>
+  </div>
+</nav>
+
+<!-- ============ Hero ============ -->
+<header class="hero">
+  <h1>Explainable AI-Driven Zero-Trust<br>Anomaly Detection for Encrypted Traffic</h1>
+  <p class="subtitle">
+    Bridging the gap between encrypted traffic analysis, explainable AI, and automated zero-trust policy enforcement.
+  </p>
+  <div class="badge-row">
+    <span class="badge blue">Zero-Trust</span>
+    <span class="badge purple">Explainable AI</span>
+    <span class="badge green">Encrypted Traffic</span>
+    <span class="badge blue">Deep Dictionary Learning</span>
+    <span class="badge purple">SHAP</span>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem;">
+    CO425 — Final Year Project II &nbsp;|&nbsp; Department of Computer Engineering &nbsp;|&nbsp; University of Peradeniya
+  </p>
+</header>
+
+<!-- ============ Abstract ============ -->
+<section id="abstract">
+  <h2><span class="num">01</span> Abstract</h2>
+  <p>
+    Modern cybersecurity is shifting toward encryption to protect data privacy, but this often blinds
+    traditional Intrusion Detection Systems (IDS) that rely on payload inspection. Concurrently, the
+    rise of cloud computing and remote work has made perimeter-based security obsolete, leading to the
+    adoption of <strong>Zero-Trust Architecture (ZTA)</strong>, which requires continuous verification of every entity.
+  </p>
+  <p>
+    While Deep Learning models can detect anomalies in encrypted traffic without decryption by analyzing
+    metadata, their "black-box" nature creates a <strong>trust deficit</strong> that hinders automated policy enforcement.
+    This project proposes a framework integrating <strong>Encrypted Traffic Analysis (ETA)</strong> with
+    <strong>Explainable AI (XAI)</strong> using SHAP and Deep Dictionary Learning to provide real-time,
+    human-readable rationales for security decisions.
+  </p>
+</section>
+
+<!-- ============ Team ============ -->
+<section id="team">
+  <h2><span class="num">02</span> Team</h2>
+
+  <h3>Members</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="initials" style="background: linear-gradient(135deg, var(--accent), #0ea5e9);">CP</div>
+      <div class="name">Chalaka Perera</div>
+      <div class="enum">E/20/288</div>
+      <a href="mailto:e20288@eng.pdn.ac.lk">e20288@eng.pdn.ac.lk</a>
+    </div>
+    <div class="team-card">
+      <div class="initials" style="background: linear-gradient(135deg, var(--accent2), #6366f1);">JW</div>
+      <div class="name">Janith Wanasinghe</div>
+      <div class="enum">E/20/420</div>
+      <a href="mailto:e20420@eng.pdn.ac.lk">e20420@eng.pdn.ac.lk</a>
+    </div>
+    <div class="team-card">
+      <div class="initials" style="background: linear-gradient(135deg, var(--accent3), #10b981);">SW</div>
+      <div class="name">Sandaru Wijewardhana</div>
+      <div class="enum">E/20/449</div>
+      <a href="mailto:e20449@eng.pdn.ac.lk">e20449@eng.pdn.ac.lk</a>
+    </div>
+  </div>
+
+  <h3>Supervisors</h3>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="initials" style="background: linear-gradient(135deg, #f59e0b, #d97706);">SN</div>
+      <div class="name">Dr. Suneth Namal Karunarathna</div>
+      <a href="mailto:namal@eng.pdn.ac.lk">namal@eng.pdn.ac.lk</a>
+    </div>
+    <div class="team-card">
+      <div class="initials" style="background: linear-gradient(135deg, #f59e0b, #d97706);">UJ</div>
+      <div class="name">Dr. Upul Jayasinghe</div>
+      <a href="mailto:upuljm@eng.pdn.ac.lk">upuljm@eng.pdn.ac.lk</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Methodology ============ -->
+<section id="methodology">
+  <h2><span class="num">03</span> Methodology</h2>
+  <p>The proposed framework utilizes a multi-stage zero-trust pipeline:</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🔐 Stage 1 — Encryption &amp; Extraction</h4>
+      <p>Raw PCAP streams are processed through an AES-256-GCM encryption simulator.
+         A hybrid DPKT + NFStream extractor yields <strong>15 CIC-IDS-2017 behavioral features</strong>
+         — all from unencrypted metadata (no payload inspection).</p>
+    </div>
+    <div class="card">
+      <h4>🌲 Stage 2 — Decision Tree Pre-Check</h4>
+      <p>A lightweight Decision Tree classifier (entropy criterion, class weight 50:1 attack bias)
+         performs an initial fast check. Flows classified as <strong>Normal</strong> are forwarded
+         immediately; flagged flows proceed to deep analysis.</p>
+    </div>
+    <div class="card">
+      <h4>🧠 Stage 3 — Deep Dictionary Learning</h4>
+      <p>A two-layer DDL model with ISTA sparse coding learns atomic dictionary representations
+         of normal traffic. Flows with high <strong>reconstruction error</strong> (exceeding the
+         learned threshold) are classified as anomalous.</p>
+    </div>
+    <div class="card">
+      <h4>💡 Stage 4 — XAI Explanation</h4>
+      <p>For every anomaly, two explanation methods fire:
+         <strong>DDL-native</strong> per-feature reconstruction error decomposition, and
+         <strong>SHAP KernelExplainer</strong> perturbation-based attributions — producing
+         human-readable rationales for SOC analysts.</p>
+    </div>
+    <div class="card">
+      <h4>🛡️ Stage 5 — SDN Buffer &amp; Policy</h4>
+      <p>Anomalous flows are held in an OpenFlow-style SDN buffer while the explanation is computed.
+         After analysis: <strong>DROP</strong> confirmed threats, <strong>FORWARD</strong> cleared flows.
+         Decisions feed back into the ZTA Policy Engine.</p>
+    </div>
+    <div class="card">
+      <h4>📊 Stage 6 — Dashboard &amp; Logging</h4>
+      <p>A Streamlit dashboard provides real-time visibility into detection events, explanation
+         summaries, and pipeline statistics (TP/TN/FP/FN, latency, throughput).</p>
+    </div>
+  </div>
+
+  <h3>15 Behavioral Features (CIC-IDS-2017)</h3>
+  <div class="feature-pills">
+    <span class="feature-pill">Packet Length Variance</span>
+    <span class="feature-pill">Fwd Packet Length Max</span>
+    <span class="feature-pill">Fwd Header Length</span>
+    <span class="feature-pill">Init_Win_bytes_forward</span>
+    <span class="feature-pill">Bwd Header Length</span>
+    <span class="feature-pill">Total Length of Fwd Packets</span>
+    <span class="feature-pill">Init_Win_bytes_backward</span>
+    <span class="feature-pill">Bwd Packets/s</span>
+    <span class="feature-pill">Flow IAT Min</span>
+    <span class="feature-pill">Fwd IAT Min</span>
+    <span class="feature-pill">Flow Bytes/s</span>
+    <span class="feature-pill">Active Min</span>
+    <span class="feature-pill">Bwd IAT Total</span>
+    <span class="feature-pill">Flow IAT Max</span>
+    <span class="feature-pill">Flow Duration</span>
+  </div>
+</section>
+
+<!-- ============ Architecture ============ -->
+<section id="architecture">
+  <h2><span class="num">04</span> Architecture</h2>
+
+  <div class="arch-diagram">
+    <svg viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, system-ui, sans-serif">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+        </marker>
+        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#818cf8" stop-opacity="0.2"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Background -->
+      <rect width="960" height="440" rx="16" fill="#1e293b"/>
+
+      <!-- Stage 1: Input -->
+      <rect x="30" y="170" width="120" height="70" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+      <text x="90" y="198" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">Raw PCAP</text>
+      <text x="90" y="218" text-anchor="middle" fill="#94a3b8" font-size="11">Stream</text>
+
+      <!-- Arrow 1→2 -->
+      <line x1="150" y1="205" x2="190" y2="205" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- Stage 2: Feature Extraction -->
+      <rect x="195" y="155" width="130" height="100" rx="10" fill="url(#g1)" stroke="#38bdf8" stroke-width="1.5"/>
+      <text x="260" y="185" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">Feature</text>
+      <text x="260" y="202" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">Extraction</text>
+      <text x="260" y="225" text-anchor="middle" fill="#94a3b8" font-size="10">15 CIC-IDS feats</text>
+      <text x="260" y="240" text-anchor="middle" fill="#94a3b8" font-size="10">DPKT + NFStream</text>
+
+      <!-- Arrow 2→3 -->
+      <line x1="325" y1="205" x2="365" y2="205" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- Stage 3: Decision Tree -->
+      <rect x="370" y="155" width="130" height="100" rx="10" fill="url(#g1)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="435" y="185" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">Decision Tree</text>
+      <text x="435" y="202" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">Pre-Check</text>
+      <text x="435" y="225" text-anchor="middle" fill="#94a3b8" font-size="10">Entropy, depth=15</text>
+      <text x="435" y="240" text-anchor="middle" fill="#94a3b8" font-size="10">50:1 attack weight</text>
+
+      <!-- Arrow 3→Normal -->
+      <line x1="435" y1="155" x2="435" y2="80" stroke="#34d399" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="375" y="30" width="120" height="50" rx="8" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="435" y="52" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">FORWARD</text>
+      <text x="435" y="68" text-anchor="middle" fill="#94a3b8" font-size="10">Normal traffic</text>
+
+      <!-- Arrow 3→4 (flagged) -->
+      <line x1="500" y1="205" x2="540" y2="205" stroke="#fb923c" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="520" y="195" text-anchor="middle" fill="#fb923c" font-size="9">flagged</text>
+
+      <!-- Stage 4: SDN Buffer + DDL -->
+      <rect x="545" y="135" width="140" height="140" rx="10" fill="url(#g1)" stroke="#fb923c" stroke-width="1.5"/>
+      <text x="615" y="165" text-anchor="middle" fill="#fb923c" font-size="12" font-weight="700">SDN Buffer</text>
+      <text x="615" y="185" text-anchor="middle" fill="#94a3b8" font-size="10">Hold for analysis</text>
+      <line x1="565" y1="198" x2="665" y2="198" stroke="#475569" stroke-width="1"/>
+      <text x="615" y="220" text-anchor="middle" fill="#f87171" font-size="12" font-weight="700">DDL Model</text>
+      <text x="615" y="237" text-anchor="middle" fill="#94a3b8" font-size="10">2-layer ISTA</text>
+      <text x="615" y="252" text-anchor="middle" fill="#94a3b8" font-size="10">Recon. error → score</text>
+      <text x="615" y="267" text-anchor="middle" fill="#94a3b8" font-size="10">x̂ = (α₂·D₂ᵀ)·D₁ᵀ</text>
+
+      <!-- Arrow 4→5 -->
+      <line x1="685" y1="205" x2="725" y2="205" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- Stage 5: XAI -->
+      <rect x="730" y="155" width="130" height="100" rx="10" fill="url(#g1)" stroke="#818cf8" stroke-width="1.5"/>
+      <text x="795" y="183" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">XAI Explainer</text>
+      <text x="795" y="205" text-anchor="middle" fill="#94a3b8" font-size="10">DDL-native recon.</text>
+      <text x="795" y="220" text-anchor="middle" fill="#94a3b8" font-size="10">+ SHAP Kernel</text>
+      <text x="795" y="240" text-anchor="middle" fill="#94a3b8" font-size="10">→ human rationale</text>
+
+      <!-- Arrow 5→Actions -->
+      <line x1="795" y1="155" x2="795" y2="80" stroke="#34d399" stroke-width="2" marker-end="url(#arrow)"/>
+      <line x1="795" y1="255" x2="795" y2="330" stroke="#f87171" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="735" y="30" width="120" height="50" rx="8" fill="rgba(52,211,153,0.12)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="795" y="52" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">RELEASE</text>
+      <text x="795" y="68" text-anchor="middle" fill="#94a3b8" font-size="10">DDL cleared</text>
+
+      <rect x="735" y="335" width="120" height="50" rx="8" fill="rgba(248,113,113,0.12)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="795" y="357" text-anchor="middle" fill="#f87171" font-size="12" font-weight="700">DROP</text>
+      <text x="795" y="373" text-anchor="middle" fill="#94a3b8" font-size="10">Anomaly confirmed</text>
+
+      <!-- Legend -->
+      <rect x="30" y="370" width="380" height="55" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="45" y="392" fill="#94a3b8" font-size="11" font-weight="600">Legend:</text>
+      <circle cx="115" cy="388" r="5" fill="#34d399"/>
+      <text x="125" y="392" fill="#94a3b8" font-size="10">Normal</text>
+      <circle cx="180" cy="388" r="5" fill="#fb923c"/>
+      <text x="190" y="392" fill="#94a3b8" font-size="10">Flagged</text>
+      <circle cx="245" cy="388" r="5" fill="#f87171"/>
+      <text x="255" y="392" fill="#94a3b8" font-size="10">Anomaly</text>
+      <circle cx="315" cy="388" r="5" fill="#38bdf8"/>
+      <text x="325" y="392" fill="#94a3b8" font-size="10">Data flow</text>
+      <text x="45" y="414" fill="#64748b" font-size="9">Encryption → Feature Extraction → DT Pre-Check → SDN Buffer + DDL → XAI → Action</text>
+    </svg>
+  </div>
+
+  <h3>Repository Structure</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Directory</th><th>Purpose</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><code>BaseCheckClassifier/</code></td><td>Decision Tree classifier, feature extraction, encryption sim, dashboard</td><td><span class="metric-good">Active</span></td></tr>
+        <tr><td><code>DDLModel/</code></td><td>Deep Dictionary Learning anomaly detector (two-layer ISTA)</td><td><span class="metric-good">Active</span></td></tr>
+        <tr><td><code>XAIExplainer/</code></td><td>SHAP + DDL-native reconstruction explanation</td><td><span class="metric-good">Active</span></td></tr>
+        <tr><td><code>SDNBuffer/</code></td><td>OpenFlow-style SDN flow buffer simulation</td><td><span class="metric-good">Active</span></td></tr>
+        <tr><td><code>ZeroTrustPipeline/</code></td><td>Pipeline orchestrator — ties all modules together</td><td><span class="metric-good">Active</span></td></tr>
+        <tr><td><code>tests/</code></td><td>Integration tests (27 sub-tests)</td><td><span class="metric-good">Active</span></td></tr>
+        <tr><td><code>ObsoleteExperiments/</code></td><td>Archived early experiments (see below)</td><td><span class="metric-warn">Archived</span></td></tr>
+        <tr><td><code>docs/</code></td><td>This GitHub Pages site</td><td><span class="metric-good">Active</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ Experiments ============ -->
+<section id="experiments">
+  <h2><span class="num">05</span> Experiments &amp; Evolution</h2>
+  <p>
+    The current DDL-based pipeline is the result of several iterative experiments. Each attempt taught us
+    something that shaped the final design. Below is the complete timeline of approaches tried, their results,
+    and why we moved on.
+  </p>
+
+  <div class="timeline">
+
+    <!-- Exp 1 -->
+    <div class="timeline-item archived">
+      <div class="tl-date">Jan 2026</div>
+      <div class="tl-title">Experiment 1 — Semi-Supervised Pseudo-Labeling on BCCC Darknet</div>
+      <div class="tl-body">
+        <p><strong>Approach:</strong> Ensemble of <strong>Isolation Forest + Autoencoder</strong> for unsupervised
+        anomaly detection on the BCCC Darknet dataset. Pseudo-labels were generated via agreement voting —
+        confidence = 1.0 when both models agreed a sample was anomalous. Top 50 features selected by variance
+        from 467 numeric features.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h4>Results — Pseudo-Labeling</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Accuracy</td><td class="metric-good">0.9949</td></tr>
+            <tr><td>Precision</td><td class="metric-warn">0.7451</td></tr>
+            <tr><td>Recall</td><td class="metric-good">1.0000</td></tr>
+            <tr><td>F1-Score</td><td>0.8539</td></tr>
+            <tr><td>ROC-AUC</td><td class="metric-good">0.9996</td></tr>
+            <tr><td>5-Fold CV (ROC-AUC)</td><td class="metric-good">0.9991 ± 0.0003</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 0.88rem; color: var(--text-dim); margin-top: 0.5rem;">
+        Confusion Matrix: TN=5,006 &nbsp; FP=26 &nbsp; FN=0 &nbsp; TP=76<br>
+        Dataset: 25,588 samples — only 379 high-confidence anomalies (1.48%), class imbalance ratio 1:66.4
+      </p>
+    </div>
+
+    <div class="reason-box">
+      <h5>⛔ Why We Moved On</h5>
+      <ul>
+        <li><strong>No ground truth:</strong> Pseudo-labels are unsupervised — there was no way to validate whether detected "anomalies" were real attacks</li>
+        <li><strong>Anonymous features:</strong> The 50 variance-selected features were unnamed (Feature_123, Feature_045, etc.) — completely uninterpretable for security analysts</li>
+        <li><strong>Extreme class imbalance:</strong> Only 1.48% anomalies (379 / 25,588) making evaluation unreliable</li>
+        <li><strong>Precision ceiling:</strong> ~74.5% precision means ~1 in 4 alerts would be false positives — unacceptable for automated policy enforcement</li>
+        <li><strong>Dataset mismatch:</strong> BCCC Darknet captures darknet traffic, which is less representative of enterprise encrypted traffic than CIC-IDS-2017</li>
+      </ul>
+    </div>
+
+    <!-- Exp 2 -->
+    <div class="timeline-item archived">
+      <div class="tl-date">Feb 2026</div>
+      <div class="tl-title">Experiment 2 — Random Forest + SHAP Pipeline on BCCC Darknet</div>
+      <div class="tl-body">
+        <p><strong>Approach:</strong> 3-stage notebook pipeline — (1) IF+AE pseudo-labeling, (2) <strong>Random Forest</strong>
+        classifier (300 trees, max_depth=15, balanced class weights), (3) <strong>SHAP TreeExplainer</strong>
+        for explainability. Same BCCC Darknet dataset and 50 anonymous features.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+      <h4>Results — Random Forest + SHAP</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Accuracy</td><td class="metric-good">0.9945</td></tr>
+            <tr><td>Precision</td><td class="metric-warn">0.7300</td></tr>
+            <tr><td>Recall</td><td class="metric-good">0.9865</td></tr>
+            <tr><td>F1-Score</td><td>0.8391</td></tr>
+            <tr><td>ROC-AUC</td><td class="metric-good">0.9994</td></tr>
+            <tr><td>5-Fold CV (ROC-AUC)</td><td class="metric-good">0.9991 ± 0.0003</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 0.88rem; color: var(--text-dim); margin-top: 0.5rem;">
+        Confusion Matrix: TN=5,007 &nbsp; FP=27 &nbsp; FN=1 &nbsp; TP=73<br>
+        SHAP outputs: bar, beeswarm, waterfall, and dependence plots on anonymous features
+      </p>
+    </div>
+
+    <div class="reason-box">
+      <h5>⛔ Why We Moved On</h5>
+      <ul>
+        <li><strong>Same fundamental issues</strong> as Experiment 1 — pseudo-labels, anonymous features, BCCC Darknet</li>
+        <li><strong>SHAP on anonymous features is meaningless:</strong> Explaining that "Feature_045 contributes most to anomaly" tells a SOC analyst nothing actionable</li>
+        <li><strong>Slightly worse performance:</strong> Precision dropped to 73.0%, recall to 98.65% — RF added complexity without improving quality</li>
+        <li><strong>No integration path:</strong> This standalone pipeline had no connection to the zero-trust simulation or SDN policy enforcement</li>
+        <li><strong>TreeExplainer limitations:</strong> Only works with tree-based models — we needed a model-agnostic approach for DDL</li>
+      </ul>
+    </div>
+
+    <!-- Exp 3: DT on CIC -->
+    <div class="timeline-item archived">
+      <div class="tl-date">Feb 2026</div>
+      <div class="tl-title">Experiment 3 — Decision Tree on CIC-IDS-2017 (BaseCheckClassifier)</div>
+      <div class="tl-body">
+        <p><strong>Approach:</strong> Switched datasets to <strong>CIC-IDS-2017</strong> with 15 hand-selected
+        behavioral features. Trained a <strong>Decision Tree</strong> (entropy criterion, max_depth=15,
+        50:1 attack class weight) as a "zero-leak" classifier. Integrated into a full simulation pipeline
+        with encryption, topology simulation, and a Streamlit dashboard.</p>
+      </div>
+    </div>
+
+    <div class="success-box">
+      <h5>✅ Key Improvements Over Previous Experiments</h5>
+      <ul style="margin: 0.3rem 0 0 1.2rem; font-size: 0.92rem; color: var(--text-dim);">
+        <li><strong>Real labeled dataset:</strong> CIC-IDS-2017 has proper ground truth labels (Normal / Attack categories)</li>
+        <li><strong>Interpretable features:</strong> All 15 features have meaningful names (Packet Length Variance, Flow Duration, etc.)</li>
+        <li><strong>Zero-trust simulation:</strong> Full integration with encryption, topology, and SDN policy enforcement</li>
+      </ul>
+    </div>
+
+    <div class="reason-box" style="margin-bottom: 1.5rem;">
+      <h5>⛔ Why It's Not Sufficient Alone</h5>
+      <ul>
+        <li><strong>Single-model limitation:</strong> A Decision Tree alone cannot capture complex nonlinear attack patterns in encrypted traffic</li>
+        <li><strong>No deep anomaly detection:</strong> DTs rely on axis-aligned splits — they miss subtle distributional shifts that dictionary learning can catch</li>
+        <li><strong>No built-in explainability:</strong> While DTs are inherently interpretable, they don't provide the rich, quantitative explanations needed for automated policy creation</li>
+        <li><strong>Feature distribution mismatch:</strong> When tested on synthetic pcap data, the DT classified everything as Normal due to distribution differences between training and real network data</li>
+      </ul>
+    </div>
+
+    <!-- Current: DDL -->
+    <div class="timeline-item current">
+      <div class="tl-date">Feb–Mar 2026</div>
+      <div class="tl-title">Current — Deep Dictionary Learning + SHAP XAI + SDN Buffer</div>
+      <div class="tl-body">
+        <p><strong>Approach:</strong> Two-layer <strong>Deep Dictionary Learning</strong> with ISTA sparse coding
+        as the anomaly detection backbone, combined with <strong>DDL-native reconstruction decomposition +
+        SHAP KernelExplainer</strong> for dual-mode explainability. The Decision Tree serves as a lightweight
+        pre-filter, and an <strong>SDN buffer</strong> holds suspicious flows during analysis.</p>
+      </div>
+    </div>
+
+    <div class="success-box" style="margin-bottom: 1.5rem;">
+      <h5>✅ Why This Approach Works</h5>
+      <ul style="margin: 0.3rem 0 0 1.2rem; font-size: 0.92rem; color: var(--text-dim);">
+        <li><strong>Unsupervised + supervised hybrid:</strong> DDL trains on normal traffic only (no labeled attacks needed) but uses CIC-IDS-2017's labeled data for evaluation</li>
+        <li><strong>Named, interpretable features:</strong> Explanations reference real network characteristics ("Packet Length Variance is 250x above normal")</li>
+        <li><strong>Dual explainability:</strong> DDL-native provides per-feature reconstruction error; SHAP provides model-agnostic attributions — both give actionable insights</li>
+        <li><strong>Full zero-trust integration:</strong> DT pre-check → SDN buffer → DDL analysis → XAI report → automated policy enforcement</li>
+        <li><strong>Modular design:</strong> Each component (DDLModel, XAIExplainer, SDNBuffer, Pipeline) is independently testable — 27/27 integration tests pass</li>
+      </ul>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <!-- Comparison Table -->
+  <h3>Side-by-Side Comparison</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Exp 1: IF+AE</th>
+          <th>Exp 2: RF+SHAP</th>
+          <th>Exp 3: DT (CIC)</th>
+          <th>Current: DDL+XAI</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Dataset</strong></td>
+          <td class="metric-bad">BCCC Darknet</td>
+          <td class="metric-bad">BCCC Darknet</td>
+          <td class="metric-good">CIC-IDS-2017</td>
+          <td class="metric-good">CIC-IDS-2017</td>
+        </tr>
+        <tr>
+          <td><strong>Features</strong></td>
+          <td class="metric-bad">50 anonymous</td>
+          <td class="metric-bad">50 anonymous</td>
+          <td class="metric-good">15 named</td>
+          <td class="metric-good">15 named</td>
+        </tr>
+        <tr>
+          <td><strong>Labels</strong></td>
+          <td class="metric-warn">Pseudo (unsupervised)</td>
+          <td class="metric-warn">Pseudo (unsupervised)</td>
+          <td class="metric-good">Ground truth</td>
+          <td class="metric-good">Ground truth</td>
+        </tr>
+        <tr>
+          <td><strong>Core Model</strong></td>
+          <td>Isolation Forest + AE</td>
+          <td>Random Forest</td>
+          <td>Decision Tree</td>
+          <td><strong>DDL (ISTA)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Explainability</strong></td>
+          <td class="metric-bad">None</td>
+          <td class="metric-warn">SHAP (anonymous)</td>
+          <td class="metric-warn">Inherent (DT rules)</td>
+          <td class="metric-good">DDL-native + SHAP</td>
+        </tr>
+        <tr>
+          <td><strong>Zero-Trust Integration</strong></td>
+          <td class="metric-bad">No</td>
+          <td class="metric-bad">No</td>
+          <td class="metric-good">Yes (DT only)</td>
+          <td class="metric-good">Yes (full pipeline)</td>
+        </tr>
+        <tr>
+          <td><strong>SDN Buffer</strong></td>
+          <td class="metric-bad">No</td>
+          <td class="metric-bad">No</td>
+          <td class="metric-bad">No</td>
+          <td class="metric-good">Yes</td>
+        </tr>
+        <tr>
+          <td><strong>Precision</strong></td>
+          <td class="metric-warn">0.7451</td>
+          <td class="metric-warn">0.7300</td>
+          <td>—</td>
+          <td>In evaluation</td>
+        </tr>
+        <tr>
+          <td><strong>Recall</strong></td>
+          <td class="metric-good">1.0000</td>
+          <td class="metric-good">0.9865</td>
+          <td>—</td>
+          <td>In evaluation</td>
+        </tr>
+        <tr>
+          <td><strong>Status</strong></td>
+          <td class="metric-bad">Archived</td>
+          <td class="metric-bad">Archived</td>
+          <td class="metric-warn">Pre-filter</td>
+          <td class="metric-good">Active</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ Implementation Details ============ -->
+<section id="implementation">
+  <h2><span class="num">06</span> Implementation Details</h2>
+  <p>
+    The current zero-trust pipeline is <strong>fully implemented</strong> as modular Python packages, with
+    27/27 integration tests passing. Below are the technical specifics of each component.
+  </p>
+
+  <!-- DDL Model -->
+  <h3>6.1 &nbsp; Deep Dictionary Learning Model</h3>
+  <div class="card">
+    <h4>Architecture</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Specification</th></tr></thead>
+        <tbody>
+          <tr><td>Input</td><td>15 CIC-IDS-2017 features (Z-score normalised)</td></tr>
+          <tr><td>Layer&nbsp;1 Dictionary</td><td><strong>D₁ ∈ ℝ<sup>15×64</sup></strong> — captures coarse flow patterns</td></tr>
+          <tr><td>Layer&nbsp;2 Dictionary</td><td><strong>D₂ ∈ ℝ<sup>64×128</sup></strong> — captures subtle micro-patterns</td></tr>
+          <tr><td>Sparse Coding</td><td>ISTA (Iterative Shrinkage-Thresholding Algorithm), 50 iterations per layer</td></tr>
+          <tr><td>Sparsity Penalty (λ)</td><td>0.1 (L1 regularisation on sparse codes)</td></tr>
+          <tr><td>Dictionary Update</td><td>Mini-batch gradient descent with column-wise unit-norm projection</td></tr>
+          <tr><td>Training Epochs</td><td>100 (batch size = 32, LR = 0.001)</td></tr>
+          <tr><td>Anomaly Threshold</td><td>95th percentile of training reconstruction error</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 style="margin-top: 1.2rem;">Forward Pass</h4>
+    <div style="background: #0f172a; border-radius: 0.5rem; padding: 1rem; font-family: var(--mono); font-size: 0.88rem; line-height: 1.7; color: var(--text-dim); overflow-x: auto;">
+      <span style="color: var(--accent);">x</span> → normalise → <span style="color: var(--accent2);">α₁</span> = ISTA(D₁, x)  &nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Layer 1 sparse code (64-dim)</span><br>
+      <span style="color: var(--accent2);">α₁</span> → <span style="color: var(--accent3);">α₂</span> = ISTA(D₂, α₁) &nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Layer 2 sparse code (128-dim)</span><br>
+      <span style="color: var(--accent3);">α₂</span> → α̂₁ = α₂ · D₂ᵀ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Decode to Layer 1 space</span><br>
+      α̂₁ → <span style="color: var(--warn);">x̂</span> = α̂₁ · D₁ᵀ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// Full reconstruction</span><br>
+      <span style="color: var(--danger);">error</span> = ‖x − x̂‖² &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style="color: #64748b;">// If error > threshold → Anomaly</span>
+    </div>
+
+    <h4 style="margin-top: 1.2rem;">Training Strategy</h4>
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      The model trains <strong>only on benign traffic</strong> — an unsupervised approach that avoids the need
+      for labelled attack samples. During training, dictionaries D₁ and D₂ learn to efficiently represent
+      normal flow patterns via alternating sparse coding (ISTA) and dictionary update (gradient descent with
+      column normalisation). After training, an anomaly threshold is set at the 95th percentile of reconstruction
+      errors on the training set. At inference time, any flow whose reconstruction error exceeds this threshold
+      is flagged as anomalous.
+    </p>
+  </div>
+
+  <!-- XAI Module -->
+  <h3>6.2 &nbsp; Explainability Module (XAI)</h3>
+  <div class="card">
+    <p style="color: var(--text-dim); font-size: 0.93rem; margin-bottom: 1rem;">
+      Every anomaly decision is accompanied by a detailed explanation through <strong>two complementary strategies</strong>:
+    </p>
+
+    <div class="card-grid" style="margin-bottom: 1rem;">
+      <div class="card" style="border-left: 3px solid var(--accent);">
+        <h4 style="font-size: 0.95rem;">DDL-Native Explanation</h4>
+        <ul style="font-size: 0.88rem; color: var(--text-dim); margin: 0.3rem 0 0 1.2rem;">
+          <li><strong>Per-feature reconstruction error</strong> — decomposes the total error into each of the 15 features, ranks them by contribution</li>
+          <li><strong>Sparse code activation analysis</strong> — reports how many dictionary atoms activated in each layer (sparsity ratio)</li>
+          <li><strong>Layer-by-layer diagnostics</strong> — intermediate representations at L1 and L2 for failure-mode analysis</li>
+          <li><strong>Expected vs. observed values</strong> — shows what the DDL model expected each feature to be versus the actual value</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left: 3px solid var(--accent2);">
+        <h4 style="font-size: 0.95rem;">SHAP KernelExplainer</h4>
+        <ul style="font-size: 0.88rem; color: var(--text-dim); margin: 0.3rem 0 0 1.2rem;">
+          <li><strong>Model-agnostic</strong> — treats the DDL anomaly scorer as a black box, compatible with any future model replacement</li>
+          <li><strong>Background dataset</strong> — uses 100 normal samples as the baseline distribution</li>
+          <li><strong>Per-feature SHAP values</strong> — quantifies each feature's individual contribution to the anomaly score</li>
+          <li><strong>Actionable output</strong> — "Packet Length Variance contributes +8340 to anomaly score" rather than "Feature_045 is important"</li>
+        </ul>
+      </div>
+    </div>
+
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      Both strategies produce a <strong>composite report</strong> suitable for SOC analyst dashboards and
+      automated policy audit trails. The human-readable interpretation includes feature rankings, deviation
+      magnitudes, and a recommended action (DROP / FORWARD).
+    </p>
+  </div>
+
+  <!-- SDN Buffer -->
+  <h3>6.3 &nbsp; SDN Buffer (Simulated OpenFlow)</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Value</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Max Buffer Size</td><td>1,000 streams</td><td>Max concurrent flows held for analysis</td></tr>
+          <tr><td>Timeout</td><td>5,000 ms</td><td>Auto-release if DDL analysis takes too long</td></tr>
+          <tr><td>Actions</td><td>BUFFER → RELEASE / DROP</td><td>Mirrors OpenFlow <code>OFPT_PACKET_IN</code> / <code>OFPT_FLOW_MOD</code></td></tr>
+          <tr><td>Expiry Policy</td><td>Auto-release with warning</td><td>Fail-open on timeout to prevent denial of service</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.93rem; margin-top: 0.5rem;">
+      In a real deployment, this module would be replaced by actual SDN controller commands (e.g., OpenDaylight or
+      ONOS). The simulation faithfully tracks buffer state, hold times, and capacity — providing realistic latency
+      measurements for the pipeline evaluation.
+    </p>
+  </div>
+
+  <!-- Pipeline Orchestrator -->
+  <h3>6.4 &nbsp; Pipeline Orchestrator</h3>
+  <div class="card">
+    <p style="color: var(--text-dim); font-size: 0.93rem; margin-bottom: 0.8rem;">
+      The <code>ZeroTrustPipeline</code> ties all components together with a <strong>fail-closed</strong> design:
+    </p>
+    <div style="background: #0f172a; border-radius: 0.5rem; padding: 1rem; font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; color: var(--text-dim); overflow-x: auto;">
+      <span style="color: var(--accent);">Stage 1</span> &nbsp;.pcap → simulate TLS encryption → extract 15 features<br>
+      <span style="color: var(--accent2);">Stage 2</span> &nbsp;Features → Decision Tree pre-check<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├─ <span style="color: var(--accent3);">Normal</span> → <strong>FORWARD</strong> immediately (fast path)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └─ <span style="color: var(--warn);">Flagged</span> → SDN Buffer <strong>HOLD</strong><br>
+      <span style="color: var(--danger);">Stage 3</span> &nbsp;Buffer → DDL + XAI <em>(parallel threads)</em><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ├─ DDL: Normal → Buffer <strong>RELEASE</strong> → FORWARD<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; └─ DDL: Anomaly → Buffer <strong>DROP</strong> + XAI Report attached
+    </div>
+    <ul style="font-size: 0.9rem; color: var(--text-dim); margin-top: 0.8rem; padding-left: 1.2rem;">
+      <li><strong>Parallel execution:</strong> DDL prediction and SHAP explanation run concurrently via <code>ThreadPoolExecutor</code></li>
+      <li><strong>Ground truth tracking:</strong> When labels are available, the pipeline calculates TP/TN/FP/FN, accuracy, precision, recall, F1</li>
+      <li><strong>Fail-closed default:</strong> If the DT model is unavailable, all streams are flagged for DDL analysis (zero-trust principle)</li>
+      <li><strong>Batch mode:</strong> <code>run_batch()</code> processes multiple pcaps and exports a full JSON log for analysis</li>
+    </ul>
+  </div>
+
+  <!-- 15 Features -->
+  <h3>6.5 &nbsp; Feature Set (CIC-IDS-2017)</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Feature</th><th>Category</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Packet Length Variance</td><td>Packet Size</td><td>High variance signals unusual payload distribution</td></tr>
+          <tr><td>2</td><td>Fwd Packet Length Max</td><td>Packet Size</td><td>Abnormally large forward packets indicate exfiltration</td></tr>
+          <tr><td>3</td><td>Fwd Header Length</td><td>Header</td><td>Header padding/manipulation is a common evasion technique</td></tr>
+          <tr><td>4</td><td>Init_Win_bytes_forward</td><td>TCP Window</td><td>Unusual initial window sizes indicate scanning tools</td></tr>
+          <tr><td>5</td><td>Bwd Header Length</td><td>Header</td><td>Asymmetric header sizes suggest protocol misuse</td></tr>
+          <tr><td>6</td><td>Total Length of Fwd Packets</td><td>Volume</td><td>Abnormal volume indicates data exfiltration or flooding</td></tr>
+          <tr><td>7</td><td>Init_Win_bytes_backward</td><td>TCP Window</td><td>Mismatched backward window sizes indicate C2 traffic</td></tr>
+          <tr><td>8</td><td>Bwd Packets/s</td><td>Rate</td><td>High backward rate anomalies indicate DDoS or amplification</td></tr>
+          <tr><td>9</td><td>Flow IAT Min</td><td>Timing</td><td>Machine-generated traffic has unnaturally regular timing</td></tr>
+          <tr><td>10</td><td>Fwd IAT Min</td><td>Timing</td><td>Forward inter-arrival times reveal automated scanning</td></tr>
+          <tr><td>11</td><td>Flow Bytes/s</td><td>Throughput</td><td>Sudden throughput spikes indicate data exfiltration</td></tr>
+          <tr><td>12</td><td>Active Min</td><td>Activity</td><td>Short active periods in bursts indicate bot behaviour</td></tr>
+          <tr><td>13</td><td>Bwd IAT Total</td><td>Timing</td><td>Total backward inter-arrival time reveals response patterns</td></tr>
+          <tr><td>14</td><td>Flow IAT Max</td><td>Timing</td><td>Long idle periods between bursts indicate C2 beaconing</td></tr>
+          <tr><td>15</td><td>Flow Duration</td><td>Duration</td><td>Abnormally short or long flows indicate scanning or tunnelling</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.5rem;">
+      These 15 features are <strong>metadata-only</strong> — they describe flow behaviour without inspecting
+      encrypted payloads, making them compatible with TLS-encrypted traffic and privacy regulations.
+    </p>
+  </div>
+
+  <!-- Testing Status -->
+  <h3>6.6 &nbsp; Current Testing Status</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Test Suite</th><th>Tests</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>DDL Model — training, prediction, save/load, edge cases</td><td>7</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>Intermediate Representations — per-feature error, atom counts</td><td>2</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>XAI Explainer — DDL-native explanation, feature ranking</td><td>6</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>SHAP Integration — KernelExplainer, feature attribution</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>Pipeline Flow — end-to-end with PCAPs (benign + attack)</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+          <tr><td>SDN Buffer — add/release/drop/expire/capacity</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.5rem;">
+      All 27 integration tests pass on synthetic data. The pipeline has been demonstrated end-to-end on
+      4 synthetic pcap streams (2 benign + 2 attack), correctly detecting both attacks with zero false negatives.
+    </p>
+  </div>
+</section>
+
+<!-- ============ Testing Plan ============ -->
+<section id="testing-plan">
+  <h2><span class="num">07</span> Evaluation &amp; Testing Plan</h2>
+  <p>
+    While the pipeline is fully implemented and unit-tested, the <strong>full-scale evaluation on the
+    CIC-IDS-2017 dataset</strong> is the next milestone. Below is the planned evaluation methodology.
+  </p>
+
+  <!-- Phase 1 -->
+  <div class="card" style="border-left: 3px solid var(--accent);">
+    <h4>Phase 1 — DDL Training on CIC-IDS-2017 Benign Traffic</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Plan</th></tr></thead>
+        <tbody>
+          <tr><td>Training Data</td><td>CIC-IDS-2017 "Monday — WorkingHours" (benign-only, ~529K flows)</td></tr>
+          <tr><td>Validation Split</td><td>80/20 train/validation on benign data</td></tr>
+          <tr><td>Feature Normalisation</td><td>Z-score from training set (stored in model)</td></tr>
+          <tr><td>Convergence Criterion</td><td>Validation reconstruction error plateau (&lt; 0.1% improvement over 20 epochs)</td></tr>
+          <tr><td>Threshold Tuning</td><td>Sweep 90th, 95th, 97th, 99th percentile on validation set</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem;">
+      <strong>Command:</strong> <code>python -m DDLModel.train_ddl --csv data/Monday-WorkingHours.csv --output models/ddl_cic.pkl</code>
+    </p>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="card" style="border-left: 3px solid var(--accent2); margin-top: 1rem;">
+    <h4>Phase 2 — Attack Detection Evaluation</h4>
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      Test the trained DDL against all CIC-IDS-2017 attack categories:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Attack Category</th><th>CIC-IDS-2017 Day</th><th>Expected Signature</th></tr></thead>
+        <tbody>
+          <tr><td>Brute Force (FTP, SSH)</td><td>Tuesday</td><td>High Fwd IAT Min, abnormal Init_Win_bytes</td></tr>
+          <tr><td>DoS / DDoS (Hulk, Slowloris, GoldenEye)</td><td>Wednesday</td><td>Extreme Bwd Packets/s, Flow Bytes/s spikes</td></tr>
+          <tr><td>Web Attacks (XSS, SQL Injection)</td><td>Thursday AM</td><td>Unusual Fwd Packet Length Max, Header anomalies</td></tr>
+          <tr><td>Infiltration</td><td>Thursday PM</td><td>Long Flow Duration, irregular IAT patterns</td></tr>
+          <tr><td>Botnet (ARES)</td><td>Friday AM</td><td>Short Active Min bursts, C2 beaconing in Flow IAT Max</td></tr>
+          <tr><td>Port Scan</td><td>Friday PM</td><td>Very short flows, low Packet Length Variance</td></tr>
+          <tr><td>DDoS (LOIT)</td><td>Friday PM</td><td>Extreme volume in Total Length of Fwd Packets</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem;">
+      For each attack type, we will compute per-class detection rate and verify that the XAI explanations
+      correctly identify the distinguishing features listed above.
+    </p>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="card" style="border-left: 3px solid var(--accent3); margin-top: 1rem;">
+    <h4>Phase 3 — Quantitative Metrics</h4>
+    <p style="color: var(--text-dim); font-size: 0.93rem;">
+      Primary evaluation metrics with target values:
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Metric</th><th>Formula</th><th>Target</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>Accuracy</td><td>(TP + TN) / N</td><td>≥ 0.95</td><td>Overall correctness</td></tr>
+          <tr><td>Precision</td><td>TP / (TP + FP)</td><td>≥ 0.85</td><td>Minimise false alarms for SOC analysts</td></tr>
+          <tr><td>Recall</td><td>TP / (TP + FN)</td><td>≥ 0.95</td><td>Zero-trust: never miss an attack (critical)</td></tr>
+          <tr><td>F1-Score</td><td>2 · P · R / (P + R)</td><td>≥ 0.90</td><td>Balance between precision and recall</td></tr>
+          <tr><td>ROC-AUC</td><td>Area under ROC curve</td><td>≥ 0.97</td><td>Threshold-independent discrimination</td></tr>
+          <tr><td>False Positive Rate</td><td>FP / (FP + TN)</td><td>≤ 0.05</td><td>Usability in production SDN</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="card" style="border-left: 3px solid var(--warn); margin-top: 1rem;">
+    <h4>Phase 4 — Ablation Studies &amp; Hyperparameter Tuning</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Experiment</th><th>Variable</th><th>Range</th></tr></thead>
+        <tbody>
+          <tr><td>Dictionary Size</td><td>n_atoms_l1 / n_atoms_l2</td><td>{32, 64, 128} × {64, 128, 256}</td></tr>
+          <tr><td>Sparsity Weight (λ)</td><td>sparsity_weight</td><td>{0.01, 0.05, 0.1, 0.5}</td></tr>
+          <tr><td>Threshold Percentile</td><td>threshold_percentile</td><td>{90, 95, 97, 99}</td></tr>
+          <tr><td>ISTA Iterations</td><td>n_iter</td><td>{20, 50, 100}</td></tr>
+          <tr><td>Training Epochs</td><td>n_epochs</td><td>{50, 100, 200}</td></tr>
+          <tr><td>DT Pre-filter Impact</td><td>With vs. without DT</td><td>Binary comparison</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--text-dim); font-size: 0.88rem; margin-top: 0.3rem;">
+      Each combination will be evaluated on the Phase 3 metrics. Results will be presented as heatmaps
+      showing the precision-recall trade-off across parameter settings.
+    </p>
+  </div>
+
+  <!-- Phase 5 -->
+  <div class="card" style="border-left: 3px solid var(--danger); margin-top: 1rem;">
+    <h4>Phase 5 — Explainability Quality Assessment</h4>
+    <ul style="font-size: 0.9rem; color: var(--text-dim); padding-left: 1.2rem;">
+      <li><strong>Faithfulness test:</strong> For each detected anomaly, verify that the top-3 features identified by SHAP and DDL-native
+          match the known attack signatures from CIC-IDS-2017 documentation</li>
+      <li><strong>Consistency check:</strong> Compare DDL-native rankings with SHAP rankings — measure rank correlation (Spearman's ρ)
+          to ensure both explanation methods agree</li>
+      <li><strong>Actionability evaluation:</strong> For each attack category, confirm the XAI report provides enough information
+          to draft an SDN policy rule (e.g., "block flows with Bwd Packets/s &gt; 10,000")</li>
+      <li><strong>Completeness:</strong> Verify that the explanation covers all significantly anomalous features,
+          not just the top contributor</li>
+    </ul>
+  </div>
+
+  <!-- Phase 6 -->
+  <div class="card" style="border-left: 3px solid var(--accent); margin-top: 1rem;">
+    <h4>Phase 6 — Latency &amp; Throughput Benchmarks</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Measurement</th><th>Target</th><th>Method</th></tr></thead>
+        <tbody>
+          <tr><td>DT pre-check latency</td><td>&lt; 1 ms</td><td>Average over 10K samples</td></tr>
+          <tr><td>DDL inference latency</td><td>&lt; 50 ms</td><td>Per-sample, including both layers + ISTA</td></tr>
+          <tr><td>SHAP explanation latency</td><td>&lt; 500 ms</td><td>KernelExplainer on single sample (15 features)</td></tr>
+          <tr><td>End-to-end pipeline latency</td><td>&lt; 600 ms</td><td>pcap → feature extraction → DT → DDL + SHAP → policy</td></tr>
+          <tr><td>SDN buffer hold time</td><td>&lt; 1,000 ms</td><td>Time from BUFFER to RELEASE/DROP</td></tr>
+          <tr><td>Throughput</td><td>≥ 100 flows/sec</td><td>Batch processing rate on CIC-IDS-2017</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <h3 style="margin-top: 2rem;">Evaluation Timeline</h3>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Phase</th><th>Task</th><th>Target Date</th><th>Deliverable</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Train DDL on CIC-IDS-2017 benign data</td><td>Week 1</td><td>Trained model + convergence curves</td></tr>
+          <tr><td>2</td><td>Attack detection per category</td><td>Week 2</td><td>Per-class detection rates + confusion matrix</td></tr>
+          <tr><td>3</td><td>Full metrics computation</td><td>Week 2</td><td>Accuracy, Precision, Recall, F1, ROC-AUC</td></tr>
+          <tr><td>4</td><td>Ablation studies</td><td>Weeks 3–4</td><td>Hyperparameter sensitivity heatmaps</td></tr>
+          <tr><td>5</td><td>Explainability assessment</td><td>Week 4</td><td>Faithfulness report + rank correlation</td></tr>
+          <tr><td>6</td><td>Latency benchmarks</td><td>Week 5</td><td>Performance report + throughput analysis</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Results ============ -->
+<section id="results">
+  <h2><span class="num">08</span> Results &amp; Analysis</h2>
+
+  <h3>Integration Test Results (27/27 passing)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Test Suite</th><th>Tests</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>DDL Model — training, prediction, save/load</td><td>7</td><td class="metric-good">✓ Pass</td></tr>
+        <tr><td>Intermediate Representations</td><td>2</td><td class="metric-good">✓ Pass</td></tr>
+        <tr><td>XAI Explainer — DDL-native</td><td>6</td><td class="metric-good">✓ Pass</td></tr>
+        <tr><td>SHAP Integration — KernelExplainer</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+        <tr><td>Pipeline Flow — end-to-end with PCAPs</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+        <tr><td>SDN Buffer — add/release/drop</td><td>4</td><td class="metric-good">✓ Pass</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Pipeline Demo — 4 Streams</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>True Positives (attacks correctly dropped)</td><td class="metric-good">2</td></tr>
+        <tr><td>True Negatives (normal correctly forwarded)</td><td>0</td></tr>
+        <tr><td>False Positives (normal incorrectly dropped)</td><td class="metric-warn">2</td></tr>
+        <tr><td>False Negatives (attacks missed)</td><td class="metric-good">0</td></tr>
+        <tr><td>Recall</td><td class="metric-good">1.000</td></tr>
+        <tr><td>F1-Score</td><td>0.667</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="color: var(--text-dim); font-size: 0.9rem;">
+    <strong>Note:</strong> The DDL model was trained on synthetic data in the demo. FP rate is expected to
+    improve significantly when trained on real CIC-IDS-2017 benign traffic. The zero false-negative rate
+    aligns with the zero-trust "never miss an attack" philosophy.
+  </p>
+
+  <h3>Sample XAI Output</h3>
+  <div class="card" style="background: #0f172a; font-family: var(--mono); font-size: 0.88rem; line-height: 1.6;">
+    <p style="color: var(--danger); font-weight: 700; margin-bottom: 0.3rem;">Decision: Anomaly</p>
+    <p style="color: var(--text-dim);">
+      The DDL reconstruction error is <strong style="color: var(--warn);">22,965,194x</strong> the normal threshold.<br>
+      Primary anomalous features: <strong style="color: var(--accent);">Active Min</strong>,
+      <strong style="color: var(--accent);">Init_Win_bytes_backward</strong>,
+      <strong style="color: var(--accent);">Total Length of Fwd Packets</strong><br>
+      <span style="color: var(--danger);">Recommendation: DROP stream and alert SOC analyst.</span>
+    </p>
+  </div>
+</section>
+
+<!-- ============ Conclusion ============ -->
+<section id="conclusion">
+  <h2><span class="num">09</span> Conclusion</h2>
+  <p>
+    This project identifies that <strong>Explainable AI is the missing piece</strong> needed to make
+    AI-based detection usable in automated Zero-Trust systems. Through iterative experimentation — from
+    pseudo-labeled BCCC Darknet data with anonymous features, through Random Forest + SHAP, to the current
+    Deep Dictionary Learning architecture — we arrived at a design that provides:
+  </p>
+  <div class="card-grid" style="margin-top: 1rem;">
+    <div class="card">
+      <h4>🔍 Transparent Detection</h4>
+      <p>Every anomaly comes with a per-feature reconstruction error breakdown and SHAP attributions,
+         making the detection rationale auditable by security teams.</p>
+    </div>
+    <div class="card">
+      <h4>⚡ Real-Time Compatible</h4>
+      <p>The DT pre-filter handles normal traffic instantly; only flagged flows undergo DDL + XAI analysis,
+         keeping the pipeline feasible for high-throughput networks.</p>
+    </div>
+    <div class="card">
+      <h4>🔄 Policy Feedback Loop</h4>
+      <p>SDN buffer decisions feed directly into ZTA policy enforcement — enabling automated block,
+         throttle, or step-up authentication without human intervention.</p>
+    </div>
+  </div>
+
+  <h3>Publications</h3>
+  <p style="color: var(--text-dim);">
+    📝 Perera, C., Wanasinghe, J., Wijewardhana, S. et al.
+    "Explainable AI-Driven Zero Trust Anomaly Detection for Encrypted Traffic" (2025/26). <em>In preparation.</em>
+  </p>
+</section>
+
+<!-- ============ Links ============ -->
+<section id="links">
+  <h2><span class="num">10</span> Links</h2>
+  <div class="card-grid">
+    <div class="card">
+      <h4>🔗 Project Repository</h4>
+      <p><a href="https://github.com/cepdnaclk/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic" target="_blank">
+        github.com/cepdnaclk/e20-4yp-…</a></p>
+    </div>
+    <div class="card">
+      <h4>🏫 Department</h4>
+      <p><a href="http://www.ce.pdn.ac.lk/" target="_blank">Department of Computer Engineering</a></p>
+      <p><a href="https://eng.pdn.ac.lk/" target="_blank">University of Peradeniya</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer>
+  <p>
+    Department of Computer Engineering, University of Peradeniya<br>
+    <a href="https://github.com/cepdnaclk/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic">View on GitHub</a>
+  </p>
+</footer>
+
+</body>
+</html>
