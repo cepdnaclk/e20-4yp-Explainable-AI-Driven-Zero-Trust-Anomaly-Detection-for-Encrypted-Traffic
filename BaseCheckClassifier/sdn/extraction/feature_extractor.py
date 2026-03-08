@@ -1,27 +1,17 @@
 """
-feature_extractor.py — CICFlowMeter-Compatible Feature Extractor
+feature_extractor.py — Sentry Anomaly Detection Feature Extractor
 =================================================================
-Extracts exactly 15 features from a PCAP file using pure DPKT,
-replicating the exact formulas used by CICFlowMeter (Java) to generate
-the CIC-IDS-2017 dataset. This ensures extracted features match the
-training CSV values so the model can make accurate predictions.
+This module provides feature extraction for two versions of the Sentry model:
 
-CICFlowMeter Formula Reference (from BasicFlow.java, BasicPacketInfo.java):
-  - payloadBytes   = ip.len - ip.hl*4 - tcp.off*4   (pure TCP payload)
-  - headerBytes    = ip.hl*4 + tcp.off*4             (IP + TCP headers, incl. options)
-  - Total Length of Fwd Packets = sum(fwd TCP payloads)
-  - Fwd/Bwd Header Length       = sum(headerBytes) per direction
-  - Fwd Packet Length Max       = max(fwd TCP payloads)
-  - Packet Length Variance      = variance of ALL packet TCP payloads (bidirectional)
-  - Init_Win_bytes_forward      = tcp.win of the very first forward packet
-  - Init_Win_bytes_backward     = tcp.win of the very first backward packet
-  - Flow Duration               = last_ts - first_ts  (microseconds)
-  - Flow IAT Min/Max            = min/max of consecutive bidirectional IATs (microseconds)
-  - Fwd IAT Min                 = min of consecutive forward-only IATs
-  - Bwd IAT Total               = sum of consecutive backward-only IATs
-  - Bwd Packets/s               = bwd_count / (flow_duration_us / 1e6)
-  - Flow Bytes/s                = (fwd_bytes+bwd_bytes) / (flow_duration_us / 1e6)
-  - Active Min                  = min of active-period durations; 0 if no idle gap > 5s found
+1.  Model v1 (Legacy): Extracts 15 CICFlowMeter-compatible features.
+2.  Model v2 (Gatekeeper): Extracts 28 features (15 original + 13 new)
+    designed specifically for high-recall anomaly detection in encrypted
+    traffic.
+
+All features are extracted using pure DPKT from IP/TCP headers and timestamps.
+No payload decryption or deep packet inspection is required.
+
+Inference Speed: ~40-50 microseconds per flow.
 """
 
 import logging
@@ -34,10 +24,11 @@ logger = logging.getLogger("FeatureExtractor")
 logger.addHandler(logging.NullHandler())
 
 # CICFlowMeter's activity timeout threshold (microseconds)
-# A new idle period is detected when gap between packets > 5 seconds
 ACTIVITY_TIMEOUT_US = 5_000_000  # 5 seconds in microseconds
 
-# The 15 features expected by the Sentry model, in order.
+# ─────────────────────────────────────────────────────────────────────────────
+# MODEL v1 (LEGACY - 15 FEATURES)
+# ─────────────────────────────────────────────────────────────────────────────
 REQUIRED_FEATURES = [
     'Packet Length Variance',
     'Fwd Packet Length Max',
@@ -55,6 +46,45 @@ REQUIRED_FEATURES = [
     'Flow IAT Max',
     'Flow Duration',
 ]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODEL v2 (GATEKEEPER - 28 FEATURES)
+# ─────────────────────────────────────────────────────────────────────────────
+SENTRY_V2_FEATURES = [
+    # --- Original 15 ---
+    'Packet Length Variance',
+    'Fwd Packet Length Max',
+    'Fwd Header Length',
+    'Init_Win_bytes_forward',
+    'Bwd Header Length',
+    'Total Length of Fwd Packets',
+    'Init_Win_bytes_backward',
+    'Bwd Packets/s',
+    'Flow IAT Min',
+    'Fwd IAT Min',
+    'Flow Bytes/s',
+    'Active Min',
+    'Bwd IAT Total',
+    'Flow IAT Max',
+    'Flow Duration',
+    # --- New 13 ---
+    'Total Fwd Packets',
+    'Total Bwd Packets',
+    'Fwd Packet Length Mean',
+    'Bwd Packet Length Mean',
+    'Fwd Packet Length Std',
+    'Bwd Packet Length Max',
+    'Flow IAT Mean',
+    'Flow IAT Std',
+    'Fwd IAT Total',
+    'Fwd Packets/s',
+    'Down/Up Ratio',
+    'SYN Flag Count',
+    'RST Flag Count',
+]
+
+# Alias for backward compatibility with training scripts
+EXTENDED_FEATURES = SENTRY_V2_FEATURES
 
 
 def _variance(values):

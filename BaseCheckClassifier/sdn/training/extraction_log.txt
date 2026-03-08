@@ -12,3 +12,177 @@ nohup: ignoring input
 
 [*] Starting extraction with 16 workers ...
 
+  [  5,000/702,007]   0.7% | valid=2,782 skipped=2,218 | 198 streams/s | ETA 58.6m
+  [ 10,000/702,007]   1.4% | valid=5,650 skipped=4,350 | 195 streams/s | ETA 59.1m
+  [ 15,000/702,007]   2.1% | valid=8,425 skipped=6,575 | 218 streams/s | ETA 52.5m
+  [ 20,000/702,007]   2.8% | valid=11,231 skipped=8,769 | 204 streams/s | ETA 55.8m
+  [ 25,000/702,007]   3.6% | valid=14,041 skipped=10,959 | 201 streams/s | ETA 56.2m
+  [ 30,000/702,007]   4.3% | valid=16,879 skipped=13,121 | 198 streams/s | ETA 56.5m
+  [ 35,000/702,007]   5.0% | valid=19,760 skipped=15,240 | 190 streams/s | ETA 58.6m
+  [ 40,000/702,007]   5.7% | valid=22,641 skipped=17,359 | 180 streams/s | ETA 61.5m
+  [ 45,000/702,007]   6.4% | valid=25,417 skipped=19,583 | 182 streams/s | ETA 60.1m
+  [ 50,000/702,007]   7.1% | valid=28,241 skipped=21,759 | 182 streams/s | ETA 59.7m
+  [ 55,000/702,007]   7.8% | valid=31,039 skipped=23,961 | 179 streams/s | ETA 60.3m
+  [ 60,000/702,007]   8.5% | valid=33,869 skipped=26,131 | 179 streams/s | ETA 59.8m
+  [ 65,000/702,007]   9.3% | valid=36,721 skipped=28,279 | 180 streams/s | ETA 58.9m
+  [ 70,000/702,007]  10.0% | valid=39,458 skipped=30,542 | 183 streams/s | ETA 57.7m
+  [ 75,000/702,007]  10.7% | valid=42,275 skipped=32,725 | 183 streams/s | ETA 57.2m
+  [ 80,000/702,007]  11.4% | valid=45,043 skipped=34,957 | 185 streams/s | ETA 56.1m
+  [ 85,000/702,007]  12.1% | valid=47,794 skipped=37,206 | 187 streams/s | ETA 55.0m
+  [ 90,000/702,007]  12.8% | valid=50,573 skipped=39,427 | 188 streams/s | ETA 54.2m
+  [ 95,000/702,007]  13.5% | valid=53,372 skipped=41,628 | 190 streams/s | ETA 53.3m
+  [100,000/702,007]  14.2% | valid=56,196 skipped=43,804 | 192 streams/s | ETA 52.3m
+  [105,000/702,007]  15.0% | valid=59,026 skipped=45,974 | 194 streams/s | ETA 51.3m
+  [110,000/702,007]  15.7% | valid=61,886 skipped=48,114 | 196 streams/s | ETA 50.3m
+  [115,000/702,007]  16.4% | valid=64,700 skipped=50,300 | 196 streams/s | ETA 50.0m
+  [120,000/702,007]  17.1% | valid=67,588 skipped=52,412 | 199 streams/s | ETA 48.8m
+  [125,000/702,007]  17.8% | valid=70,403 skipped=54,597 | 197 streams/s | ETA 48.9m
+  [130,000/702,007]  18.5% | valid=73,233 skipped=56,767 | 198 streams/s | ETA 48.2m
+  [135,000/702,007]  19.2% | valid=76,029 skipped=58,971 | 196 streams/s | ETA 48.1m
+  [140,000/702,007]  19.9% | valid=78,812 skipped=61,188 | 196 streams/s | ETA 47.7m
+  [145,000/702,007]  20.7% | valid=81,665 skipped=63,335 | 195 streams/s | ETA 47.5m
+  [150,000/702,007]  21.4% | valid=84,442 skipped=65,558 | 197 streams/s | ETA 46.8m
+  [155,000/702,007]  22.1% | valid=87,235 skipped=67,765 | 196 streams/s | ETA 46.6m
+  [160,000/702,007]  22.8% | valid=90,022 skipped=69,978 | 197 streams/s | ETA 45.7m
+  [165,000/702,007]  23.5% | valid=92,872 skipped=72,128 | 195 streams/s | ETA 45.9m
+  [170,000/702,007]  24.2% | valid=95,676 skipped=74,324 | 197 streams/s | ETA 45.1m
+  [175,000/702,007]  24.9% | valid=98,506 skipped=76,494 | 198 streams/s | ETA 44.3m
+  [180,000/702,007]  25.6% | valid=101,284 skipped=78,716 | 197 streams/s | ETA 44.2m
+  [185,000/702,007]  26.4% | valid=104,116 skipped=80,884 | 199 streams/s | ETA 43.3m
+  [190,000/702,007]  27.1% | valid=106,938 skipped=83,062 | 198 streams/s | ETA 43.1m
+  [195,000/702,007]  27.8% | valid=109,732 skipped=85,268 | 197 streams/s | ETA 42.8m
+  [200,000/702,007]  28.5% | valid=112,561 skipped=87,439 | 197 streams/s | ETA 42.5m
+  [205,000/702,007]  29.2% | valid=115,334 skipped=89,666 | 198 streams/s | ETA 41.8m
+  [210,000/702,007]  29.9% | valid=118,198 skipped=91,802 | 198 streams/s | ETA 41.5m
+  [215,000/702,007]  30.6% | valid=120,948 skipped=94,052 | 196 streams/s | ETA 41.4m
+  [220,000/702,007]  31.3% | valid=123,746 skipped=96,254 | 197 streams/s | ETA 40.8m
+  [225,000/702,007]  32.1% | valid=126,585 skipped=98,415 | 196 streams/s | ETA 40.6m
+  [230,000/702,007]  32.8% | valid=129,488 skipped=100,512 | 197 streams/s | ETA 40.0m
+  [235,000/702,007]  33.5% | valid=132,374 skipped=102,626 | 198 streams/s | ETA 39.4m
+  [240,000/702,007]  34.2% | valid=135,195 skipped=104,805 | 198 streams/s | ETA 38.8m
+  [245,000/702,007]  34.9% | valid=138,082 skipped=106,918 | 198 streams/s | ETA 38.5m
+  [250,000/702,007]  35.6% | valid=140,877 skipped=109,123 | 197 streams/s | ETA 38.2m
+  [255,000/702,007]  36.3% | valid=143,696 skipped=111,304 | 197 streams/s | ETA 37.7m
+  [260,000/702,007]  37.0% | valid=146,517 skipped=113,483 | 197 streams/s | ETA 37.4m
+  [265,000/702,007]  37.7% | valid=149,303 skipped=115,697 | 196 streams/s | ETA 37.1m
+  [270,000/702,007]  38.5% | valid=152,323 skipped=117,677 | 197 streams/s | ETA 36.6m
+  [275,000/702,007]  39.2% | valid=156,080 skipped=118,920 | 193 streams/s | ETA 36.8m
+  [280,000/702,007]  39.9% | valid=159,814 skipped=120,186 | 193 streams/s | ETA 36.5m
+  [285,000/702,007]  40.6% | valid=163,566 skipped=121,434 | 193 streams/s | ETA 36.1m
+  [290,000/702,007]  41.3% | valid=167,260 skipped=122,740 | 193 streams/s | ETA 35.6m
+  [295,000/702,007]  42.0% | valid=171,019 skipped=123,981 | 193 streams/s | ETA 35.1m
+  [300,000/702,007]  42.7% | valid=174,729 skipped=125,271 | 193 streams/s | ETA 34.7m
+  [305,000/702,007]  43.4% | valid=178,449 skipped=126,551 | 193 streams/s | ETA 34.3m
+  [310,000/702,007]  44.2% | valid=182,193 skipped=127,807 | 193 streams/s | ETA 33.9m
+  [315,000/702,007]  44.9% | valid=185,937 skipped=129,063 | 192 streams/s | ETA 33.5m
+  [320,000/702,007]  45.6% | valid=189,641 skipped=130,359 | 193 streams/s | ETA 33.1m
+  [325,000/702,007]  46.3% | valid=193,815 skipped=131,185 | 193 streams/s | ETA 32.6m
+  [330,000/702,007]  47.0% | valid=198,492 skipped=131,508 | 194 streams/s | ETA 32.0m
+  [335,000/702,007]  47.7% | valid=203,174 skipped=131,826 | 194 streams/s | ETA 31.5m
+  [340,000/702,007]  48.4% | valid=207,871 skipped=132,129 | 195 streams/s | ETA 31.0m
+  [345,000/702,007]  49.1% | valid=212,560 skipped=132,440 | 195 streams/s | ETA 30.6m
+  [350,000/702,007]  49.9% | valid=217,279 skipped=132,721 | 195 streams/s | ETA 30.1m
+  [355,000/702,007]  50.6% | valid=222,015 skipped=132,985 | 195 streams/s | ETA 29.6m
+  [360,000/702,007]  51.3% | valid=226,716 skipped=133,284 | 196 streams/s | ETA 29.1m
+  [365,000/702,007]  52.0% | valid=231,424 skipped=133,576 | 197 streams/s | ETA 28.6m
+  [370,000/702,007]  52.7% | valid=236,146 skipped=133,854 | 197 streams/s | ETA 28.1m
+  [375,000/702,007]  53.4% | valid=240,845 skipped=134,155 | 197 streams/s | ETA 27.6m
+  [380,000/702,007]  54.1% | valid=245,520 skipped=134,480 | 198 streams/s | ETA 27.1m
+  [385,000/702,007]  54.8% | valid=250,218 skipped=134,782 | 198 streams/s | ETA 26.7m
+  [390,000/702,007]  55.6% | valid=254,922 skipped=135,078 | 198 streams/s | ETA 26.3m
+  [395,000/702,007]  56.3% | valid=259,630 skipped=135,370 | 198 streams/s | ETA 25.8m
+  [400,000/702,007]  57.0% | valid=264,359 skipped=135,641 | 198 streams/s | ETA 25.4m
+  [405,000/702,007]  57.7% | valid=269,095 skipped=135,905 | 199 streams/s | ETA 24.9m
+  [410,000/702,007]  58.4% | valid=273,785 skipped=136,215 | 199 streams/s | ETA 24.5m
+  [415,000/702,007]  59.1% | valid=278,462 skipped=136,538 | 199 streams/s | ETA 24.0m
+  [420,000/702,007]  59.8% | valid=283,181 skipped=136,819 | 200 streams/s | ETA 23.5m
+  [425,000/702,007]  60.5% | valid=287,864 skipped=137,136 | 200 streams/s | ETA 23.1m
+  [430,000/702,007]  61.3% | valid=292,527 skipped=137,473 | 200 streams/s | ETA 22.7m
+  [435,000/702,007]  62.0% | valid=297,225 skipped=137,775 | 200 streams/s | ETA 22.3m
+  [440,000/702,007]  62.7% | valid=301,930 skipped=138,070 | 199 streams/s | ETA 22.0m
+  [445,000/702,007]  63.4% | valid=306,620 skipped=138,380 | 198 streams/s | ETA 21.6m
+  [450,000/702,007]  64.1% | valid=311,303 skipped=138,697 | 198 streams/s | ETA 21.2m
+  [455,000/702,007]  64.8% | valid=315,995 skipped=139,005 | 199 streams/s | ETA 20.7m
+  [460,000/702,007]  65.5% | valid=320,693 skipped=139,307 | 199 streams/s | ETA 20.3m
+  [465,000/702,007]  66.2% | valid=325,359 skipped=139,641 | 199 streams/s | ETA 19.8m
+  [470,000/702,007]  67.0% | valid=330,071 skipped=139,929 | 200 streams/s | ETA 19.4m
+  [475,000/702,007]  67.7% | valid=334,760 skipped=140,240 | 200 streams/s | ETA 18.9m
+  [480,000/702,007]  68.4% | valid=339,444 skipped=140,556 | 200 streams/s | ETA 18.5m
+  [485,000/702,007]  69.1% | valid=344,124 skipped=140,876 | 200 streams/s | ETA 18.1m
+  [490,000/702,007]  69.8% | valid=348,826 skipped=141,174 | 199 streams/s | ETA 17.8m
+  [495,000/702,007]  70.5% | valid=353,516 skipped=141,484 | 199 streams/s | ETA 17.3m
+  [500,000/702,007]  71.2% | valid=357,999 skipped=142,001 | 198 streams/s | ETA 17.0m
+  [505,000/702,007]  71.9% | valid=362,122 skipped=142,878 | 198 streams/s | ETA 16.6m
+  [510,000/702,007]  72.6% | valid=366,163 skipped=143,837 | 197 streams/s | ETA 16.2m
+  [515,000/702,007]  73.4% | valid=370,282 skipped=144,718 | 197 streams/s | ETA 15.8m
+  [520,000/702,007]  74.1% | valid=374,399 skipped=145,601 | 196 streams/s | ETA 15.5m
+  [525,000/702,007]  74.8% | valid=378,462 skipped=146,538 | 196 streams/s | ETA 15.1m
+  [530,000/702,007]  75.5% | valid=382,555 skipped=147,445 | 196 streams/s | ETA 14.7m
+  [535,000/702,007]  76.2% | valid=386,630 skipped=148,370 | 196 streams/s | ETA 14.2m
+  [540,000/702,007]  76.9% | valid=390,701 skipped=149,299 | 196 streams/s | ETA 13.8m
+  [545,000/702,007]  77.6% | valid=394,757 skipped=150,243 | 196 streams/s | ETA 13.4m
+  [550,000/702,007]  78.3% | valid=398,813 skipped=151,187 | 195 streams/s | ETA 13.0m
+  [555,000/702,007]  79.1% | valid=402,879 skipped=152,121 | 195 streams/s | ETA 12.6m
+  [560,000/702,007]  79.8% | valid=406,951 skipped=153,049 | 195 streams/s | ETA 12.1m
+  [565,000/702,007]  80.5% | valid=411,035 skipped=153,965 | 195 streams/s | ETA 11.7m
+  [570,000/702,007]  81.2% | valid=415,112 skipped=154,888 | 196 streams/s | ETA 11.3m
+  [575,000/702,007]  81.9% | valid=419,141 skipped=155,859 | 196 streams/s | ETA 10.8m
+  [580,000/702,007]  82.6% | valid=423,184 skipped=156,816 | 196 streams/s | ETA 10.4m
+  [585,000/702,007]  83.3% | valid=427,332 skipped=157,668 | 196 streams/s | ETA 10.0m
+  [590,000/702,007]  84.0% | valid=431,405 skipped=158,595 | 196 streams/s | ETA 9.5m
+  [595,000/702,007]  84.8% | valid=435,511 skipped=159,489 | 196 streams/s | ETA 9.1m
+  [600,000/702,007]  85.5% | valid=439,672 skipped=160,328 | 196 streams/s | ETA 8.7m
+  [605,000/702,007]  86.2% | valid=443,780 skipped=161,220 | 196 streams/s | ETA 8.3m
+  [610,000/702,007]  86.9% | valid=447,918 skipped=162,082 | 196 streams/s | ETA 7.8m
+  [615,000/702,007]  87.6% | valid=452,014 skipped=162,986 | 196 streams/s | ETA 7.4m
+  [620,000/702,007]  88.3% | valid=456,134 skipped=163,866 | 196 streams/s | ETA 7.0m
+  [625,000/702,007]  89.0% | valid=460,245 skipped=164,755 | 196 streams/s | ETA 6.6m
+  [630,000/702,007]  89.7% | valid=464,420 skipped=165,580 | 196 streams/s | ETA 6.1m
+  [635,000/702,007]  90.5% | valid=468,539 skipped=166,461 | 195 streams/s | ETA 5.7m
+  [640,000/702,007]  91.2% | valid=472,649 skipped=167,351 | 195 streams/s | ETA 5.3m
+  [645,000/702,007]  91.9% | valid=476,742 skipped=168,258 | 195 streams/s | ETA 4.9m
+  [650,000/702,007]  92.6% | valid=480,844 skipped=169,156 | 195 streams/s | ETA 4.5m
+  [655,000/702,007]  93.3% | valid=484,947 skipped=170,053 | 194 streams/s | ETA 4.0m
+  [660,000/702,007]  94.0% | valid=489,111 skipped=170,889 | 194 streams/s | ETA 3.6m
+  [665,000/702,007]  94.7% | valid=493,240 skipped=171,760 | 194 streams/s | ETA 3.2m
+  [670,000/702,007]  95.4% | valid=497,332 skipped=172,668 | 194 streams/s | ETA 2.7m
+  [675,000/702,007]  96.2% | valid=501,440 skipped=173,560 | 194 streams/s | ETA 2.3m
+  [680,000/702,007]  96.9% | valid=505,539 skipped=174,461 | 194 streams/s | ETA 1.9m
+  [685,000/702,007]  97.6% | valid=509,614 skipped=175,386 | 194 streams/s | ETA 1.5m
+  [690,000/702,007]  98.3% | valid=513,711 skipped=176,289 | 194 streams/s | ETA 1.0m
+  [695,000/702,007]  99.0% | valid=517,803 skipped=177,197 | 194 streams/s | ETA 0.6m
+  [700,000/702,007]  99.7% | valid=521,895 skipped=178,105 | 194 streams/s | ETA 0.2m
+  [702,007/702,007] 100.0% | valid=523,533 skipped=178,474 | 192 streams/s | ETA 0.0m
+
+=================================================================
+  Extraction Complete
+=================================================================
+  Total streams processed : 702,007
+  Valid (written to CSV)  : 523,533
+  Skipped (non-TCP/error) : 178,474
+  Elapsed time            : 61.0 minutes
+  Output CSV              : /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/dataset_raw.csv
+=================================================================
+
+[*] Verifying label distribution in output CSV ...
+
+  Binary label counts:
+label
+BENIGN    343665
+ATTACK    179868
+
+  Attack type counts:
+attack_label
+BENIGN                   343665
+DoSHulk                  114787
+PortScan                  24984
+DDoS                      24027
+DoSGoldenEye               5390
+DoSSlowhttptest            4226
+DoSslowloris               3557
+FTP-Patator                2067
+WebAttackBruteForce         401
+Bot                         226
+WebAttackXSS                172
+Infiltration                 29
+WebAttackSqlInjection         2
