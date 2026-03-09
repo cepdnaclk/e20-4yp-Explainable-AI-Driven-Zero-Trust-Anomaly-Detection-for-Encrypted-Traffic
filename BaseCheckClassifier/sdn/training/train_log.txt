@@ -1,0 +1,95 @@
+nohup: ignoring input
+============================================================
+  Sentry Model v2 — Binary Gatekeeper Training
+============================================================
+[*] Loading train.csv: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/train.csv
+    259,009 rows | {'BENIGN': 129505, 'ATTACK': 129504}
+[*] Loading test_balanced.csv: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/test_balanced.csv
+    64,753 rows | {'ATTACK': 32377, 'BENIGN': 32376}
+[*] Loading test_raw.csv: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/test_raw.csv
+    52,354 rows | {'BENIGN': 34367, 'ATTACK': 17987}
+
+[*] Training Decision Tree ...
+    max_depth=20 | min_samples_leaf=5 | class_weight={BENIGN:1, ATTACK:10}
+    Training complete.
+
+[*] Tuning threshold (target attack recall >= 99.9%) ...
+    Chosen threshold : 0.50
+    Attack recall    : 99.88%
+    BENIGN pass rate : 97.93%
+    % forwarded to DL: 51.0%
+
+============================================================
+  Evaluation — Balanced Test Set
+============================================================
+  Accuracy           : 98.91%
+  Attack Recall      : 99.880%  ← CRITICAL
+  Attack Precision   : 97.97%
+  BENIGN Pass Rate   : 97.93%
+  % forwarded to DL  : 51.0%
+  Inference speed    : 49.98 µs/flow
+
+  Confusion Matrix (BENIGN=0, ATTACK=1):
+  TN=31,707  FP=669
+  FN=39  TP=32,338
+
+  Classification Report:
+                precision    recall  f1-score   support
+  
+        BENIGN     0.9988    0.9793    0.9890     32376
+        ATTACK     0.9797    0.9988    0.9892     32377
+  
+      accuracy                         0.9891     64753
+     macro avg     0.9893    0.9891    0.9891     64753
+  weighted avg     0.9893    0.9891    0.9891     64753
+  
+
+============================================================
+  Evaluation — Raw Real-World Test Set
+============================================================
+  Accuracy           : 98.65%
+  Attack Recall      : 99.889%  ← CRITICAL
+  Attack Precision   : 96.31%
+  BENIGN Pass Rate   : 98.00%
+  % forwarded to DL  : 35.6%
+  Inference speed    : 42.08 µs/flow
+
+  Confusion Matrix (BENIGN=0, ATTACK=1):
+  TN=33,679  FP=688
+  FN=20  TP=17,967
+
+  Classification Report:
+                precision    recall  f1-score   support
+  
+        BENIGN     0.9994    0.9800    0.9896     34367
+        ATTACK     0.9631    0.9989    0.9807     17987
+  
+      accuracy                         0.9865     52354
+     macro avg     0.9813    0.9894    0.9851     52354
+  weighted avg     0.9869    0.9865    0.9865     52354
+  
+
+[*] Top 15 Feature Importances:
+   1. RST Flag Count                      0.3614  ████████████████████████████████████████████████████████████████████████████████████████████████████████████
+   2. Init_Win_bytes_forward              0.1493  ████████████████████████████████████████████
+   3. Active Min                          0.1212  ████████████████████████████████████
+   4. Packet Length Variance              0.0835  █████████████████████████
+   5. Flow IAT Min                        0.0479  ██████████████
+   6. Fwd Header Length                   0.0447  █████████████
+   7. Bwd Packets/s                       0.0364  ██████████
+   8. Bwd IAT Total                       0.0238  ███████
+   9. Bwd Packet Length Mean              0.0212  ██████
+  10. Fwd Packet Length Mean              0.0181  █████
+  11. Fwd Packets/s                       0.0145  ████
+  12. Flow Bytes/s                        0.0113  ███
+  13. Bwd Header Length                   0.0107  ███
+  14. SYN Flag Count                      0.0101  ███
+  15. Init_Win_bytes_backward             0.0094  ██
+
+[*] Model saved: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/sentry_model_v2.pkl  (0.1 MB)
+
+[*] Evaluation report saved: /scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/BaseCheckClassifier/sdn/training/documents/04_evaluation_report.md
+
+============================================================
+  Done! Use sentry_infer.py for live inference.
+============================================================

@@ -1,0 +1,246 @@
+{
+  "total_processed": 500,
+  "valid_count": 273,
+  "invalid_count": 227,
+  "invalid_rate_pct": 45.4,
+  "all_features_match": 0,
+  "all_features_match_pct": 0.0,
+  "pkt_count_match": 83,
+  "pkt_count_match_pct": 30.4,
+  "pkt_fwd_mean_abs_diff": 13.34,
+  "pkt_fwd_mean_rel_pct": 558.29,
+  "per_feature": {
+    "Packet Length Variance": {
+      "match_count": 38,
+      "total": 273,
+      "match_rate_pct": 13.92,
+      "mean_abs_diff": 175804.4553,
+      "median_abs_diff": 47236.4958,
+      "max_abs_diff": 1528533.515,
+      "mean_rel_diff_pct": 101.32,
+      "median_rel_diff_pct": 90.87
+    },
+    "Fwd Packet Length Max": {
+      "match_count": 50,
+      "total": 273,
+      "match_rate_pct": 18.32,
+      "mean_abs_diff": 473.315,
+      "median_abs_diff": 271.0,
+      "max_abs_diff": 4022.0,
+      "mean_rel_diff_pct": 131.49,
+      "median_rel_diff_pct": 68.81
+    },
+    "Fwd Header Length": {
+      "match_count": 46,
+      "total": 273,
+      "match_rate_pct": 16.85,
+      "mean_abs_diff": 641.5092,
+      "median_abs_diff": 272.0,
+      "max_abs_diff": 66328.0,
+      "mean_rel_diff_pct": 247.51,
+      "median_rel_diff_pct": 112.25
+    },
+    "Init_Win_bytes_forward": {
+      "match_count": 103,
+      "total": 273,
+      "match_rate_pct": 37.73,
+      "mean_abs_diff": 16446.4066,
+      "median_abs_diff": 6025.0,
+      "max_abs_diff": 65536.0,
+      "mean_rel_diff_pct": 76.74,
+      "median_rel_diff_pct": 0.0
+    },
+    "Bwd Header Length": {
+      "match_count": 90,
+      "total": 273,
+      "match_rate_pct": 32.97,
+      "mean_abs_diff": 296.2784,
+      "median_abs_diff": 116.0,
+      "max_abs_diff": 7864.0,
+      "mean_rel_diff_pct": 117.73,
+      "median_rel_diff_pct": 100.0
+    },
+    "Total Length of Fwd Packets": {
+      "match_count": 41,
+      "total": 273,
+      "match_rate_pct": 15.02,
+      "mean_abs_diff": 2438.0256,
+      "median_abs_diff": 423.0,
+      "max_abs_diff": 120066.0,
+      "mean_rel_diff_pct": 114.57,
+      "median_rel_diff_pct": 60.56
+    },
+    "Init_Win_bytes_backward": {
+      "match_count": 118,
+      "total": 273,
+      "match_rate_pct": 43.22,
+      "mean_abs_diff": 13261.4322,
+      "median_abs_diff": 972.0,
+      "max_abs_diff": 65536.0,
+      "mean_rel_diff_pct": 108.26,
+      "median_rel_diff_pct": 100.0
+    },
+    "Bwd Packets/s": {
+      "match_count": 124,
+      "total": 273,
+      "match_rate_pct": 45.42,
+      "mean_abs_diff": 5189.1661,
+      "median_abs_diff": 9.6833,
+      "max_abs_diff": 500000.0,
+      "mean_rel_diff_pct": 82.74,
+      "median_rel_diff_pct": 100.0
+    },
+    "Flow IAT Min": {
+      "match_count": 234,
+      "total": 273,
+      "match_rate_pct": 85.71,
+      "mean_abs_diff": 270991.348,
+      "median_abs_diff": 18.0,
+      "max_abs_diff": 64063375.0,
+      "mean_rel_diff_pct": 110.29,
+      "median_rel_diff_pct": 88.24
+    },
+    "Fwd IAT Min": {
+      "match_count": 231,
+      "total": 273,
+      "match_rate_pct": 84.62,
+      "mean_abs_diff": 1482760.5201,
+      "median_abs_diff": 45.0,
+      "max_abs_diff": 102061347.0,
+      "mean_rel_diff_pct": 74.36,
+      "median_rel_diff_pct": 66.67
+    },
+    "Flow Bytes/s": {
+      "match_count": 78,
+      "total": 273,
+      "match_rate_pct": 28.57,
+      "mean_abs_diff": 1386504.4064,
+      "median_abs_diff": 4991.078,
+      "max_abs_diff": 36994511.1054,
+      "mean_rel_diff_pct": 95.03,
+      "median_rel_diff_pct": 96.32
+    },
+    "Active Min": {
+      "match_count": 212,
+      "total": 273,
+      "match_rate_pct": 77.66,
+      "mean_abs_diff": 502552.7509,
+      "median_abs_diff": 113960.0,
+      "max_abs_diff": 5463197.0,
+      "mean_rel_diff_pct": 92.13,
+      "median_rel_diff_pct": 13.65
+    },
+    "Bwd IAT Total": {
+      "match_count": 127,
+      "total": 273,
+      "match_rate_pct": 46.52,
+      "mean_abs_diff": 8809195.0366,
+      "median_abs_diff": 71962.0,
+      "max_abs_diff": 117387941.0,
+      "mean_rel_diff_pct": 51.77,
+      "median_rel_diff_pct": 53.18
+    },
+    "Flow IAT Max": {
+      "match_count": 74,
+      "total": 273,
+      "match_rate_pct": 27.11,
+      "mean_abs_diff": 5667870.2674,
+      "median_abs_diff": 120918.0,
+      "max_abs_diff": 105172488.0,
+      "mean_rel_diff_pct": 90.73,
+      "median_rel_diff_pct": 65.86
+    },
+    "Flow Duration": {
+      "match_count": 69,
+      "total": 273,
+      "match_rate_pct": 25.27,
+      "mean_abs_diff": 10091973.9597,
+      "median_abs_diff": 313524.0,
+      "max_abs_diff": 117578255.0,
+      "mean_rel_diff_pct": 85.84,
+      "median_rel_diff_pct": 47.4
+    }
+  },
+  "invalid_samples": [
+    {
+      "folder": "Row_528448_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_145432_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_375169_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_153461_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_27999_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_113962_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_230309_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_28492_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_378154_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_439724_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_148489_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_484569_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_462943_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_447444_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_12273_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_483153_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_394277_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_21850_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_123960_BENIGN",
+      "error": "No TCP packets found"
+    },
+    {
+      "folder": "Row_390283_BENIGN",
+      "error": "No TCP packets found"
+    }
+  ]
+}
