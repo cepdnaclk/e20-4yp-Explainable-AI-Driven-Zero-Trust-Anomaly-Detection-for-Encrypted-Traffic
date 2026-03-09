@@ -487,7 +487,8 @@ permalink: /
     </div>
   </div>
 
-  <h3>15 Behavioral Features (CIC-IDS-2017)</h3>
+  <h3>Feature Sets (CIC-IDS-2017)</h3>
+  <p style="color: var(--text-dim); font-size: 0.93rem; margin-bottom: 0.8rem;"><strong>BCC v2: 28 features</strong> (Stage 1 gatekeeper) | <strong>DDL: 40 features</strong> (Stage 2, superset of BCC's 28)</p>
   <div class="feature-pills">
     <span class="feature-pill">Packet Length Variance</span>
     <span class="feature-pill">Fwd Packet Length Max</span>
@@ -504,6 +505,22 @@ permalink: /
     <span class="feature-pill">Bwd IAT Total</span>
     <span class="feature-pill">Flow IAT Max</span>
     <span class="feature-pill">Flow Duration</span>
+    <span class="feature-pill">Total Fwd Packets</span>
+    <span class="feature-pill">Total Bwd Packets</span>
+    <span class="feature-pill">Fwd Packet Length Mean</span>
+    <span class="feature-pill">Bwd Packet Length Mean</span>
+    <span class="feature-pill">Fwd Packet Length Std</span>
+    <span class="feature-pill">Bwd Packet Length Max</span>
+    <span class="feature-pill">Flow IAT Mean</span>
+    <span class="feature-pill">Flow IAT Std</span>
+    <span class="feature-pill">Fwd IAT Total</span>
+    <span class="feature-pill">Fwd Packets/s</span>
+    <span class="feature-pill">Down/Up Ratio</span>
+    <span class="feature-pill">SYN Flag Count</span>
+    <span class="feature-pill">RST Flag Count</span>
+    <span class="feature-pill" style="border-color: var(--accent3); color: var(--accent3);">+ Bwd Pkt Len Min/Max (DDL)</span>
+    <span class="feature-pill" style="border-color: var(--accent3); color: var(--accent3);">+ Fwd/Bwd IAT extras (DDL)</span>
+    <span class="feature-pill" style="border-color: var(--accent3); color: var(--accent3);">+ Active Min (DDL)</span>
   </div>
 </section>
 
@@ -847,22 +864,29 @@ permalink: /
           <td><strong>Precision</strong></td>
           <td class="metric-warn">0.7451</td>
           <td class="metric-warn">0.7300</td>
-          <td>—</td>
-          <td>In evaluation</td>
+          <td>0.875 (BCC) / 0.699 (DDL)</td>
+          <td class="metric-good">0.9363 (full pipeline)</td>
         </tr>
         <tr>
           <td><strong>Recall</strong></td>
           <td class="metric-good">1.0000</td>
           <td class="metric-good">0.9865</td>
+          <td>0.999 (BCC / Sandaru data)</td>
+          <td class="metric-good">0.4537 (DDL standalone)</td>
+        </tr>
+        <tr>
+          <td><strong>FPR</strong></td>
           <td>—</td>
-          <td>In evaluation</td>
+          <td>—</td>
+          <td>0.78%</td>
+          <td class="metric-good">0.25% (full pipeline)</td>
         </tr>
         <tr>
           <td><strong>Status</strong></td>
           <td class="metric-bad">Archived</td>
           <td class="metric-bad">Archived</td>
-          <td class="metric-warn">Pre-filter</td>
-          <td class="metric-good">Active</td>
+          <td class="metric-warn">Pre-filter (Stage 1)</td>
+          <td class="metric-good">Active ✓ Tested</td>
         </tr>
       </tbody>
     </table>
@@ -885,14 +909,15 @@ permalink: /
       <table>
         <thead><tr><th>Component</th><th>Specification</th></tr></thead>
         <tbody>
-          <tr><td>Input</td><td>15 CIC-IDS-2017 features (Z-score normalised)</td></tr>
-          <tr><td>Layer&nbsp;1 Dictionary</td><td><strong>D₁ ∈ ℝ<sup>15×64</sup></strong> — captures coarse flow patterns</td></tr>
+          <tr><td>Input</td><td><strong>40 CIC-IDS-2017 features</strong> — superset of BCC's 28 (Z-score normalised)</td></tr>
+          <tr><td>Layer&nbsp;1 Dictionary</td><td><strong>D₁ ∈ ℝ<sup>40×64</sup></strong> — captures coarse flow patterns</td></tr>
           <tr><td>Layer&nbsp;2 Dictionary</td><td><strong>D₂ ∈ ℝ<sup>64×128</sup></strong> — captures subtle micro-patterns</td></tr>
           <tr><td>Sparse Coding</td><td>ISTA (Iterative Shrinkage-Thresholding Algorithm), 50 iterations per layer</td></tr>
           <tr><td>Sparsity Penalty (λ)</td><td>0.1 (L1 regularisation on sparse codes)</td></tr>
           <tr><td>Dictionary Update</td><td>Mini-batch gradient descent with column-wise unit-norm projection</td></tr>
-          <tr><td>Training Epochs</td><td>100 (batch size = 32, LR = 0.001)</td></tr>
-          <tr><td>Anomaly Threshold</td><td>95th percentile of training reconstruction error</td></tr>
+          <tr><td>Training Epochs</td><td><strong>150</strong> (batch size = 512, GPU: RTX 6000 Ada, ~1h 45min)</td></tr>
+          <tr><td>Training samples</td><td>1,682,457 normal flows (CIC-IDS-2017 TRAIN)</td></tr>
+          <tr><td>Anomaly Threshold</td><td><strong>0.7597</strong> (95th percentile of training reconstruction error)</td></tr>
         </tbody>
       </table>
     </div>

@@ -7,6 +7,7 @@ env/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 *.egg-info/
 dist/
 build/
@@ -23,23 +24,35 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+.gemini/
 
-#
+# Script notes
 script.md
 
 # Large data files — do NOT commit (reproduce with train_ddl_enhanced.py)
 dataset/*.csv
 dataset/*.parquet
+dataset/*.pcap
 
 # Trained model binaries — do NOT commit (reproduce with train_ddl_enhanced.py)
 models/*.pkl
 models/*.h5
 models/*.pt
-models/training_log.txt
+models/training_log*.txt
 models/train_report.json
+models/ddl_30feat.pkl
+models/sentry_features.pkl
 
-# Profiling results (regenerate before demo)
-profiling/results/
+# Generated results and logs — regenerate before demo
+results/
+logs/
+*.log
 
-# Temp demo PCAPs
+# Temp files
 /tmp/demo_*.pcap
+/tmp/lime_pkg/
+
+# venv inside subfolders (Sandaru's packet_classifier)
+BaseCheckClassifier/packet_classifier/venv/
+BaseCheckClassifier/packet_classifier/__pycache__/
+
