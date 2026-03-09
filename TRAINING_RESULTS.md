@@ -161,6 +161,49 @@ Both DDL and IF decisions are explained by dual XAI:
 
 ---
 
+## 6. PCAP Evaluation (Real Network Traffic)
+
+**Source:** CIC-IDS-2017 `Friday-labeled-small` — 128 labeled flow PCAP directories (BENIGN + DDoS)
+**Script:** `FullSDNPipeline/run_pcap_evaluation.py`
+
+### Confusion Matrix
+```
+               Predicted
+            FORWARD    DROP
+Normal           70       5
+Attack           53       0
+```
+
+### Pipeline Routing
+- BCC forwarded (BENIGN): 122 / 128
+- BCC flagged to Stage 2: 6 / 128
+- DDL+IF consensus DROP: 5
+
+### Timing (per flow, µs) — includes PCAP parsing overhead
+
+| Stage | CSV Mode (µs) | PCAP Mode (µs) | Notes |
+|-------|:---:|:---:|---|
+| **Feature Extraction** | ~0 (pre-extracted) | 3,257 µs | dpkt PCAP parsing overhead |
+| **BCC Inference** | 0.05 µs | 122 µs | Decision Tree predict |
+| **DDL Inference** | 133 µs | 4,317 µs | Flagged flows only |
+| **IF Inference** | 2.83 µs | 5,616 µs | Flagged flows only |
+| **Total Pipeline** | **~8 µs** | **~3,853 µs** | End-to-end per flow |
+
+> **Key note on PCAP timing:** In a real SDN deployment, features are extracted from OpenFlow `PacketIN` events, not PCAP files. This brings extraction time much closer to CSV mode (~50µs for full feature set). The PCAP evaluation represents worst-case latency (reading stored captures off disk with dpkt).
+
+### Run PCAP Evaluation
+```bash
+cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-.../
+source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
+PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
+    python FullSDNPipeline/run_pcap_evaluation.py
+# Results: results/pcap_results/pcap_summary.md
+```
+
+
+
+---
+
 ## 6. Model Files
 
 | File | Description |

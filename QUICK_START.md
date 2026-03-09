@@ -37,7 +37,7 @@ apptainer exec --nv \
 ## Step 3: Run Full Evaluation (all models + XAI)
 
 ```bash
-# This tests BCC, DDL, IF separately + full pipeline + XAI explanations
+# Tests BCC, DDL, IF separately + full pipeline + XAI explanations
 PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH \
     python FullSDNPipeline/run_full_evaluation.py --max-rows 50000
 
@@ -46,11 +46,27 @@ cat results/summary.md
 cat results/stage2_xai/xai_summary.md
 ```
 
-**Output:** `results/` folder with per-stage JSON results + summary.md
+---
+
+## Step 4: Run PCAP Evaluation (real network flows)
+
+```bash
+# Install dpkt if needed:
+pip install --target /tmp/dpkt_pkg dpkt
+
+# Run on 128 labeled Friday flows:
+PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
+    python FullSDNPipeline/run_pcap_evaluation.py
+
+# View PCAP-specific results:
+cat results/pcap_results/pcap_summary.md
+```
+
+> **Timing note:** PCAP mode includes PCAP parsing (~3.3ms/flow). CSV mode measures pure ML inference (~8µs/flow avg). In a real SDN, OpenFlow PacketIN events are processed more like CSV mode.
 
 ---
 
-## Step 4: Run Pipeline Demo (quick verification)
+## Step 5: Run Pipeline Demo (quick verification)
 
 ```bash
 python FullSDNPipeline/sdn_pipeline.py --demo --n-flows 50
