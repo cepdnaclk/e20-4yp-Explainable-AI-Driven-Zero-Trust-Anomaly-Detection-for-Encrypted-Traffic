@@ -17,18 +17,21 @@ A **two-stage anomaly detection pipeline** for Software-Defined Networks (SDN) t
 ## Pipeline Architecture
 
 ```
-PacketIN → Feature Extraction (single pass)
+PacketIN → PCAP Buffer
     │
-    ├── 28 features → BCC v2 (Decision Tree, <1µs)
+    ├── 28 features (Sandaru extractor) → BCC v2 (Decision Tree, <1µs)
     │                     BENIGN → FORWARD + SDN ALLOW rule
     │                     ATTACK → Stage 2 buffer
     │
-    └── 40 features → DDL + IF (deep analysis, ~135µs)
-                          Both Normal → FORWARD
-                          Both Anomaly → DROP + LIME/SHAP explanation
+    └── 40 features (DDL extractor)     → DDL + IF (deep analysis, ~3ms)
+                          Smart consensus:
+                            Rich flow (≥20 features) → Both must agree
+                            Sparse flow (<20 features) → DDL alone decides
+                          Normal → FORWARD
+                          Anomaly → DROP + LIME/SHAP explanation
 ```
 
-> **Key Design**: Features extracted once, shared between stages. Only ~5% of flows go to Stage 2 — deep ML runs only when needed.
+> **Key Design**: Modular feature extraction — BCC uses 28 fast features, DDL+IF uses separate 40-feature set only on flagged flows. Smart consensus handles sparse flows (e.g., 2-packet port scans).
 
 ---
 
@@ -101,13 +104,13 @@ Attack        5,597   4,649
 
 ---
 
-### Full Two-Stage Pipeline
+### Full Two-Stage Pipeline (CSV Data)
 
 | Metric | Value | Interpretation |
 |--------|:-----:|---------------|
 | **Precision** | **93.63%** | 94% of blocked flows are true attacks |
 | **False Positive Rate** | **0.25%** | Only 1 in 400 legitimate flows blocked |
-| Recall | 14.05% | Catches ~14% of attacks (BCC filters most benign) |
+| Recall | 14.05% | Conservative — focuses on high-confidence detections |
 | Accuracy | 82.19% | |
 
 ```
@@ -117,51 +120,87 @@ Normal       39,656      98   ← only 98 false drops out of 39,754
 Attack        8,806   1,440
 ```
 
-**Pipeline flow routing (50,000 test flows):**
-- 47,512 → BCC says BENIGN → **immediately forwarded**
-- 2,488 → BCC flags → DDL+IF analysis
-  - 950 → Both say Normal → forwarded
-  - **1,538 → Both say Anomaly → DROPPED** (1,440 are true attacks)
+---
+
+### End-to-End PCAP Simulation (Full Pipeline)
+
+**Test:** 702,007 CIC-IDS-2017 labeled PCAP flows (all 5 days, 523,533 valid streams)
+**Architecture:** Modular extractors — BCC(28-feat) → DDL+IF(40-feat) + LIME XAI
+**Script:** `FullSDNPipeline/full_pipeline_simulation.py`
+
+| Metric | Value | Interpretation |
+|--------|:-----:|---------------|
+| **Accuracy** | **98.72%** | Outstanding classification on real PCAPs |
+| **Precision** | **96.46%** | 96% of blocked flows are true attacks |
+| **Recall** | **99.950%** | Catches virtually all attacks (matched to BCC benchmark) |
+| **F1** | **98.17%** | |
+| **FPR** | **1.919%** | Less than 2% false positive rate despite prioritizing highest recall |
+
+```
+                   Predicted
+                FORWARD    DROP
+  Normal        337,071   6,594   ← Aggressive recall blocks slightly more benign traffic
+  Attack             90  179,778   ← Strong detection
+```
+
+**Per-model performance (on PCAP data):**
+| Model | Role | Attack Recall |
+|-------|------|:------------:|
+| SENTRY v2 (BCC) | Stage 1 gateway | 99.965% (63 leaks) |
+| DDL | Stage 2 deep | ~96% |
+| IF | Stage 2 consensus | Weak on sparse PortScan |
+
+**Pipeline routing (523,533 valid flows):**
+- 337,098 → BCC says BENIGN → FORWARD (64.4%)
+- 186,435 → BCC flags → DDL+IF Stage 2 (35.6%)
+  - 186,372 → DDL+IF DROP (46,413 via DDL-only for sparse PortScan)
+  - 63 → FORWARD
 
 ---
 
-### XAI: Explainability Results
+### XAI: Explainability Results (from PCAP Simulation)
 
-All DROP decisions are explained by 4 methods:
+All DROP decisions explained by dual LIME:
 
-| Method | Explains | Time |
+| Method | Explains | Time/flow |
 |--------|---------|:----:|
-| DDL-LIME | DDL anomaly detection | ~44 ms |
-| IF-LIME | IF anomaly detection | ~20 ms |
-| DDL-SHAP | DDL anomaly detection | ~100 ms+ |
-| IF-SHAP | IF anomaly detection | ~100 ms+ |
+| DDL-LIME | Why DDL flagged this flow | ~942 ms |
+| IF-LIME | Why IF flagged this flow | ~225 ms |
 
-**Example explanation (Attack flow, correctly DROPped):**
+**Real Example — DDoS Attack (Row_82589_DDoS, correctly DROPped):**
 ```
-DDL-LIME Top Features:
-  syn_flag_count ≤ 0           weight=-0.037  (no SYN flags = abnormal)
-  fwd_iat_total > 1.26M        weight=+0.032  (high idle time = suspicious)
-  flow_iat_std > 943K          weight=+0.027  (erratic timing pattern)
+DDL-LIME:
+  down_up_ratio           weight=+0.0007  (asymmetric traffic)
+  flow_duration > 42M     weight=+0.0006  (abnormally long flow)
+  bwd_iat_max > 808K      weight=+0.0006  (erratic backward timing)
 
-IF-LIME Top Features:
-  bwd_pkt_len_mean > 161       weight=+0.031  (large backward packets)
-  fwd_iat_total > 1.26M        weight=+0.029  (consistent with DDL)
-  flow_duration > 4.75M        weight=+0.028  (very long flow)
+IF-LIME:
+  bwd_iat_std > 377K      weight=+0.0722  (variable backward timing)
+  flow_iat_std > 10.7M    weight=+0.0590  (highly irregular timing)
+  flow_duration > 42M     weight=+0.0364  (confirms DDL finding)
 ```
-→ Both models agree: unusual timing + no SYN flags + large backward packets = scanning/DDoS pattern
+→ ✅ Cross-validated: Both models flag `flow_duration` and `bwd_iat_std` as suspicious
+
+**Real Example — PortScan (Row_206294_PortScan, DDL-only DROP):**
+```
+DDL-LIME:  fwd_pkts_per_s, flow_duration, init_win_fwd
+IF-LIME:   pkt_len_variance=0, bwd_iat_std=0, flow_iat_std=0
+```
+→ PortScan = 2 packets (SYN→RST), 11/40 features non-zero. DDL-only consensus used.
 
 ---
 
 ## Timing Summary
 
+### End-to-End PCAP (modular extraction)
 | Stage | Applies To | Per-flow Latency |
 |-------|-----------|:----------------:|
-| Feature Extraction | All flows (100%) | ~50 µs |
-| BCC v2 | All flows (100%) | **0.05 µs** |
-| DDL | Flagged flows (~5%) | 133 µs |
-| IF | Flagged flows (~5%) | 2.83 µs |
-| LIME | Anomalous flows (~1%) | ~64 ms |
-| **Pipeline average** | All flows | **~8 µs** |
+| BCC Feature Extraction (28f) | All flows (100%) | **8,429 µs** |
+| BCC v2 Inference | All flows (100%) | **~100 µs** |
+| DDL Feature Extraction (40f) | Flagged flows (~35.6%) | **~400 µs** |
+| DDL Inference | Flagged flows (~35.6%) | 4,079 µs |
+| IF Inference | Flagged flows (~35.6%) | 5,402 µs |
+| **Total pipeline** | All flows | **~9-18 ms** |
 
 ---
 
@@ -192,11 +231,18 @@ GitHub Pages: See `docs/` folder for project webpage
 cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-.../
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-# Quick evaluation (50K flows, ~30 seconds):
+# CSV evaluation (50K flows, ~30 seconds):
 PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH \
     python FullSDNPipeline/run_full_evaluation.py --max-rows 50000
 
+# End-to-end PCAP evaluation (5K flows, ~15 minutes):
+PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
+    python FullSDNPipeline/run_pcap_evaluation.py --max-flows 5000
+
 # View results:
 cat results/summary.md
+cat results/pcap_results/pcap_summary.md
 cat results/stage2_xai/xai_summary.md
 ```
+
+> **Detailed DDL + XAI explanation:** See `DDL_XAI_SUPERVISOR_BRIEFING.md`
