@@ -27,8 +27,26 @@
 | Plane | Protocol | Purpose |
 |-------|----------|---------|
 | **Control** | UDP:5005 | PC1 sends `START`/`END` JSON messages to PC2 & PC3 for each stream |
-| **Data** | Scapy (L2) | PC1 injects raw packets → PC2 inspects → forwards clean to PC3 |
-| **Telemetry** | InfluxDB v2 | All 3 PCs log timestamps, predictions, latency to centralized DB |
+| **Data** | Scapy (L2) | PC1 injects raw packets + backpack → PC2 inspects → forwards clean to PC3 |
+| **Telemetry** | InfluxDB v2 | All 3 PCs log `time.time()` timestamps, predictions, latency to centralized DB |
+
+### Backpack Timestamp Mechanism:
+
+When replaying old PCAPs (e.g. CIC-IDS-2017), the original timestamps are lost because
+Scapy's `sendp()` doesn't preserve PCAP timestamps. PC1 appends a 12-byte "backpack"
+trailer to each packet containing the original PCAP timestamp:
+
+```
+[ Original Ethernet Frame ] [ 8B timestamp (double LE) ] [ 4B magic 0xBACCBACE ]
+```
+
+- **PC1**: Reads PCAP timestamp via `dpkt`, encodes as backpack, sends packet+backpack
+- **PC2**: Strips backpack on receive, uses original timestamp for feature extraction PCAP,
+  uses `time.time()` for InfluxDB latency measurement. Forwards clean packets (no backpack)
+- **PC3**: Receives clean packets, uses `time.time()` for telemetry
+
+> **Latency Impact: ZERO.** Backpack decode (~0.5μs/pkt) happens during sniffing, completely
+> outside the pipeline latency measurement window. InfluxDB timestamps use `time.time()`.
 
 ### Zero Trust Principle:
 > **No traffic is inherently trusted.** Every flow passing through PC2 is verified by the

@@ -21,9 +21,24 @@ import sys
 import json
 import time
 import socket
+import struct
 import threading
 import argparse
 import logging
+
+# ── Backpack: defensive strip (PC2 should already strip, this is a safety net)
+BACKPACK_MAGIC = 0xBACCBACE
+BACKPACK_SIZE  = 12
+
+
+def strip_backpack(raw: bytes) -> bytes:
+    """Strip backpack trailer if present. Returns clean bytes."""
+    if len(raw) >= BACKPACK_SIZE:
+        magic = struct.unpack('<I', raw[-4:])[0]
+        if magic == BACKPACK_MAGIC:
+            return raw[:-12]
+    return raw
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -128,6 +143,10 @@ class DataPlane:
             stream_id, true_label = self.control.get_state()
             if stream_id is None:
                 return
+
+            # Defensive: strip backpack if present (PC2 should have already done this)
+            raw = bytes(pkt)
+            raw = strip_backpack(raw)
 
             with self.lock:
                 self.total_packets += 1

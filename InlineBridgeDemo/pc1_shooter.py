@@ -36,6 +36,21 @@ import argparse
 import logging
 from datetime import datetime, timezone
 
+import dpkt
+
+# ── Backpack: 12-byte trailer that carries original PCAP timestamps ─────────
+# Format: [8B timestamp as double LE] [4B magic 0xBACCBACE]
+# Purpose: Preserve original 2017 PCAP timestamps so PC2's feature extractors
+#          compute correct time-based features. Stripped by PC2 before forwarding.
+BACKPACK_MAGIC = 0xBACCBACE
+BACKPACK_SIZE  = 12  # 8 (double) + 4 (magic)
+
+
+def encode_backpack(raw_bytes: bytes, pcap_timestamp: float) -> bytes:
+    """Append a backpack trailer with the original PCAP timestamp."""
+    trailer = struct.pack('<d', pcap_timestamp) + struct.pack('<I', BACKPACK_MAGIC)
+    return raw_bytes + trailer
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [PC1-Shooter] %(levelname)s: %(message)s"
@@ -144,7 +159,11 @@ def discover_streams(pcap_dir: str, limit: int = 0):
 
 def replay_pcap(pcap_path: str, iface: str, inter_pkt_delay: float = 0.001):
     """
-    Replay all packets from a PCAP file using Scapy's sendp().
+    Replay all packets from a PCAP file with backpack timestamps.
+
+    Each packet gets a 12-byte backpack trailer appended containing the original
+    PCAP timestamp (2017 epoch). PC2 strips the backpack and uses these timestamps
+    for accurate feature extraction while measuring real-time latency separately.
 
     Args:
         pcap_path: Path to the PCAP file
@@ -154,29 +173,28 @@ def replay_pcap(pcap_path: str, iface: str, inter_pkt_delay: float = 0.001):
     Returns:
         (packets_sent, bytes_sent)
     """
-    from scapy.all import rdpcap, sendp, Ether
-
-    try:
-        packets = rdpcap(pcap_path)
-    except Exception as e:
-        logger.warning(f"  Could not read {pcap_path}: {e}")
-        return 0, 0
-
-    if not packets:
-        return 0, 0
+    from scapy.all import sendp, Ether
 
     pkt_count = 0
     byte_count = 0
 
-    for pkt in packets:
-        try:
-            sendp(pkt, iface=iface, verbose=False)
-            pkt_count += 1
-            byte_count += len(pkt)
-            if inter_pkt_delay > 0:
-                time.sleep(inter_pkt_delay)
-        except Exception as e:
-            logger.warning(f"  Send error: {e}")
+    try:
+        with open(pcap_path, 'rb') as f:
+            reader = dpkt.pcap.Reader(f)
+            for pcap_ts, buf in reader:
+                try:
+                    # Attach backpack with original PCAP timestamp
+                    pkt_with_bp = encode_backpack(buf, pcap_ts)
+                    sendp(Ether(pkt_with_bp), iface=iface, verbose=False)
+                    pkt_count += 1
+                    byte_count += len(buf)  # count original size, not backpack
+                    if inter_pkt_delay > 0:
+                        time.sleep(inter_pkt_delay)
+                except Exception as e:
+                    logger.warning(f"  Send error: {e}")
+    except Exception as e:
+        logger.warning(f"  Could not read {pcap_path}: {e}")
+        return 0, 0
 
     return pkt_count, byte_count
 

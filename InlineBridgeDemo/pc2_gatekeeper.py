@@ -58,6 +58,23 @@ INFLUXDB_BUCKET = os.environ.get("INFLUXDB_BUCKET","sdn_telemetry")
 
 CONTROL_PORT = 5005
 
+# ── Backpack: 12-byte trailer carrying original PCAP timestamps ──────────────
+# Attached by PC1 to preserve 2017 timestamps for correct feature extraction.
+# Stripped here on receipt — original timestamp used for PCAP building,
+# time.time() used for InfluxDB latency measurement.
+BACKPACK_MAGIC = 0xBACCBACE
+BACKPACK_SIZE  = 12  # 8 (double) + 4 (magic)
+
+
+def strip_backpack(raw: bytes):
+    """Check for and strip backpack trailer. Returns (original_ts, clean_bytes)."""
+    if len(raw) >= BACKPACK_SIZE:
+        magic = struct.unpack('<I', raw[-4:])[0]
+        if magic == BACKPACK_MAGIC:
+            original_ts = struct.unpack('<d', raw[-12:-4])[0]
+            return original_ts, raw[:-12]
+    return None, raw
+
 
 def write_to_influxdb(line_protocol: str):
     """Write a line-protocol data point to InfluxDB v2."""
@@ -532,9 +549,14 @@ class DataPlane:
                 return  # No active stream — ignore
 
             with self.lock:
-                ts = time.time()
                 raw = bytes(pkt)
-                self.current_packets.append((ts, raw))
+                # Strip backpack to recover original PCAP timestamp
+                original_ts, clean_raw = strip_backpack(raw)
+                if original_ts is not None:
+                    ts = original_ts  # Use original 2017 PCAP timestamp
+                else:
+                    ts = time.time()  # Fallback for non-backpack packets
+                self.current_packets.append((ts, clean_raw))
 
         sniff(iface=self.iface_in, prn=process_pkt, store=False)
 
@@ -583,7 +605,7 @@ class DataPlane:
         # ── Forward or Drop ─────────────────────────────────────────────
         if action == "FORWARD":
             self.stats["forwarded"] += 1
-            # Forward all packets out iface_out
+            # Forward clean packets (backpack already stripped during sniff)
             from scapy.all import sendp, Ether
             for ts, raw in packets:
                 try:
