@@ -43,13 +43,13 @@ case "${1:-up}" in
     sysctl -w net.ipv4.ip_forward=1 > /dev/null
     echo "  net.ipv4.ip_forward = 1"
 
-    # 3. Set up iptables (allow forwarding between interfaces)
-    echo "[3/4] Configuring iptables..."
+    # 3. Set up iptables — DROP all forwarding by default (Zero Trust)
+    #    The Python gatekeeper explicitly forwards clean packets via sendp().
+    #    Kernel must NOT forward anything on its own.
+    echo "[3/4] Configuring iptables (FORWARD=DROP for Zero Trust)..."
     iptables -F FORWARD 2>/dev/null || true
-    iptables -P FORWARD ACCEPT
-    iptables -A FORWARD -i $IFACE_IN -o $IFACE_OUT -j ACCEPT
-    iptables -A FORWARD -i $IFACE_OUT -o $IFACE_IN -j ACCEPT
-    echo "  FORWARD chain configured"
+    iptables -P FORWARD DROP
+    echo "  FORWARD chain: DROP by default (gatekeeper controls forwarding)"
 
     # 4. Open UDP port for control plane
     echo "[4/4] Opening UDP port 5005 for control plane..."

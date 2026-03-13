@@ -65,10 +65,9 @@ trailer to each packet containing the original PCAP timestamp:
 | PC3 (Receiver) | Any laptop with Ethernet port |
 | Cables | 2x RJ45 Ethernet cables |
 
-### Software (All PCs)
-- Linux (Ubuntu 22.04+ recommended, Kali Linux also works)
-- Python 3.8+
-- Root/sudo access
+### Software
+- **PC2 (Gatekeeper):** Linux (Ubuntu 22.04+ / Kali recommended) — requires Python 3.8+, root/sudo
+- **PC1 (Shooter) & PC3 (Receiver):** Windows 10/11 — requires Python 3.10+, Npcap, Administrator PowerShell (see Appendix A)
 
 ---
 
@@ -183,10 +182,19 @@ ping 10.0.1.1
 
 ### Verify End-to-End Connectivity:
 ```bash
-# From PC1, ping PC3 through PC2:
-ping 10.0.1.2
-# This should work — packets are routed through PC2
+# From PC1, ping PC2:
+ping 10.0.0.1
+# This should work — direct link between PC1 and PC2
+
+# From PC3, ping PC2:
+ping 10.0.1.1
+# This should work — direct link between PC3 and PC2
 ```
+
+> **⚠️ Zero Trust Note:** Ping from PC1 to PC3 (`ping 10.0.1.2`) will now
+> **fail** unless `pc2_gatekeeper.py` is running. This is intentional — the
+> iptables FORWARD policy is DROP by default, so only traffic that the AI
+> gatekeeper explicitly forwards will reach PC3.
 
 ---
 
@@ -342,18 +350,13 @@ cat logs/bridge_decisions.json | python3 -m json.tool | head -50
 
 ### Latency Comparison:
 ```bash
-# Test 1: Direct forwarding (no AI pipeline)
-# On PC2, just enable IP forwarding without the gatekeeper:
-sudo sysctl net.ipv4.ip_forward=1
-# From PC1: ping -c 100 10.0.1.2
-# Record the average RTT
-
-# Test 2: With AI pipeline active
+# Test: With AI pipeline active
 # Start pc2_gatekeeper.py
 # From PC1: ping -c 100 10.0.1.2
 # Record the average RTT
 
-# The difference = AI pipeline overhead
+# Note: Without the gatekeeper running, PC1 cannot reach PC3.
+# This is intentional Zero Trust behaviour — deny by default.
 ```
 
 ### Pipeline Timing (from decision log):
@@ -379,13 +382,14 @@ print(f'Stage 2 (DDL+IF): {sum(1 for d in data[\"decisions\"] if d[\"stage\"]==\
 | Problem | Solution |
 |---------|----------|
 | `ping 10.0.0.1` fails from PC1 | Check cable, run `ip link show`, verify interface name in setup script |
-| `ping 10.0.1.2` fails from PC1 | IP forwarding not enabled on PC2, run `sudo bash scripts/setup_bridge.sh up` |
-| `No module named 'scapy'` | Activate venv: `source .venv/bin/activate` |
-| `Permission denied` on sniff/sendp | Must run with `sudo -E` (the `-E` preserves env vars) |
+| `ping 10.0.1.2` fails from PC1 | **Expected** if gatekeeper is not running (Zero Trust: FORWARD=DROP). Start `pc2_gatekeeper.py` first |
+| `No module named 'scapy'` | Activate venv: `source .venv/bin/activate` (Linux) or `.\venv\Scripts\Activate.ps1` (Windows) |
+| `Permission denied` on sniff/sendp | Linux: `sudo -E`. Windows: run PowerShell as **Administrator** |
 | `InfluxDB connection refused` | Start InfluxDB: `influxd &`, or use `--no-influxdb` flag |
 | PC2 crash on model load | Ensure models/ folder has all 3 .pkl files |
 | USB-Ethernet not showing | Check `dmesg | tail`, try `ip link set ethX up` |
-| Scripts can't find interface | Run `ip link show` and update interface names in setup scripts |
+| Scripts can't find interface | Linux: `ip link show`. Windows: `python -c "from scapy.all import show_interfaces; show_interfaces()"` |
+| PC2 processes few streams | Fixed in v2 — old polling race condition replaced with queue-based architecture |
 
 ---
 
@@ -565,3 +569,21 @@ scp -r e20420@10.12.70.3:/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP
 # Or use WinSCP/FileZilla for GUI-based transfer
 ```
 
+---
+
+## Changelog
+
+### v2 — 2026-03-14: Critical Bug Fixes
+
+Three critical bugs were fixed:
+
+| Bug | Root Cause | Fix | File |
+|-----|-----------|-----|------|
+| **Packets bypass PC2** — when gatekeeper is off, packets still flow PC1→PC3 | `setup_bridge.sh` set iptables FORWARD=ACCEPT, so the Linux kernel forwarded everything regardless of the gatekeeper | Changed FORWARD policy to **DROP**. Only the Python gatekeeper explicitly forwards clean traffic via `sendp()` | `scripts/setup_bridge.sh` |
+| **Only ~7 of ~60+ streams processed** — most streams received but never analyzed | Race condition: `_process_loop` polled at 100ms intervals and missed rapid START→END transitions. Also, END cleared labels before the loop could save them | Replaced polling with **queue-based** architecture (`queue.Queue`). ControlPlane enqueues stream metadata on END. DataPlane blocks on `queue.get()` — guaranteed zero-loss processing | `pc2_gatekeeper.py` |
+| **Grafana dashboard stops updating** after first few packets | Direct consequence of the stream processing bug — only processed streams write to InfluxDB | Auto-fixed by the queue-based approach — all streams are now processed and logged | `pc2_gatekeeper.py` |
+
+**Changed files:**
+- `pc2_gatekeeper.py` — `ControlPlane` now uses `queue.Queue`; `DataPlane._process_loop` blocks on queue; per-stream packet accumulation replaces single flat list
+- `scripts/setup_bridge.sh` — iptables FORWARD changed from ACCEPT to DROP
+- `INLINE_BRIDGE_GUIDE.md` — Updated connectivity instructions, troubleshooting, and this changelog

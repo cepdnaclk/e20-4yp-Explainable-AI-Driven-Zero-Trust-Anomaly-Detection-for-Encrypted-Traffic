@@ -35,6 +35,7 @@ import time
 import socket
 import struct
 import threading
+import queue
 import argparse
 import logging
 import io
@@ -441,7 +442,11 @@ class ZeroTrustPipeline:
 # ═════════════════════════════════════════════════════════════════════════════
 
 class ControlPlane:
-    """Listens for UDP control messages (START/END) from PC1."""
+    """Listens for UDP control messages (START/END) from PC1.
+
+    Uses a thread-safe queue to deliver completed stream events to the
+    DataPlane, eliminating the polling race condition.
+    """
 
     def __init__(self):
         self.lock = threading.Lock()
@@ -449,6 +454,8 @@ class ControlPlane:
         self.current_true_label = None
         self.current_attack_type = None
         self.running = True
+        # Queue of completed streams: (stream_id, true_label, attack_type)
+        self.completed_streams = queue.Queue()
 
     def start(self):
         """Start the UDP listener thread."""
@@ -476,7 +483,15 @@ class ControlPlane:
                         logger.info(f"📥 START stream: {self.current_stream_id} "
                                     f"(label={self.current_true_label})")
                     elif action == "END":
-                        logger.info(f"📤 END stream: {self.current_stream_id}")
+                        ended_id = self.current_stream_id
+                        ended_label = self.current_true_label
+                        ended_attack = self.current_attack_type
+                        logger.info(f"📤 END stream: {ended_id}")
+                        # Enqueue BEFORE clearing — guarantees no lost metadata
+                        if ended_id is not None:
+                            self.completed_streams.put(
+                                (ended_id, ended_label, ended_attack)
+                            )
                         self.current_stream_id = None
                         self.current_true_label = None
                         self.current_attack_type = None
@@ -513,10 +528,9 @@ class DataPlane:
         self.control = control
         self.no_influxdb = no_influxdb
 
-        # Flow accumulation
+        # Per-stream packet accumulation — keyed by stream_id
         self.lock = threading.Lock()
-        self.current_packets = []  # list of (timestamp, raw_bytes)
-        self.current_stream_processed = False
+        self.stream_packets = {}   # stream_id → list of (timestamp, raw_bytes)
 
         # Statistics
         self.stats = {
@@ -540,7 +554,7 @@ class DataPlane:
         logger.info(f"Data plane: sniffing on {self.iface_in}, forwarding to {self.iface_out}")
 
     def _sniff_loop(self):
-        """Sniff packets on the ingress interface."""
+        """Sniff packets on the ingress interface and accumulate per-stream."""
         from scapy.all import sniff
 
         def process_pkt(pkt):
@@ -548,44 +562,43 @@ class DataPlane:
             if stream_id is None:
                 return  # No active stream — ignore
 
+            raw = bytes(pkt)
+            # Strip backpack to recover original PCAP timestamp
+            original_ts, clean_raw = strip_backpack(raw)
+            if original_ts is not None:
+                ts = original_ts  # Use original 2017 PCAP timestamp
+            else:
+                ts = time.time()  # Fallback for non-backpack packets
+
             with self.lock:
-                raw = bytes(pkt)
-                # Strip backpack to recover original PCAP timestamp
-                original_ts, clean_raw = strip_backpack(raw)
-                if original_ts is not None:
-                    ts = original_ts  # Use original 2017 PCAP timestamp
-                else:
-                    ts = time.time()  # Fallback for non-backpack packets
-                self.current_packets.append((ts, clean_raw))
+                if stream_id not in self.stream_packets:
+                    self.stream_packets[stream_id] = []
+                self.stream_packets[stream_id].append((ts, clean_raw))
 
         sniff(iface=self.iface_in, prn=process_pkt, store=False)
 
     def _process_loop(self):
         """
-        Monitor for stream END signals and process accumulated packets.
+        Block on the ControlPlane queue for completed stream events.
+        Guaranteed to process every stream — no polling race condition.
         """
-        last_stream_id = None
-
         while True:
-            stream_id, true_label, attack_type = self.control.get_state()
+            try:
+                # Block until a stream END is received (timeout for shutdown)
+                stream_id, true_label, attack_type = \
+                    self.control.completed_streams.get(timeout=1.0)
+            except queue.Empty:
+                continue
 
-            # Detect stream transition (END signal: stream_id becomes None)
-            if last_stream_id is not None and stream_id is None:
-                # Stream just ended — process accumulated packets
-                with self.lock:
-                    packets = list(self.current_packets)
-                    self.current_packets.clear()
+            # Small delay to let any in-flight packets arrive
+            time.sleep(0.2)
 
-                if packets:
-                    self._process_stream(last_stream_id, true_label_saved, attack_type_saved, packets)
+            # Grab all packets for this stream
+            with self.lock:
+                packets = self.stream_packets.pop(stream_id, [])
 
-            # Save current state for next check
-            if stream_id is not None:
-                true_label_saved = true_label
-                attack_type_saved = attack_type
-            last_stream_id = stream_id
-
-            time.sleep(0.1)  # Poll interval
+            if packets:
+                self._process_stream(stream_id, true_label, attack_type, packets)
 
     def _process_stream(self, stream_id, true_label, attack_type, packets):
         """Process a complete stream through the AI pipeline."""
