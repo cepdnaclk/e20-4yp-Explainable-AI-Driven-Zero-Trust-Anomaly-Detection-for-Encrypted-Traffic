@@ -6,10 +6,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
 
+from pathlib import Path
+
+# Datasets live in ../data next to this script (see data/README.md).
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
 # ------------------------------------
 # 1. Load dataset
 # ------------------------------------
-df = pd.read_csv(r"D:\dataset\bcc_darknet_project\data\bcc_darknet_labeled_high_confidence.csv")
+df = pd.read_csv(DATA_DIR / "bcc_darknet_labeled_high_confidence.csv")
 print("Dataset shape:", df.shape)
 
 # ------------------------------------

@@ -9,10 +9,15 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense
 from matplotlib import rcParams
 
+from pathlib import Path
+
+# Datasets live in ../data next to this script (see data/README.md).
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
 # -----------------------------
 # Step 1: Load Dataset
 # -----------------------------
-data_path = r"D:\dataset\bcc_darknet_project\data\bccc_darknet.csv"
+data_path = DATA_DIR / "bccc_darknet.csv"
 data = pd.read_csv(data_path)
 print("Dataset shape:", data.shape)
 print("Columns:", data.columns.tolist())

@@ -8,10 +8,15 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.optimizers import Adam
 
+from pathlib import Path
+
+# Datasets live in ../data next to this script (see data/README.md).
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+
 # ------------------------------------
 # 1. Load dataset
 # ------------------------------------
-df = pd.read_csv( r"D:\dataset\bcc_darknet_project\data\bccc_darknet.csv")
+df = pd.read_csv(DATA_DIR / "bccc_darknet.csv")
 print("Original dataset shape:", df.shape)
 
 # ------------------------------------
@@ -118,6 +123,6 @@ print(final_df["pseudo_label"].value_counts())
 # ------------------------------------
 # 10. Save new dataset
 # ------------------------------------
-final_df.to_csv("../data/bcc_darknet_labeled_high_confidence.csv", index=False)
+final_df.to_csv(DATA_DIR / "bcc_darknet_labeled_high_confidence.csv", index=False)
 
 print("Saved: bcc_darknet_labeled_high_confidence.csv")
