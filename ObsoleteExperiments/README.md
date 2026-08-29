@@ -8,6 +8,7 @@
 
 | Directory | Description |
 |-----------|-------------|
+| `BCCCDarknetPipeline/` | Script version of the full pipeline (Isolation Forest + Autoencoder → pseudo-labels → Random Forest) on BCCC Darknet |
 | `DataPreprocessing/` | Semi-supervised pseudo-labeling (Isolation Forest + Autoencoder) on BCCC Darknet |
 | `pipeline/` | Random Forest notebooks (01 preprocessing → 02 RF → 03 SHAP) on BCCC Darknet |
 | `RANDOMFORESTImplementation/` | Standalone RF implementation & results on BCCC Darknet |
