@@ -6,7 +6,7 @@
 # that can be copied to any laptop and run locally.
 #
 # Usage (on the remote server):
-#   bash build_portable_package.sh
+#   bash scripts/build_portable_package.sh
 #
 # Then copy to your laptop:
 #   scp -r /tmp/sdn_pipeline_portable user@laptop:~/
@@ -19,8 +19,9 @@
 
 set -e
 
-PROJ="/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic"
-SANDARU="/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJ="$(dirname "$SCRIPT_DIR")"
+SRC="$PROJ/src"
 OUT="/tmp/sdn_pipeline_portable"
 
 echo "Building portable SDN pipeline package..."
@@ -35,36 +36,36 @@ cp "$PROJ/models/isolation_forest.pkl"  "$OUT/models/"
 
 # ── DDL Model code ──
 echo "[2/7] Copying DDL model code..."
-cp "$PROJ/DDLModel/ddl_model.py"          "$OUT/DDLModel/"
-cp "$PROJ/DDLModel/ddl_pcap_extractor.py" "$OUT/DDLModel/"
-cp "$PROJ/DDLModel/ddl_feature_extractor.py" "$OUT/DDLModel/" 2>/dev/null || true
+cp "$SRC/DDLModel/ddl_model.py"          "$OUT/DDLModel/"
+cp "$SRC/DDLModel/ddl_pcap_extractor.py" "$OUT/DDLModel/"
+cp "$SRC/DDLModel/ddl_feature_extractor.py" "$OUT/DDLModel/" 2>/dev/null || true
 touch "$OUT/DDLModel/__init__.py"
 
 # ── BCC extractor (Sandaru's) ──
 echo "[3/7] Copying BCC feature extractor..."
-cp "$SANDARU/BaseCheckClassifier/sdn/extraction/feature_extractor.py" "$OUT/sdn/extraction/"
+cp "$SRC/BaseCheckClassifier/sdn/extraction/feature_extractor.py" "$OUT/sdn/extraction/"
 touch "$OUT/sdn/__init__.py"
 touch "$OUT/sdn/extraction/__init__.py"
 
 # ── LiveTraffic scripts ──
 echo "[4/7] Copying live traffic scripts..."
-cp "$PROJ/LiveTraffic/live_pipeline.py"       "$OUT/LiveTraffic/"
-cp "$PROJ/LiveTraffic/openflow_controller.py" "$OUT/LiveTraffic/"
-cp "$PROJ/LiveTraffic/traffic_generator.py"   "$OUT/LiveTraffic/"
-cp "$PROJ/LiveTraffic/ARUBA_2920_LIVE_TESTING_GUIDE.md" "$OUT/LiveTraffic/"
+cp "$SRC/LiveTraffic/live_pipeline.py"       "$OUT/LiveTraffic/"
+cp "$SRC/LiveTraffic/openflow_controller.py" "$OUT/LiveTraffic/"
+cp "$SRC/LiveTraffic/traffic_generator.py"   "$OUT/LiveTraffic/"
+cp "$PROJ/docs/setup/switch-aruba-2920.md" "$OUT/LiveTraffic/"
 touch "$OUT/LiveTraffic/__init__.py"
 
 # ── XAI Explainer ──
 echo "[5/7] Copying XAI explainer..."
-if [ -d "$PROJ/XAIExplainer" ]; then
-    cp "$PROJ/XAIExplainer/"*.py "$OUT/XAIExplainer/" 2>/dev/null || true
+if [ -d "$SRC/XAIExplainer" ]; then
+    cp "$SRC/XAIExplainer/"*.py "$OUT/XAIExplainer/" 2>/dev/null || true
 fi
 touch "$OUT/XAIExplainer/__init__.py"
 
 # ── Profiling ──
 echo "[6/7] Copying profiling module..."
-if [ -d "$PROJ/profiling" ]; then
-    cp "$PROJ/profiling/"*.py "$OUT/profiling/" 2>/dev/null || true
+if [ -d "$SRC/profiling" ]; then
+    cp "$SRC/profiling/"*.py "$OUT/profiling/" 2>/dev/null || true
 fi
 touch "$OUT/profiling/__init__.py"
 
@@ -117,7 +118,7 @@ echo "  ✅ Setup complete!"
 echo ""
 echo "  Activate:  source .venv/bin/activate"
 echo "  Run:       bash run.sh --interface <NIC>"
-echo "  Guide:     cat LiveTraffic/ARUBA_2920_LIVE_TESTING_GUIDE.md"
+echo "  Guide:     cat LiveTraffic/switch-aruba-2920.md"
 echo "============================================"
 SETUP
 chmod +x "$OUT/setup.sh"
@@ -344,7 +345,7 @@ LiveTraffic/                ← Pipeline + controller + traffic generator
   live_pipeline.py          ← Main pipeline (NFStream capture → classify)
   openflow_controller.py    ← Ryu OpenFlow 1.3 controller
   traffic_generator.py      ← Scapy-based traffic generator
-  ARUBA_2920_LIVE_TESTING_GUIDE.md  ← Full switch setup guide
+  switch-aruba-2920.md              ← Full switch setup guide
 setup.sh                    ← One-time dependency installer
 run.sh                      ← Pipeline launcher
 generate_traffic.sh         ← Traffic generator shortcut
