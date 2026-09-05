@@ -14,25 +14,27 @@ Smart consensus:
 import os, re, sys, json, time, argparse
 import numpy as np, joblib
 
-PROJ = '/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic'
-SANDARU = '/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic'
-sys.path.insert(0, PROJ)
-sys.path.insert(0, os.path.join(SANDARU, 'BaseCheckClassifier'))
+_THIS_DIR    = os.path.dirname(os.path.abspath(__file__))
+SRC_ROOT     = os.path.dirname(_THIS_DIR)
+PROJECT_ROOT = os.path.dirname(SRC_ROOT)
+sys.path.insert(0, SRC_ROOT)
+sys.path.insert(0, os.path.join(SRC_ROOT, 'BaseCheckClassifier'))
 
 from sdn.extraction.feature_extractor import extract_features_extended, SENTRY_V2_FEATURES
 from DDLModel.ddl_pcap_extractor import extract_ddl_features, DDL_40_FEATURES
 from DDLModel.ddl_model import DeepDictionaryLearning
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--pcap-dir", default="/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday")
+parser.add_argument("--pcap-dir", default=os.environ.get(
+    "CIC_PCAP_DIR", "/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday"))
 parser.add_argument("--max-flows", type=int, default=5000)
 args = parser.parse_args()
 
 print("Loading models...", flush=True)
-bcc_data = joblib.load(f'{PROJ}/models/sentry_model_v2.pkl')
+bcc_data = joblib.load(f'{PROJECT_ROOT}/models/sentry_model_v2.pkl')
 bcc_model = bcc_data['model']; bcc_features = bcc_data['feature_names']; bcc_thresh = bcc_data.get('threshold', 0.5)
-ddl = DeepDictionaryLearning.load(f'{PROJ}/models/ddl_40feat.pkl')
-if_data = joblib.load(f'{PROJ}/models/isolation_forest.pkl'); if_model = if_data['clf']
+ddl = DeepDictionaryLearning.load(f'{PROJECT_ROOT}/models/ddl_40feat.pkl')
+if_data = joblib.load(f'{PROJECT_ROOT}/models/isolation_forest.pkl'); if_model = if_data['clf']
 
 # Parse PCAP directories
 pattern = re.compile(r"Row_(\d+)_(.+)")
@@ -158,7 +160,7 @@ print(f"  IF inference:      {avg(t_if):.0f} µs (flagged only)", flush=True)
 print(f"  Total pipeline:    {avg(t_total):.0f} µs", flush=True)
 
 # Save
-out_dir = f'{PROJ}/results/pcap_results'
+out_dir = f'{PROJECT_ROOT}/results/pcap_results'
 os.makedirs(out_dir, exist_ok=True)
 summary = {
     'mode': 'Modular PCAP (BCC 28-feat → DDL+IF 40-feat, smart consensus)',

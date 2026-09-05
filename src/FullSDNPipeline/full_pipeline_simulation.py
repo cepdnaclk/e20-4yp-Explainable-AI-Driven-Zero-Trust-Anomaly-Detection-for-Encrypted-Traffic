@@ -16,10 +16,11 @@ Usage:
 import os, sys, time, pickle, argparse, json, re
 import numpy as np
 
-PROJ = '/scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic'
-SANDARU = '/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic'
-sys.path.insert(0, PROJ)
-sys.path.insert(0, os.path.join(SANDARU, 'BaseCheckClassifier'))
+_THIS_DIR    = os.path.dirname(os.path.abspath(__file__))
+SRC_ROOT     = os.path.dirname(_THIS_DIR)
+PROJECT_ROOT = os.path.dirname(SRC_ROOT)
+sys.path.insert(0, SRC_ROOT)
+sys.path.insert(0, os.path.join(SRC_ROOT, 'BaseCheckClassifier'))
 
 # Stage 1 extractor (28 features)
 from sdn.extraction.feature_extractor import extract_features_extended, SENTRY_V2_FEATURES
@@ -27,7 +28,9 @@ from sdn.extraction.feature_extractor import extract_features_extended, SENTRY_V
 from DDLModel.ddl_pcap_extractor import extract_ddl_features, DDL_40_FEATURES
 from DDLModel.ddl_model import DeepDictionaryLearning
 
-DATASET_ROOT = "/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/"
+DATASET_ROOT = os.environ.get(
+    "CIC_PCAP_ROOT", "/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/"
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--limit", type=int, default=0, help="Limit flows (0=all)")
@@ -41,10 +44,10 @@ print("=" * 60, flush=True)
 # Load models
 print("\n[1/5] Loading models...", flush=True)
 import joblib
-bcc_data = joblib.load(f'{PROJ}/models/sentry_model_v2.pkl')
+bcc_data = joblib.load(f'{PROJECT_ROOT}/models/sentry_model_v2.pkl')
 bcc_model = bcc_data['model']; bcc_features = bcc_data['feature_names']; bcc_thresh = bcc_data.get('threshold', 0.5)
-ddl = DeepDictionaryLearning.load(f'{PROJ}/models/ddl_40feat.pkl')
-if_data = joblib.load(f'{PROJ}/models/isolation_forest.pkl'); if_model = if_data['clf']
+ddl = DeepDictionaryLearning.load(f'{PROJECT_ROOT}/models/ddl_40feat.pkl')
+if_data = joblib.load(f'{PROJECT_ROOT}/models/isolation_forest.pkl'); if_model = if_data['clf']
 print(f"  SENTRY v2: {len(bcc_features)} features", flush=True)
 print(f"  DDL: {ddl.n_features} features", flush=True)
 print(f"  IF: {if_data['clf'].n_estimators} trees", flush=True)
@@ -251,7 +254,7 @@ except Exception as e:
 
 # Save
 print(f"\n[5/5] Saving results...", flush=True)
-out_dir = f'{PROJ}/results/pcap_results'
+out_dir = f'{PROJECT_ROOT}/results/pcap_results'
 os.makedirs(out_dir, exist_ok=True)
 results = {
     "date": time.strftime('%Y-%m-%d %H:%M'), "total_time_min": round(total_time/60,2),

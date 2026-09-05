@@ -29,8 +29,6 @@ from DDLModel.ddl_feature_extractor import DDL_FEATURE_NAMES, N_DDL_FEATURES
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("FullEval")
 
-SANDARU_ROOT = "/scratch1/e20-fyp-xai-anomaly-detection/e20449Sandaru/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic"
-
 # ── Column mapping ───────────────────────────────────────────────────────────
 DDL_TO_CSV = {
     "fwd_pkt_len_mean":    "Fwd Packet Length Mean",
@@ -201,7 +199,7 @@ def main():
     all_results["stage1_bcc"] = bcc_result
 
     # Also test on Sandaru's data if available
-    sandaru_raw = os.path.join(SANDARU_ROOT, "BaseCheckClassifier/sdn/training/test_raw.csv")
+    sandaru_raw = os.path.join(SRC_ROOT, "BaseCheckClassifier", "sdn", "training", "test_raw.csv")
     if os.path.exists(sandaru_raw):
         logger.info("  Testing BCC on Sandaru's test_raw.csv...")
         df_s = pd.read_csv(sandaru_raw, low_memory=False)
