@@ -21,8 +21,10 @@ SRC_ROOT     = os.path.join(PROJECT_ROOT, "src")
 sys.path.insert(0, SRC_ROOT)
 
 # Friend's modules
-BASECHK_SIM = os.path.join(SRC_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
-sys.path.insert(0, BASECHK_SIM)
+BCC_ROOT = os.path.join(SRC_ROOT, "BaseCheckClassifier")
+BCC_SDN  = os.path.join(BCC_ROOT, "sdn")
+sys.path.insert(0, BCC_ROOT)
+sys.path.insert(0, BCC_SDN)
 
 from DDLModel.ddl_model import DeepDictionaryLearning
 from XAIExplainer.explainer import DDLExplainer, FEATURE_NAMES
@@ -289,10 +291,10 @@ def test_pipeline_flow(ddl, results):
     print("\n─── Test: Pipeline Flow ───")
 
     # Check if synthetic pcaps exist (in friend's directory)
-    attack_pcap = os.path.join(BASECHK_SIM, "synthetic_attack.pcap")
-    benign_pcap = os.path.join(BASECHK_SIM, "synthetic_benign.pcap")
-    small_attack = os.path.join(BASECHK_SIM, "attack", "bot_1.pcap")
-    small_benign = os.path.join(BASECHK_SIM, "normal", "benign_1.pcap")
+    attack_pcap = os.path.join(BCC_SDN, "synthetic_attack.pcap")
+    benign_pcap = os.path.join(BCC_SDN, "synthetic_benign.pcap")
+    small_attack = os.path.join(BCC_SDN, "attack", "bot_1.pcap")
+    small_benign = os.path.join(BCC_SDN, "normal", "benign_1.pcap")
 
     pcap_files = []
     for path, label in [(attack_pcap, "Attack"), (benign_pcap, "Normal"),

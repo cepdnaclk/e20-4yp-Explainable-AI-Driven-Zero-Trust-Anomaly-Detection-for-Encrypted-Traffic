@@ -33,7 +33,7 @@ python -m DDLModel.train_ddl --csv /path/to/TRAIN_Traffic.csv --output ./models/
 
 ### Train from pcap files
 ```bash
-python -m DDLModel.train_ddl --pcap-dir ./BaseCheckClassifier/BaseCheckClassifierSimulation/normal/ --output ./models/ddl_model.pkl
+python -m DDLModel.train_ddl --pcap-dir ./src/BaseCheckClassifier/sdn/normal/ --output ./models/ddl_model.pkl
 ```
 
 ### Use in Python

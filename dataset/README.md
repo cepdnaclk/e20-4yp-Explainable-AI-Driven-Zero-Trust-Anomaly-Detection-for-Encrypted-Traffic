@@ -59,7 +59,7 @@ python DDLModel/train_ddl_enhanced.py \
 ### Train DT model (15 features — teammate's code):
 
 Handled by the BaseCheckClassifier module. See
-`BaseCheckClassifier/BaseCheckClassifierSimulation/` for training scripts.
+`src/BaseCheckClassifier/sdn/` for training scripts.
 
 ## Source
 

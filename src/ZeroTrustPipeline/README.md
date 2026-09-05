@@ -10,7 +10,7 @@ This module is the **main orchestrator** that chains together all pipeline stage
 
 ```
 Stage 1: Feature Extraction (15 CIC-IDS-2017 features)
-         └─ Uses: BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/
+         └─ Uses: src/BaseCheckClassifier/sdn/extraction/
          
 Stage 2: Base Check Classifier (Decision Tree)
          ├─ Normal → FORWARD immediately

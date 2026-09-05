@@ -9,7 +9,7 @@ Can train on:
 
 Usage:
     python -m DDLModel.train_ddl --csv /path/to/TRAIN_Traffic.csv --output ./models/ddl_model.pkl
-    python -m DDLModel.train_ddl --pcap-dir ./BaseCheckClassifier/BaseCheckClassifierSimulation/normal/ --output ./models/ddl_model.pkl
+    python -m DDLModel.train_ddl --pcap-dir ./src/BaseCheckClassifier/sdn/normal/ --output ./models/ddl_model.pkl
 """
 
 import argparse
@@ -25,9 +25,11 @@ SRC_ROOT     = os.path.dirname(_THIS_DIR)
 PROJECT_ROOT = os.path.dirname(SRC_ROOT)
 sys.path.insert(0, SRC_ROOT)
 
-# Friend's feature extractor lives in BaseCheckClassifier/BaseCheckClassifierSimulation/
-BASECHK_SIM = os.path.join(SRC_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
-sys.path.insert(0, BASECHK_SIM)
+# Friend's feature extractor lives in src/BaseCheckClassifier/sdn/
+BCC_ROOT = os.path.join(SRC_ROOT, "BaseCheckClassifier")
+BCC_SDN  = os.path.join(BCC_ROOT, "sdn")
+sys.path.insert(0, BCC_ROOT)
+sys.path.insert(0, BCC_SDN)
 
 from DDLModel.ddl_model import DeepDictionaryLearning
 
@@ -99,7 +101,7 @@ def train_from_pcaps(pcap_dir, output_path, n_atoms_l1=64, n_atoms_l2=128,
     """
     Train DDL by extracting features from benign .pcap files.
     
-    Uses the feature extractor from BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/.
+    Uses the feature extractor from src/BaseCheckClassifier/sdn/extraction/.
     
     Args:
         pcap_dir: Directory containing benign .pcap files.

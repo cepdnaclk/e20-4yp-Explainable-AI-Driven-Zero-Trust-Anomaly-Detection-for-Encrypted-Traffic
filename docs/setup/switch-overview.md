@@ -183,7 +183,7 @@ python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 120
 # Terminal 2: Replay pre-recorded attack PCAPs (from another machine)
 # Requires: tcpreplay installed
 sudo tcpreplay --intf1=eth0 --multiplier=2 \
-    src/BaseCheckClassifier/BaseCheckClassifierSimulation/attack/*.pcap
+    src/BaseCheckClassifier/sdn/attack/*.pcap
 
 # Or use our simulated generator:
 python src/LiveTraffic/traffic_generator.py \

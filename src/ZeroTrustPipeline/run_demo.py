@@ -10,7 +10,7 @@ Demonstrates the full pipeline end-to-end:
 
 Usage (from project root):
     python -m ZeroTrustPipeline.run_demo
-    python -m ZeroTrustPipeline.run_demo --pcap-dir ./BaseCheckClassifier/BaseCheckClassifierSimulation/attack/ ./BaseCheckClassifier/BaseCheckClassifierSimulation/normal/
+    python -m ZeroTrustPipeline.run_demo --pcap-dir ./src/BaseCheckClassifier/sdn/attack/ ./src/BaseCheckClassifier/sdn/normal/
     python -m ZeroTrustPipeline.run_demo --files path/to/attack.pcap path/to/benign.pcap
 """
 
@@ -26,8 +26,10 @@ SRC_ROOT     = os.path.dirname(_THIS_DIR)
 PROJECT_ROOT = os.path.dirname(SRC_ROOT)
 sys.path.insert(0, SRC_ROOT)
 
-BASECHK_SIM = os.path.join(SRC_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
-sys.path.insert(0, BASECHK_SIM)
+BCC_ROOT = os.path.join(SRC_ROOT, "BaseCheckClassifier")
+BCC_SDN  = os.path.join(BCC_ROOT, "sdn")
+sys.path.insert(0, BCC_ROOT)
+sys.path.insert(0, BCC_SDN)
 
 from DDLModel.ddl_model import DeepDictionaryLearning
 from ZeroTrustPipeline.pipeline import ZeroTrustPipeline, FEATURE_NAMES
@@ -125,7 +127,7 @@ def collect_pcap_files(pcap_dirs=None, explicit_files=None):
                         pcap_list.append((path, label))
     
     else:
-        # Default: use pcap files from BaseCheckClassifierSimulation
+        # Default: use pcap files from src/BaseCheckClassifier/sdn
         defaults = [
             ("synthetic_attack.pcap", "Attack"),
             ("synthetic_benign.pcap", "Normal"),
@@ -135,7 +137,7 @@ def collect_pcap_files(pcap_dirs=None, explicit_files=None):
             ("normal/benign_2.pcap", "Normal"),
         ]
         for fname, label in defaults:
-            path = os.path.join(BASECHK_SIM, fname)
+            path = os.path.join(BCC_SDN, fname)
             if os.path.exists(path):
                 pcap_list.append((path, label))
     
@@ -195,7 +197,7 @@ def main():
 
     if not pcap_list:
         logger.error("No .pcap files found to process!")
-        logger.info("Hint: Place .pcap files in BaseCheckClassifier/BaseCheckClassifierSimulation/attack/ and normal/")
+        logger.info("Hint: Place .pcap files in src/BaseCheckClassifier/sdn/attack/ and normal/")
         sys.exit(1)
 
     print(f"\nCollected {len(pcap_list)} streams:")

@@ -138,7 +138,7 @@ sudo ping -f 10.0.0.2
 
 # Option B: Replay CIC-IDS-2017 attack PCAP
 sudo tcpreplay --intf1=eth0 --multiplier=1 \
-    src/BaseCheckClassifier/BaseCheckClassifierSimulation/attack/attack.pcap
+    src/BaseCheckClassifier/sdn/attack/attack.pcap
 
 # Option C: SYN flood simulation (requires hping3)
 sudo hping3 -S --flood -V -p 80 10.0.0.2

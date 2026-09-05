@@ -13,8 +13,8 @@ Full pipeline for encrypted traffic analysis in an SDN environment:
                                   └─ Anomaly → DROP + XAI Explanation Report
 
 Components (separate modules):
-  1. BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/feature_extractor.py
-  2. BaseCheckClassifier/BaseCheckClassifierSimulation/encryption/traffic_encryptor.py
+  1. BaseCheckClassifier/sdn/extraction/feature_extractor.py
+  2. BaseCheckClassifier/encryptor/traffic_encryptor.py
   3. DDLModel/ddl_model.py         — Deep Dictionary Learning
   4. XAIExplainer/explainer.py     — SHAP + DDL-native explanations
   5. SDNBuffer/sdn_buffer.py       — SDN buffer simulation
@@ -37,12 +37,14 @@ SRC_ROOT     = os.path.dirname(_THIS_DIR)
 PROJECT_ROOT = os.path.dirname(SRC_ROOT)
 sys.path.insert(0, SRC_ROOT)
 
-# Friend's modules live in BaseCheckClassifier/BaseCheckClassifierSimulation/
-BASECHK_SIM = os.path.join(SRC_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
-sys.path.insert(0, BASECHK_SIM)
+# Friend's modules live in src/BaseCheckClassifier/sdn/
+BCC_ROOT = os.path.join(SRC_ROOT, "BaseCheckClassifier")
+BCC_SDN  = os.path.join(BCC_ROOT, "sdn")
+sys.path.insert(0, BCC_ROOT)
+sys.path.insert(0, BCC_SDN)
 
 from extraction.feature_extractor import extract_features
-from encryption.traffic_encryptor import simulate_encryption_and_latency
+from encryptor.traffic_encryptor import simulate_encryption_and_latency
 from DDLModel.ddl_model import DeepDictionaryLearning
 from XAIExplainer.explainer import DDLExplainer
 from SDNBuffer.sdn_buffer import SDNBuffer
