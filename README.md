@@ -69,36 +69,36 @@ PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
 
 ---
 
-## Directory Structure
+## Repository Layout
 
 ```
-├── DDLModel/                # DDL model, training, feature extraction
-│   ├── ddl_model.py         # DeepDictionaryLearning class
-│   ├── ddl_feature_extractor.py  # 40-feature DDL extractor
-│   └── train_ddl_enhanced.py     # Training script (GPU/CPU)
-├── BaseCheckClassifier/     # BCC v2 feature extractor
-├── FullSDNPipeline/         # Full pipeline scripts
-│   ├── sdn_pipeline.py      # Main SDN pipeline
-│   ├── xai_explainer.py     # LIME + SHAP XAI
-│   ├── run_full_evaluation.py    # Comprehensive per-model testing
-│   ├── test_pipeline_csv.py      # CSV-based pipeline test
-│   ├── packet_shooter.py         # PCAP replay
-│   └── unified_feature_extractor.py  # Shared feature extraction
-├── models/                  # Trained model files
-│   ├── sentry_model_v2.pkl  # BCC v2
-│   ├── ddl_40feat.pkl       # DDL (40 features)
-│   └── isolation_forest.pkl # IF
-├── results/                 # Test results (generated)
-│   ├── summary.md
-│   ├── stage1_bcc/
-│   ├── stage2_ddl/
-│   ├── stage2_if/
-│   └── stage2_xai/
-├── dataset/                 # CIC-IDS-2017 CSV files
-├── docs/guides/quick-start.md           # Copy-paste commands
-├── docs/architecture/pipeline.md        # Detailed architecture
-├── docs/reports/training-results.md      # All test results
-└── docs/planning/demonstration-plan.md     # Demo procedure
+src/                        # All pipeline code
+├── DDLModel/               # Deep Dictionary Learning model, training, extractors
+├── BaseCheckClassifier/    # Stage 1 gatekeeper (BCC v2) and its SDN modules
+├── FullSDNPipeline/        # End-to-end pipeline, evaluation and PCAP replay
+├── EnhancedPipeline/       # IF second vote, dual XAI, REST API, dashboard
+├── ZeroTrustPipeline/      # Original zero-trust pipeline
+├── LiveTraffic/            # Live capture, replay and OpenFlow controller
+├── InlineBridgeDemo/       # Three-machine inline bridge demo
+├── XAIExplainer/           # LIME + SHAP explanations
+├── SDNBuffer/              # Flow buffering between the two stages
+└── profiling/              # Latency benchmarking
+
+docs/                       # All documentation (see docs/CONTENTS.md)
+├── guides/                 # How to run, test and reproduce
+├── architecture/           # Design notes
+├── setup/                  # GPU and switch setup
+├── reports/                # Results and supervisor reports
+├── planning/               # Workplan and demo plan
+└── index.html, images/     # Published project page
+
+tests/                      # Pipeline tests
+scripts/                    # Build and packaging scripts
+research/                   # Reference papers
+experiments/                # Archived early experiments
+dataset/                    # CIC-IDS-2017 CSVs (not committed)
+models/                     # Trained models (not committed)
+results/, logs/             # Generated output (not committed)
 ```
 
 ---
@@ -106,17 +106,20 @@ PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
 ## Quick Start
 
 ```bash
-cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/
-source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
+# From the repository root
+source /path/to/venv/bin/activate
 
-# Run full evaluation:
-PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH python FullSDNPipeline/run_full_evaluation.py
+# Run full evaluation
+python src/FullSDNPipeline/run_full_evaluation.py
 
-# View results:
+# View results
 cat results/summary.md
 ```
 
-See `docs/guides/quick-start.md` for full step-by-step guide.
+Every script derives the repository root from its own location, so it runs from
+anywhere. See [docs/guides/quick-start.md](docs/guides/quick-start.md) for the
+full walkthrough, and [docs/CONTENTS.md](docs/CONTENTS.md) for the complete
+documentation index.
 
 ---
 
