@@ -163,34 +163,43 @@ PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
 ## Repository Layout
 
 ```
-src/                        # All pipeline code
-├── DDLModel/               # Deep Dictionary Learning model, training, extractors
-├── BaseCheckClassifier/    # Stage 1 gatekeeper (BCC v2) and its SDN modules
-├── FullSDNPipeline/        # End-to-end pipeline, evaluation and PCAP replay
-├── EnhancedPipeline/       # IF second vote, dual XAI, REST API, dashboard
-├── ZeroTrustPipeline/      # Original zero-trust pipeline
-├── LiveTraffic/            # Live capture, replay and OpenFlow controller
-├── InlineBridgeDemo/       # Three-machine inline bridge demo
-├── XAIExplainer/           # LIME + SHAP explanations
-├── SDNBuffer/              # Flow buffering between the two stages
-└── profiling/              # Latency benchmarking
+src/                          # Approach 2 — the active pipeline
+├── DDLModel/                 # Deep Dictionary Learning model, training, extractors
+├── BaseCheckClassifier/      # Stage 1 gatekeeper (BCC v2) and its SDN modules
+├── FullSDNPipeline/          # End-to-end pipeline, evaluation and PCAP replay
+├── EnhancedPipeline/         # IF second vote, dual XAI, REST API, dashboard
+├── ZeroTrustPipeline/        # Original zero-trust pipeline
+├── LiveTraffic/              # Live capture, replay and OpenFlow controller
+├── InlineBridgeDemo/         # Three-machine inline bridge demo
+├── XAIExplainer/             # LIME + SHAP explanations
+├── SDNBuffer/                # Flow buffering between the two stages
+└── profiling/                # Latency benchmarking
 
-docs/                       # All documentation (see docs/CONTENTS.md)
-├── guides/                 # How to run, test and reproduce
-├── architecture/           # Design notes
-├── setup/                  # GPU and switch setup
-├── reports/                # Results and supervisor reports
-├── planning/               # Workplan and demo plan
-└── index.html, images/     # Published project page
+experiments/                  # Approach 1 — BCCC Darknet, archived
+├── BCCCDarknetPipeline/      # Script form: IF + Autoencoder -> pseudo-labels -> RF
+├── DataPreprocessing/        # Notebook form of the same pseudo-labelling
+├── pipeline/                 # RF notebooks (01 preprocessing -> 02 RF -> 03 SHAP)
+└── RANDOMFORESTImplementation/   # Standalone RF implementation
 
-tests/                      # Pipeline tests
-scripts/                    # Build and packaging scripts
-research/                   # Reference papers
-experiments/                # Archived early experiments
-dataset/                    # CIC-IDS-2017 CSVs (not committed)
-models/                     # Trained models (not committed)
-results/, logs/             # Generated output (not committed)
+docs/                         # All documentation (see docs/CONTENTS.md)
+├── guides/                   # How to run, test and reproduce
+├── architecture/             # Design notes
+├── setup/                    # GPU and switch setup
+├── reports/                  # Results and supervisor reports
+├── planning/                 # Workplan and demo plan
+├── LitreatureReview/         # Reference material for the review
+└── index.html, images/, data/, _config.yml   # Published project page
+
+tests/                        # Pipeline tests
+scripts/                      # Build and packaging scripts
+research/                     # Reference papers
+dataset/                      # CIC-IDS-2017 CSVs (not committed)
+models/                       # Trained models (not committed)
+results/, logs/               # Generated output (not committed)
 ```
+
+Datasets and trained models are gitignored — every `*.csv`, `dataset/`, `models/*.pkl`,
+`results/` and `logs/` is reproduced by running the pipelines, not pulled from git.
 
 ---
 
@@ -199,18 +208,33 @@ results/, logs/             # Generated output (not committed)
 ```bash
 # From the repository root
 source /path/to/venv/bin/activate
+```
 
-# Run full evaluation
+**Approach 2 — the active pipeline**
+
+```bash
 python src/FullSDNPipeline/run_full_evaluation.py
-
-# View results
 cat results/summary.md
 ```
 
-Every script derives the repository root from its own location, so it runs from
-anywhere. See [docs/guides/quick-start.md](docs/guides/quick-start.md) for the
-full walkthrough, and [docs/CONTENTS.md](docs/CONTENTS.md) for the complete
-documentation index.
+**Approach 1 — BCCC Darknet**
+
+```bash
+cd experiments/BCCCDarknetPipeline
+pip install -r requirements.txt
+
+python src/main.py         # stage 1 — plots only, writes nothing
+python src/main2.py        # stage 2 — writes the high-confidence CSV
+python src/supervised.py   # stage 3 — prints the evaluation
+```
+
+Run those three in order: stage 3 reads what stage 2 writes. The input dataset is not in
+git — see [`experiments/BCCCDarknetPipeline/data/README.md`](experiments/BCCCDarknetPipeline/data/README.md)
+for what each file is and where it comes from.
+
+Every script derives the repository root from its own location, so it runs from anywhere.
+See [docs/guides/quick-start.md](docs/guides/quick-start.md) for the full walkthrough and
+[docs/CONTENTS.md](docs/CONTENTS.md) for the documentation index.
 
 ---
 
@@ -232,7 +256,8 @@ documentation index.
 
 ## References
 
-- **Dataset**: CIC-IDS-2017 (Canadian Institute for Cybersecurity)
+- **Dataset (Approach 1)**: BCCC Darknet flow export — 25,538 flows, 475 features
+- **Dataset (Approach 2)**: CIC-IDS-2017 (Canadian Institute for Cybersecurity)
 - **DDL**: Deep Dictionary Learning for anomaly detection
 - **LIME**: Ribeiro et al., "Why Should I Trust You?" (KDD 2016)
 - **SHAP**: Lundberg & Lee, "A Unified Approach to Interpreting Model Predictions" (NeurIPS 2017)
