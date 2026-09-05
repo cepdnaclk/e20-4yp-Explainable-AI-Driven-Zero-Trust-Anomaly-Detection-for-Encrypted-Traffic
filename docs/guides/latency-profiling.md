@@ -1,7 +1,3 @@
-# TIMING_GUIDE.md — How to Benchmark and Interpret Pipeline Latency
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # Timing & Latency Benchmarking Guide
 
 This guide explains how to measure per-stage latency for the Zero-Trust

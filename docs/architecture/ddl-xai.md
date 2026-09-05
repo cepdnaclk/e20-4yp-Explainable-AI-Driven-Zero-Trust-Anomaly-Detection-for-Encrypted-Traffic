@@ -1,7 +1,3 @@
-# DDL + XAI + Buffer — Full Technical Insight Document
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # DDL + XAI + SDN Buffer — Deep Technical Insight
 
 ## Purpose of This Document

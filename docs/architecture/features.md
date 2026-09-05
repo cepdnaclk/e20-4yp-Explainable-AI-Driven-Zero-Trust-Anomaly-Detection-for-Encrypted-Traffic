@@ -1,7 +1,3 @@
-# docs/architecture/features.md — Why Different Feature Sets for DT vs DDL
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # Feature Set Analysis: 15 DT Features vs 30 DDL Features
 
 ## Summary

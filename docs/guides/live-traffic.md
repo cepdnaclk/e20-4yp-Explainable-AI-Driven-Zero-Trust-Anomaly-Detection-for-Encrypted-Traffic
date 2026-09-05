@@ -1,7 +1,3 @@
-# docs/LIVE_TRAFFIC_GUIDE.md — All Ways to Simulate Live Traffic
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # Live Traffic Guide — All Methods
 
 This guide covers every method available to test the pipeline with live or

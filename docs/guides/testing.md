@@ -1,4 +1,4 @@
-# TESTING_GUIDE.md — Testing the Zero-Trust Pipeline with Real and Simulated Traffic
+# Testing Guide — Real and Simulated Traffic
 **Enhanced Pipeline | University of Peradeniya**
 
 ---

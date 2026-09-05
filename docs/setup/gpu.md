@@ -1,7 +1,3 @@
-# docs/setup/gpu.md — PyTorch + CUDA Setup for GPU-Accelerated DDL Training
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # GPU Setup Guide — RTX 6000 Ada + PyTorch CUDA
 
 The server has 3× NVIDIA RTX 6000 Ada Generation GPUs (49GB VRAM each).

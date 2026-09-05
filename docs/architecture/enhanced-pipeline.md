@@ -1,4 +1,3 @@
-# EnhancedPipeline/docs/ARCHITECTURE.md
 # Enhanced DDL+XAI Pipeline Architecture
 **Proposed Improvement | Zero-Trust Anomaly Detection | University of Peradeniya**
 

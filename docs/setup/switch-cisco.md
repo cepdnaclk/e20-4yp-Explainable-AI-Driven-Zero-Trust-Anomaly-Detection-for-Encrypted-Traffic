@@ -1,7 +1,3 @@
-# CISCO_SWITCH_SETUP.md — Cisco IOS/IOS-XE SPAN Port Configuration
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # Cisco IOS/IOS-XE SPAN Port Configuration Guide
 
 **Purpose:** Mirror all traffic from one or more switch ports to the **laptop

@@ -1,8 +1,3 @@
-# EnhancedPipeline/docs/SWITCH_SETUP.md
-# Physical Switch Setup for the Enhanced Pipeline
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # Physical Switch Setup — Enhanced Pipeline
 
 This document describes how to wire up the physical switch so live traffic

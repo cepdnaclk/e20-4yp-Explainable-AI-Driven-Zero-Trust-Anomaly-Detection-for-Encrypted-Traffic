@@ -1,4 +1,4 @@
-# SWITCH_SETUP_GUIDE.md — Physical Switch Setup for Live Traffic Demo
+# Physical Switch Setup for the Live Traffic Demo
 **Zero-Trust Anomaly Detection | University of Peradeniya**
 
 > This guide covers how to connect the SDN pipeline machine to a **physical switch's mirror port** to capture and process live encrypted network traffic.

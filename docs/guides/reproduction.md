@@ -1,7 +1,3 @@
-# docs/REPRODUCTION_GUIDE.md — Complete Step-by-Step Reproducibility Guide
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith — Updated 2026-03-05
-
 # Complete Reproduction Guide
 
 This guide enables anyone to reproduce the full Zero-Trust XAI Anomaly

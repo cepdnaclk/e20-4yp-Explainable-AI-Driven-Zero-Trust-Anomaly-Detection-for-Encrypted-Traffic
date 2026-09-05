@@ -1,7 +1,3 @@
-# HP_SWITCH_SETUP.md — HP ProCurve / Aruba Mirroring Configuration
-# Zero-Trust XAI Anomaly Detection | University of Peradeniya
-# e20420Janith
-
 # HP ProCurve / Aruba Switch — Port Mirroring Setup Guide
 
 **Purpose:** Configure port mirroring on an HP ProCurve (legacy CLI) or
