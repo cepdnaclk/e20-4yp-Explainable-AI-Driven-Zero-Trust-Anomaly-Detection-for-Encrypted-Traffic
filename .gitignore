@@ -62,3 +62,8 @@ logs/
 BaseCheckClassifier/packet_classifier/venv/
 BaseCheckClassifier/packet_classifier/__pycache__/
 
+
+# Build output and scratch files
+*.tar.gz
+nohup.out
+simulation_log.json
