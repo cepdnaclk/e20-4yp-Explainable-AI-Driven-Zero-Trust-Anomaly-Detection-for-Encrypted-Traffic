@@ -11,3 +11,13 @@ kramdown:
   syntax_highlighter_opts:
     block:
       line_numbers: false
+
+# Project documentation lives here too, but it is not part of the
+# published project page — keep Jekyll out of it.
+exclude:
+  - architecture/
+  - guides/
+  - planning/
+  - reports/
+  - setup/
+  - CONTENTS.md
