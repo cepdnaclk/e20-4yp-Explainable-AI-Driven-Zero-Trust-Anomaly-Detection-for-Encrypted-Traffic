@@ -1,7 +1,14 @@
 # Explainable AI-Driven Zero-Trust Anomaly Detection for Encrypted Traffic
 
-**University of Peradeniya — e20420Janith**
-**CIC-IDS-2017 Dataset | SDN Pipeline**
+**Department of Computer Engineering, University of Peradeniya**
+
+| Team | Index | Email |
+|---|---|---|
+| Chalaka Perera | E/20/288 | e20288@eng.pdn.ac.lk |
+| Janith Wanasinghe | E/20/420 | e20420@eng.pdn.ac.lk |
+| Sandaru Wijewardhana | E/20/449 | e20449@eng.pdn.ac.lk |
+
+Supervised by Dr. Suneth Namal Karunarathna and Dr. Upul Jayasinghe.
 
 ---
 
