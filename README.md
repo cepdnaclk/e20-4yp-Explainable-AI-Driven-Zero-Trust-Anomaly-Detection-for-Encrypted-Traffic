@@ -14,7 +14,91 @@ Supervised by Dr. Suneth Namal Karunarathna and Dr. Upul Jayasinghe.
 
 ## Overview
 
-This system implements a **two-stage anomaly detection pipeline** for Software-Defined Networks (SDN), using a lightweight Decision Tree as the first filter and Deep Dictionary Learning (DDL) + Isolation Forest with dual XAI (LIME + SHAP) as the second stage.
+Encrypted traffic hides its payload, so a detector has to judge a flow by its **shape** —
+timing, packet sizes, flag counts — instead of by what is inside it. The project attacked
+that problem twice, on two different datasets. Both lines are kept in this repository.
+
+| | **Approach 1 — BCCC Darknet** | **Approach 2 — CIC-IDS-2017** |
+|---|---|---|
+| **Starting problem** | dataset has no anomaly label | dataset is labelled |
+| **Method** | Isolation Forest + Autoencoder consensus → pseudo-labels → Random Forest | Decision Tree gate → DDL + Isolation Forest → dual XAI |
+| **Explainability** | SHAP | LIME + SHAP |
+| **Runs** | offline, in batch | inline, in a live SDN data path |
+| **Status** | earlier line, archived | active |
+| **Code** | [`experiments/`](experiments/) | [`src/`](src/) |
+
+Approach 1 came first and answered *"can we detect anomalies at all when nobody has
+labelled them?"* Approach 2 took that answer inline and made it fast enough to sit in a
+switch's data path.
+
+---
+
+## Approach 1 — BCCC Darknet (semi-supervised)
+
+> **Status: archived.** Kept for reproducibility and for the write-up. Code lives in
+> [`experiments/BCCCDarknetPipeline/`](experiments/BCCCDarknetPipeline), with the notebook
+> form of the same idea in [`experiments/DataPreprocessing/`](experiments/DataPreprocessing)
+> and [`experiments/pipeline/`](experiments/pipeline).
+
+### The problem it solves
+
+BCCC Darknet ships with an `Encrypted` / `Non-Encrypted` label. That says **what the traffic
+is**, not **whether it is unusual** — so there is nothing to train an anomaly detector on.
+Rather than assume a label, the pipeline manufactures one:
+
+1. Run two unsupervised detectors that fail in different ways.
+2. Keep only the flows they **both** agree on, and throw the rest away.
+3. Train a supervised classifier on what survives.
+
+Agreement is the confidence signal. A flow that only one detector flags is exactly the
+borderline case that would poison a supervised model, so it never reaches stage 3.
+
+### The three stages
+
+| Script | Role |
+|---|---|
+| `src/main.py` | Isolation Forest + Autoencoder over the raw flows, with a PCA scatter showing where the two detectors agree and where they diverge. Exploratory — writes no files. |
+| `src/main2.py` | The same ensemble, tuned (300 trees, a deeper 128-64-32-64-128 autoencoder) and turned into a labelling pass. Emits `pseudo_label` and drops the disputed rows. |
+| `src/supervised.py` | Random Forest on the surviving high-confidence rows. Reports precision/recall, confusion matrix and ROC-AUC. |
+
+`main.py` is the look-around step and `main2.py` is the one that produces data, so they
+overlap on purpose — the first exists to justify the thresholds the second one uses. Both
+detectors cut at 5% contamination / the 95th percentile, so each flags roughly 1 flow in 20
+on its own.
+
+### Results
+
+| | Flows |
+|---|---:|
+| Input | 25,538 |
+| Dropped as disputed | 1,436 (5.6%) |
+| **Kept as high-confidence** | **24,102 (94.4%)** |
+| — labelled anomalous | 559 |
+| — labelled normal | 23,543 |
+
+The agreement rule is far stricter than either detector on its own, which is the point. The
+anomaly set also does not line up with the dataset's own encryption label — 344 of the 559
+are `Encrypted` and 215 are not. That is the expected result: the ensemble keys on flow
+shape, not on whether the payload happens to be encrypted.
+
+### Preprocessing
+
+Identical across all three scripts, and it matters more than the model choice:
+
+- numeric columns only, so `flow_id`, `src_ip` and friends cannot leak identity into the model
+- `inf` / `-inf` → `NaN`, then `NaN` → the column median
+- clip to ±1e6 so the autoencoder's backprop stays numerically stable
+- `StandardScaler` on everything
+
+---
+
+## Approach 2 — CIC-IDS-2017 (two-stage SDN pipeline)
+
+> **Status: active.** Code lives in [`src/`](src/).
+
+A **two-stage anomaly detection pipeline** for Software-Defined Networks (SDN), using a
+lightweight Decision Tree as the first filter and Deep Dictionary Learning (DDL) + Isolation
+Forest with dual XAI (LIME + SHAP) as the second stage.
 
 ### Why Two Stages?
 
@@ -26,7 +110,7 @@ Traditional IDS approaches use a single model, which creates a trade-off: fast b
 
 ---
 
-## Pipeline Architecture
+### Pipeline Architecture
 
 ```
 PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
@@ -54,7 +138,7 @@ PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
 
 ---
 
-## Models
+### Models
 
 | Model | Role | Features | Type | Training |
 |-------|------|----------|------|----------|
@@ -64,7 +148,7 @@ PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
 
 ---
 
-## Key Results
+### Key Results
 
 | Model | Precision | Recall | FPR | Latency |
 |-------|:---------:|:------:|:---:|:-------:|
