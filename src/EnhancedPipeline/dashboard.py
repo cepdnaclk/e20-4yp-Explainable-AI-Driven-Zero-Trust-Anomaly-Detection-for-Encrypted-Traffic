@@ -31,8 +31,9 @@ from typing import Optional, List, Dict
 
 # ── Path setup ────────────────────────────────────────────────────────────────
 _THIS_DIR    = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(_THIS_DIR)
-sys.path.insert(0, PROJECT_ROOT)
+SRC_ROOT     = os.path.dirname(_THIS_DIR)
+PROJECT_ROOT = os.path.dirname(SRC_ROOT)
+sys.path.insert(0, SRC_ROOT)
 
 try:
     import streamlit as st

@@ -18,7 +18,8 @@ from typing import Optional
 
 # ── Project root (two levels up from this file) ──────────────────────────────
 _EP_DIR      = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(_EP_DIR)
+SRC_ROOT     = os.path.dirname(_EP_DIR)
+PROJECT_ROOT = os.path.dirname(SRC_ROOT)
 DATASET_DIR  = os.path.join(PROJECT_ROOT, "dataset")
 MODEL_DIR    = os.path.join(PROJECT_ROOT, "models")
 

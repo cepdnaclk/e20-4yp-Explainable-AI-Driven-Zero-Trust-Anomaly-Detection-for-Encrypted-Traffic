@@ -32,8 +32,9 @@ from datetime import datetime, timezone
 from typing import List, Tuple
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-sys.path.insert(0, PROJECT_ROOT)
+SRC_ROOT     = os.path.dirname(SCRIPT_DIR)
+PROJECT_ROOT = os.path.dirname(SRC_ROOT)
+sys.path.insert(0, SRC_ROOT)
 sys.path.insert(0, SCRIPT_DIR)
 
 from sdn_pipeline import FullSDNPipeline

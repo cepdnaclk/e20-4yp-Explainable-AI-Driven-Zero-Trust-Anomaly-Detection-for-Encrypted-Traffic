@@ -17,10 +17,11 @@ import logging
 # ── Path setup ──
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(_THIS_DIR)
-sys.path.insert(0, PROJECT_ROOT)
+SRC_ROOT     = os.path.join(PROJECT_ROOT, "src")
+sys.path.insert(0, SRC_ROOT)
 
 # Friend's modules
-BASECHK_SIM = os.path.join(PROJECT_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
+BASECHK_SIM = os.path.join(SRC_ROOT, "BaseCheckClassifier", "BaseCheckClassifierSimulation")
 sys.path.insert(0, BASECHK_SIM)
 
 from DDLModel.ddl_model import DeepDictionaryLearning

@@ -64,8 +64,9 @@ from typing import Optional, List, Tuple, Dict
 import numpy as np
 
 _THIS_DIR    = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(_THIS_DIR)
-sys.path.insert(0, PROJECT_ROOT)
+SRC_ROOT     = os.path.dirname(_THIS_DIR)
+PROJECT_ROOT = os.path.dirname(SRC_ROOT)
+sys.path.insert(0, SRC_ROOT)
 
 from DDLModel.ddl_model import DeepDictionaryLearning
 from DDLModel.ddl_feature_extractor import DDLFeatureExtractor, DDL_FEATURE_NAMES
