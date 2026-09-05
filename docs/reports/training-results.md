@@ -165,7 +165,7 @@ Both DDL and IF decisions are explained by dual XAI:
 
 **Source:** CIC-IDS-2017 All 5 Days — 702,007 labeled PCAP flows (DDoS, PortScan, Bot, BENIGN)
 **Architecture:** Modular extractors — BCC(28-feat) → DDL+IF(40-feat) with smart consensus + LIME XAI
-**Script:** `FullSDNPipeline/full_pipeline_simulation.py`
+**Script:** `src/FullSDNPipeline/full_pipeline_simulation.py`
 
 ### Per-Model Performance on PCAP Data
 
@@ -243,7 +243,7 @@ IF-LIME:  pkt_len_variance=0 (-0.049), bwd_iat_std=0 (-0.044)
 cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-.../
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
-    python3 FullSDNPipeline/full_pipeline_simulation.py --limit 5000 --xai-sample 10
+    python3 src/FullSDNPipeline/full_pipeline_simulation.py --limit 5000 --xai-sample 10
 # Results: results/pcap_results/full_pipeline_results.md
 ```
 
@@ -270,7 +270,7 @@ cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-D
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # Run full evaluation (generates results/ folder)
-PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH python FullSDNPipeline/run_full_evaluation.py
+PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH python src/FullSDNPipeline/run_full_evaluation.py
 
 # View results
 cat results/summary.md

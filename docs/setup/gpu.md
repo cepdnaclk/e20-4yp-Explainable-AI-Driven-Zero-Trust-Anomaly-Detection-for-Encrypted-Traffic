@@ -58,7 +58,7 @@ cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-D
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # Full training with GPU (150 epochs, 1.68M samples):
-nohup python DDLModel/train_ddl_enhanced.py \
+nohup python src/DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
     --ddl-output models/ddl_40feat.pkl \

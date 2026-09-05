@@ -25,7 +25,7 @@ ls -lh models/ddl_40feat.pkl models/isolation_forest.pkl
 apptainer exec --nv \
     /scratch1/e20-fyp-xai-anomaly-detection/pytorch_2.4.0-cuda12.4-cudnn9-runtime.sif \
     bash -c "pip install --quiet pandas scikit-learn joblib && \
-    python DDLModel/train_ddl_enhanced.py \
+    python src/DDLModel/train_ddl_enhanced.py \
         --train dataset/TRAIN_Traffic.csv \
         --test  dataset/TEST_Traffic.csv \
         --epochs 150 --gpu --batch-size 512" \
@@ -39,7 +39,7 @@ apptainer exec --nv \
 ```bash
 # Tests BCC, DDL, IF separately + full pipeline + XAI explanations
 PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH \
-    python FullSDNPipeline/run_full_evaluation.py --max-rows 50000
+    python src/FullSDNPipeline/run_full_evaluation.py --max-rows 50000
 
 # View results:
 cat results/summary.md
@@ -56,7 +56,7 @@ pip install --target /tmp/dpkt_pkg dpkt
 
 # Run on 128 labeled Friday flows:
 PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
-    python FullSDNPipeline/run_pcap_evaluation.py
+    python src/FullSDNPipeline/run_pcap_evaluation.py
 
 # View PCAP-specific results:
 cat results/pcap_results/pcap_summary.md
@@ -69,7 +69,7 @@ cat results/pcap_results/pcap_summary.md
 ## Step 5: Run Pipeline Demo (quick verification)
 
 ```bash
-python FullSDNPipeline/sdn_pipeline.py --demo --n-flows 50
+python src/FullSDNPipeline/sdn_pipeline.py --demo --n-flows 50
 ```
 
 ---
@@ -78,12 +78,12 @@ python FullSDNPipeline/sdn_pipeline.py --demo --n-flows 50
 
 ```bash
 # Friday PCAPs (DDoS, PortScan, Bot):
-python FullSDNPipeline/sdn_pipeline.py \
+python src/FullSDNPipeline/sdn_pipeline.py \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
     --limit 500 --output logs/friday_results.json
 
 # Packet Shooter (real timing):
-python FullSDNPipeline/packet_shooter.py \
+python src/FullSDNPipeline/packet_shooter.py \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
     --rate-multiplier 1.0 --limit 500
 ```
@@ -108,7 +108,7 @@ python FullSDNPipeline/packet_shooter.py \
 | Problem | Fix |
 |---------|-----|
 | `No module named 'pandas'` in Apptainer | Already in training command: `pip install pandas scikit-learn joblib` |
-| `can't open file 'DDLModel/...'` | Wrong directory — `cd` to project root |
+| `can't open file 'src/DDLModel/...'` | Wrong directory — `cd` to project root |
 | `ddl_40feat.pkl not found` | Run Step 2 (Training) |
 | `No module named 'lime'` | `pip install --target /tmp/lime_pkg lime` |
 | `CUDA not available` | Use `--nv` flag with apptainer |

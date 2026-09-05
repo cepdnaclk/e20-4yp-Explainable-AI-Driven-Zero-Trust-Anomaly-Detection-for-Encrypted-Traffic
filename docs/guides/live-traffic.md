@@ -12,7 +12,7 @@ Generates synthetic NFStream-like flow objects in Python.
 **Use when:** No switch, no PCAP files, just testing the pipeline logic.
 
 ```bash
-python LiveTraffic/live_pipeline.py --demo --duration 60
+python src/LiveTraffic/live_pipeline.py --demo --duration 60
 ```
 
 Expected output:
@@ -35,7 +35,7 @@ Ground truth available from folder names (Row_X_BENIGN, Row_X_DDoS, etc.)
 
 ```bash
 # Friday (DDoS + Bot + PortScan + BENIGN):
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
     --mode labeled \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
     --ddl-model models/ddl_40feat.pkl \
@@ -44,7 +44,7 @@ python LiveTraffic/pcap_replay_pipeline.py \
 
 # All days (takes ~30min for full Friday's 122k flows):
 for day in Monday Tuesday Wednesday Thursday Friday; do
-    python LiveTraffic/pcap_replay_pipeline.py \
+    python src/LiveTraffic/pcap_replay_pipeline.py \
         --mode labeled \
         --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/$day \
         --ddl-model models/ddl_40feat.pkl \
@@ -64,14 +64,14 @@ mixed traffic — normal business hours traffic mixed with attacks.
 
 ```bash
 # Friday (attacks 10:02–11:15am + normal):
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-WorkingHours.pcap \
     --ddl-model models/ddl_40feat.pkl \
     --output logs/fullday_friday.json
 
 # Monday (all BENIGN — to verify false positive rate):
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Monday-WorkingHours.pcap \
     --ddl-model models/ddl_40feat.pkl \
@@ -100,7 +100,7 @@ sudo tcpreplay \
     /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-WorkingHours.pcap
 
 # Meanwhile, on Laptop B (pipeline machine):
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --ddl_model models/ddl_40feat.pkl \
     --duration 600
@@ -117,11 +117,11 @@ needing the full PCAP files. Good for demo.
 
 ```bash
 # Generate PCAPs (no root needed):
-python LiveTraffic/traffic_generator.py \
+python src/LiveTraffic/traffic_generator.py \
     --mode normal --count 30 --output /tmp/demo_normal.pcap
-python LiveTraffic/traffic_generator.py \
+python src/LiveTraffic/traffic_generator.py \
     --mode attack --count 20 --output /tmp/demo_attack.pcap
-python LiveTraffic/traffic_generator.py \
+python src/LiveTraffic/traffic_generator.py \
     --mode borderline --count 10 --output /tmp/demo_borderline.pcap
 
 # View in Wireshark:
@@ -148,14 +148,14 @@ sudo ip link set eth1 promisc on
 sudo tcpdump -i eth1 -n -c 10
 
 # Step 3: Start pipeline on mirror port
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --ddl_model models/ddl_40feat.pkl \
     --duration 300
 
 # Step 4 (optional): Connect to REST API
-python EnhancedPipeline/rest_api.py --port 5001 &
-python LiveTraffic/live_pipeline.py \
+python src/EnhancedPipeline/rest_api.py --port 5001 &
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --ddl_model models/ddl_40feat.pkl \
     --api http://localhost:5001 \
@@ -191,7 +191,7 @@ python LiveTraffic/live_pipeline.py \
 
 For DDoS testing, reduce `idle_timeout=5` to get flow decisions faster:
 ```bash
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --idle_timeout 5 \
     --ddl_model models/ddl_40feat.pkl

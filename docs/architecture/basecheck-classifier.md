@@ -9,7 +9,7 @@ The system is modularized into a standalone **Encryptor** and an **SDN (Software
 
 ## 2. File Structure Guide
 
-### `BaseCheckClassifier/` (System Logic)
+### `src/BaseCheckClassifier/` (System Logic)
 The core logic for traffic inspection and the SDN simulation environment.
 
 | Directory/File | Purpose |

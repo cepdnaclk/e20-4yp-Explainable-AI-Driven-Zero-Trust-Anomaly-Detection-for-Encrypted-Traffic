@@ -126,7 +126,7 @@ Attack        8,806   1,440
 
 **Test:** 702,007 CIC-IDS-2017 labeled PCAP flows (all 5 days, 523,533 valid streams)
 **Architecture:** Modular extractors — BCC(28-feat) → DDL+IF(40-feat) + LIME XAI
-**Script:** `FullSDNPipeline/full_pipeline_simulation.py`
+**Script:** `src/FullSDNPipeline/full_pipeline_simulation.py`
 
 | Metric | Value | Interpretation |
 |--------|:-----:|---------------|
@@ -233,11 +233,11 @@ source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # CSV evaluation (50K flows, ~30 seconds):
 PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH \
-    python FullSDNPipeline/run_full_evaluation.py --max-rows 50000
+    python src/FullSDNPipeline/run_full_evaluation.py --max-rows 50000
 
 # End-to-end PCAP evaluation (5K flows, ~15 minutes):
 PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
-    python FullSDNPipeline/run_pcap_evaluation.py --max-flows 5000
+    python src/FullSDNPipeline/run_pcap_evaluation.py --max-flows 5000
 
 # View results:
 cat results/summary.md

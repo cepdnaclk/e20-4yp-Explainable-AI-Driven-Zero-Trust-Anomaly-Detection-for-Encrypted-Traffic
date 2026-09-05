@@ -26,10 +26,10 @@ Timing results provide concrete numbers for these claims.
 cd e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-python -m profiling.latency_benchmark --n_flows 500 --output profiling/results/
+PYTHONPATH=src python -m profiling.latency_benchmark --n_flows 500 --output results/profiling/
 ```
 
-Output files in `profiling/results/`:
+Output files in `results/profiling/`:
 ```
 latency_cdf.png           ← CDF of per-flow end-to-end latency
 per_stage_box.png         ← Box plot of latency per pipeline stage
@@ -39,19 +39,19 @@ timing_summary.json       ← Raw numbers (mean, p50, p95, p99, max)
 ### Extended Benchmark (1000 flows, with SHAP enabled)
 
 ```bash
-python -m profiling.latency_benchmark \
+PYTHONPATH=src python -m profiling.latency_benchmark \
     --n_flows 1000 \
     --enable_shap \
-    --output profiling/results/extended/
+    --output results/profiling/extended/
 ```
 
 ### Live Traffic Profiling (on real captured data)
 
 ```bash
-python -m profiling.timing_profiler \
+PYTHONPATH=src python -m profiling.timing_profiler \
     --mode pcap \
     --input /path/to/captured.pcap \
-    --output profiling/results/live/
+    --output results/profiling/live/
 ```
 
 ---
@@ -142,21 +142,21 @@ Run this the night before the demo so charts are ready:
 ```bash
 cd e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic/
 
-python -m profiling.latency_benchmark \
+PYTHONPATH=src python -m profiling.latency_benchmark \
     --n_flows 200 \
-    --output profiling/results/demo/ \
+    --output results/profiling/demo/ \
     --enable_shap
 
 # Verify PNG files exist:
-ls -lh profiling/results/demo/
+ls -lh results/profiling/demo/
 # Should have: latency_cdf.png, per_stage_box.png, timing_summary.json
 ```
 
 Then during the demo:
 ```bash
 # Display the charts directly:
-eog profiling/results/demo/latency_cdf.png &
-eog profiling/results/demo/per_stage_box.png &
+eog results/profiling/demo/latency_cdf.png &
+eog results/profiling/demo/per_stage_box.png &
 ```
 
 ---
@@ -166,7 +166,7 @@ eog profiling/results/demo/per_stage_box.png &
 For paper writeups, save the raw JSON:
 
 ```bash
-cat profiling/results/demo/timing_summary.json
+cat results/profiling/demo/timing_summary.json
 ```
 
 Sample JSON structure:

@@ -3,7 +3,7 @@
 
 > **Purpose:** This folder contains a proposed improved architecture that adds an Isolation Forest second-opinion vote, adaptive mutual-information feature selection, SHAP+LIME dual explanations, a REST API for switch integration, and a Streamlit monitoring dashboard.
 >
-> The original ZeroTrustPipeline/ is kept unchanged — this is an alternative implementation.
+> The original src/ZeroTrustPipeline/ is kept unchanged — this is an alternative implementation.
 
 ---
 
@@ -122,7 +122,7 @@ See `rest_api.py` for full implementation.
 
 ## Configuration
 
-All parameters in `EnhancedPipeline/config.py`:
+All parameters in `src/EnhancedPipeline/config.py`:
 
 ```python
 DDL_N_FEATURES     = 30          # Use ddl_feature_extractor.py

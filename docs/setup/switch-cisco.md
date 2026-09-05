@@ -169,11 +169,11 @@ cd ~/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # Start live pipeline on mirror port (replace eth1 with your NIC name):
-python LiveTraffic/live_pipeline.py --interface eth1 --duration 300
+python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 300
 
 # Or start Enhanced Pipeline REST API and point live_pipeline at it:
-python EnhancedPipeline/rest_api.py --port 5001 &
-python LiveTraffic/live_pipeline.py --interface eth1 --api http://localhost:5001
+python src/EnhancedPipeline/rest_api.py --port 5001 &
+python src/LiveTraffic/live_pipeline.py --interface eth1 --api http://localhost:5001
 ```
 
 ---
@@ -205,5 +205,5 @@ show monitor session 1
 # On laptop:
 sudo ip link set eth1 promisc on
 sudo tcpdump -i eth1 -n -c 10           # verify capture
-python LiveTraffic/live_pipeline.py --interface eth1 --duration 300
+python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 300
 ```

@@ -103,10 +103,10 @@ packet distribution, which is what the reconstructive model needs.
 Physical capture (NFStream)
         │
         ├──[15 DT features]──► BaseCheckClassifier (teammate's code)
-        │   Extracted by: BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/
+        │   Extracted by: src/BaseCheckClassifier/BaseCheckClassifierSimulation/extraction/
         │
         └──[40 DDL features]──► Enhanced Pipeline (e20420Janith)
-            Extracted by: DDLModel/ddl_feature_extractor.py
+            Extracted by: src/DDLModel/ddl_feature_extractor.py
             - from_nfstream()   — for live NFStream flows
             - from_dict()       — for dict from teammate's extractor
             - from_ordered_list() — for CSV-sourced training data

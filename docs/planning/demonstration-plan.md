@@ -23,7 +23,7 @@ Shows all model results + XAI explanations in one run.
 
 ```bash
 PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH \
-    python FullSDNPipeline/run_full_evaluation.py --max-rows 50000 --xai-samples 5
+    python src/FullSDNPipeline/run_full_evaluation.py --max-rows 50000 --xai-samples 5
 
 # Show results
 cat results/summary.md
@@ -43,7 +43,7 @@ cat results/stage2_xai/xai_summary.md
 Quick pipeline demo with generated flows.
 
 ```bash
-python FullSDNPipeline/sdn_pipeline.py --demo --n-flows 50
+python src/FullSDNPipeline/sdn_pipeline.py --demo --n-flows 50
 ```
 
 **What to show:**
@@ -59,7 +59,7 @@ Uses real CIC-IDS-2017 labeled PCAPs.
 
 ```bash
 # Friday (DDoS, PortScan, Bot attacks):
-python FullSDNPipeline/sdn_pipeline.py \
+python src/FullSDNPipeline/sdn_pipeline.py \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
     --limit 200 --output logs/pcap_friday.json
 
@@ -74,7 +74,7 @@ cat logs/pcap_friday.json | python3 -m json.tool | head -30
 Replays PCAPs with realistic timing.
 
 ```bash
-python FullSDNPipeline/packet_shooter.py \
+python src/FullSDNPipeline/packet_shooter.py \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
     --rate-multiplier 1.0 --limit 100
 ```
@@ -87,7 +87,7 @@ See `docs/setup/switch-overview.md` for switch configuration.
 
 ```bash
 sudo ip link set eth1 promisc on
-python LiveTraffic/live_pipeline.py --interface eth1 --duration 300
+python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 300
 ```
 
 ---

@@ -8,10 +8,10 @@
 | Test | Command | Time |
 |------|---------|------|
 | Existing pipeline (27 tests) | `python -m tests.test_pipeline` | ~30s |
-| DDL feature extractor smoke test | `python DDLModel/ddl_feature_extractor.py` | <1s |
-| Timing profiler (synthetic) | `python -m profiling.timing_profiler --n_samples 200` | ~20s |
-| Latency benchmark + plots | `python -m profiling.latency_benchmark --n_flows 500` | ~60s |
-| Live demo mode (no switch needed) | `python LiveTraffic/live_pipeline.py --demo --duration 30` | 30s |
+| DDL feature extractor smoke test | `python src/DDLModel/ddl_feature_extractor.py` | <1s |
+| Timing profiler (synthetic) | `PYTHONPATH=src python -m profiling.timing_profiler --n_samples 200` | ~20s |
+| Latency benchmark + plots | `PYTHONPATH=src python -m profiling.latency_benchmark --n_flows 500` | ~60s |
+| Live demo mode (no switch needed) | `python src/LiveTraffic/live_pipeline.py --demo --duration 30` | 30s |
 
 ---
 
@@ -30,23 +30,23 @@ python -m tests.test_pipeline
 
 ### 1.2 DDL Feature Extractor
 ```bash
-python DDLModel/ddl_feature_extractor.py
+python src/DDLModel/ddl_feature_extractor.py
 # Expected: Prints 30 features with values for a synthetic benign flow
 ```
 
 ### 1.3 Timing Profiler
 ```bash
-python -m profiling.timing_profiler --n_samples 200 --output profiling/results/report.json
+PYTHONPATH=src python -m profiling.timing_profiler --n_samples 200 --output results/profiling/report.json
 # Expected: Table showing mean/median/p95 for all 7 pipeline stages
 ```
 
 ### 1.4 Latency Benchmark + Charts
 ```bash
-python -m profiling.latency_benchmark --n_flows 500 --output profiling/results/
+PYTHONPATH=src python -m profiling.latency_benchmark --n_flows 500 --output results/profiling/
 # Generates:
-#   profiling/results/profiling_report.json
-#   profiling/results/latency_cdf.png
-#   profiling/results/latency_boxplot.png
+#   results/profiling/profiling_report.json
+#   results/profiling/latency_cdf.png
+#   results/profiling/latency_boxplot.png
 ```
 
 ---
@@ -79,7 +79,7 @@ Download from: https://www.unb.ca/cic/datasets/ids-2017.html
 Expected file: `data/cicids2017/Wednesday-workingHours.pcap_ISCX.csv`
 
 ```bash
-python DDLModel/train_ddl_enhanced.py \
+python src/DDLModel/train_ddl_enhanced.py \
     --dataset data/cicids2017/Wednesday-workingHours.pcap_ISCX.csv \
     --output  models/ddl_40feat_real.pkl \
     --n_atoms_l1 64 \
@@ -97,7 +97,7 @@ python DDLModel/train_ddl_enhanced.py \
 
 ```bash
 # Terminal 1: Start demo pipeline (generates fake flows internally)
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --demo \
     --duration 60 \
     --ddl_model models/ddl_40feat_synthetic.pkl \
@@ -120,7 +120,7 @@ python LiveTraffic/live_pipeline.py \
 sudo tcpdump -i eth1 -n -c 20
 
 # Start live pipeline (60 second run)
-sudo python LiveTraffic/live_pipeline.py \
+sudo python src/LiveTraffic/live_pipeline.py \
     --interface  eth1 \
     --duration   60 \
     --ddl_model  models/ddl_40feat_real.pkl \
@@ -138,7 +138,7 @@ sudo ping -f 10.0.0.2
 
 # Option B: Replay CIC-IDS-2017 attack PCAP
 sudo tcpreplay --intf1=eth0 --multiplier=1 \
-    BaseCheckClassifier/BaseCheckClassifierSimulation/attack/attack.pcap
+    src/BaseCheckClassifier/BaseCheckClassifierSimulation/attack/attack.pcap
 
 # Option C: SYN flood simulation (requires hping3)
 sudo hping3 -S --flood -V -p 80 10.0.0.2
@@ -176,7 +176,7 @@ print(f'Ensemble vote: {vote[\"action\"]} (confidence: {vote[\"confidence\"]})')
 "
 
 # Test timing profiler
-python -m profiling.timing_profiler --n_samples 100
+PYTHONPATH=src python -m profiling.timing_profiler --n_samples 100
 ```
 
 ---

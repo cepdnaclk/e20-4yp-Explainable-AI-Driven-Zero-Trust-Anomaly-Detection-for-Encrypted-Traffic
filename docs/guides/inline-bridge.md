@@ -79,7 +79,7 @@ scp -r e20420@10.12.70.3:/scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP
 | PC | Files Needed |
 |----|-------------|
 | **PC1** | `pc1_shooter.py`, `scripts/setup_host_a.sh`, PCAP data folder |
-| **PC2** | Entire `InlineBridgeDemo/` folder (scripts + models + lib) |
+| **PC2** | Entire `src/InlineBridgeDemo/` folder (scripts + models + lib) |
 | **PC3** | `pc3_receiver.py`, `scripts/setup_host_b.sh` |
 
 ---
@@ -374,7 +374,7 @@ print(f'Stage 2 (DDL+IF): {sum(1 for d in data[\"decisions\"] if d[\"stage\"]==\
 ## File Structure
 
 ```
-InlineBridgeDemo/
+src/InlineBridgeDemo/
 ├── pc1_shooter.py          ← PC1: replays PCAPs, sends START/END UDP
 ├── pc2_gatekeeper.py       ← PC2: AI pipeline + forwarding
 ├── pc3_receiver.py         ← PC3: counts received packets

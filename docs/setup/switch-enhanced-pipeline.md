@@ -3,7 +3,7 @@
 This document describes how to wire up the physical switch so live traffic
 is passively captured by the Enhanced Pipeline on a laptop.
 
-> **Full per-switch CLI guides are in `LiveTraffic/`:**
+> **Full per-switch CLI guides are in `src/LiveTraffic/`:**
 > - `docs/setup/switch-cisco.md` — Cisco IOS/IOS-XE SPAN commands
 > - `docs/setup/switch-hp-procurve.md` — HP ProCurve / Aruba mirroring commands
 > - `docs/setup/switch-overview.md` — General guide for any switch
@@ -101,17 +101,17 @@ cd ~/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # Ensure models are trained first:
-ls models/ddl_40feat.pkl          # must exist — see DDLModel/train_ddl_enhanced.py
+ls models/ddl_40feat.pkl          # must exist — see src/DDLModel/train_ddl_enhanced.py
 ls models/isolation_forest.pkl    # must exist
 
 # Terminal 1 — REST API (optional, for dashboard connection)
-python EnhancedPipeline/rest_api.py --port 5001
+python src/EnhancedPipeline/rest_api.py --port 5001
 
 # Terminal 2 — Live dashboard
-streamlit run EnhancedPipeline/dashboard.py
+streamlit run src/EnhancedPipeline/dashboard.py
 
 # Terminal 3 — Live capture
-python LiveTraffic/live_pipeline.py --interface eth1 --duration 600
+python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 600
 ```
 
 ### 5. Generate Demo Traffic (from Laptop A)
@@ -122,13 +122,13 @@ cd ~/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
 # Normal traffic (should all FORWARD):
-sudo python LiveTraffic/traffic_generator.py --mode normal --count 20 --interface eth0
+sudo python src/LiveTraffic/traffic_generator.py --mode normal --count 20 --interface eth0
 
 # Attack traffic (should DROP with XAI explanation):
-sudo python LiveTraffic/traffic_generator.py --mode attack --count 10 --interface eth0
+sudo python src/LiveTraffic/traffic_generator.py --mode attack --count 10 --interface eth0
 
 # Borderline traffic (DT flags, DDL clears — shows cascade benefit):
-sudo python LiveTraffic/traffic_generator.py --mode borderline --count 5 --interface eth0
+sudo python src/LiveTraffic/traffic_generator.py --mode borderline --count 5 --interface eth0
 ```
 
 ---
@@ -141,5 +141,5 @@ sudo python LiveTraffic/traffic_generator.py --mode borderline --count 5 --inter
 - [ ] `models/isolation_forest.pkl` exists
 - [ ] Streamlit dashboard loads: `http://localhost:8501`
 - [ ] REST API health: `curl http://localhost:5001/health` → `{"status":"ok"}`
-- [ ] Timing benchmark pre-run: `profiling/results/demo/latency_cdf.png` exists
+- [ ] Timing benchmark pre-run: `results/profiling/demo/latency_cdf.png` exists
 - [ ] All 3 demo PCAPs generated and ready in `/tmp/demo_{normal,attack,borderline}.pcap`

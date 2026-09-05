@@ -136,7 +136,7 @@ If `tcpdump` shows no packets, check:
 # From project root (use absolute venv path):
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --duration 300 \
     --ddl_model models/ddl_40feat.pkl \
@@ -178,15 +178,15 @@ If real attack traffic is not available, use the traffic generator:
 
 ```bash
 # Terminal 1: Start pipeline listener
-python LiveTraffic/live_pipeline.py --interface eth1 --duration 120
+python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 120
 
 # Terminal 2: Replay pre-recorded attack PCAPs (from another machine)
 # Requires: tcpreplay installed
 sudo tcpreplay --intf1=eth0 --multiplier=2 \
-    BaseCheckClassifier/BaseCheckClassifierSimulation/attack/*.pcap
+    src/BaseCheckClassifier/BaseCheckClassifierSimulation/attack/*.pcap
 
 # Or use our simulated generator:
-python LiveTraffic/traffic_generator.py \
+python src/LiveTraffic/traffic_generator.py \
     --mode mixed \
     --count 50 \
     --attack_ratio 0.3 \
@@ -202,10 +202,10 @@ If you have an OpenFlow-capable switch, the Ryu controller can install real flow
 ```bash
 # Terminal 1: Start Ryu controller
 # Requires: pip install ryu
-python LiveTraffic/openflow_controller.py --port 6633
+python src/LiveTraffic/openflow_controller.py --port 6633
 
 # Terminal 2: Start pipeline with OpenFlow DROP support
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --openflow_host 127.0.0.1 \
     --openflow_port 6633
@@ -220,7 +220,7 @@ When the pipeline drops a flow, it sends a DROP rule to the Ryu controller, whic
 | Problem | Check |
 |---------|-------|
 | NFStream captures 0 flows | Is `eth1` in promisc mode? Is traffic flowing? |
-| DDL model not found | Run `python DDLModel/train_ddl_enhanced.py` first |
+| DDL model not found | Run `python src/DDLModel/train_ddl_enhanced.py` first |
 | `nfstream` not installed | `pip install nfstream` or `uv pip install nfstream` |
 | Ryu controller errors | `pip install ryu` — note: Python 3.10 max for Ryu |
 | No packets on mirror port | Check switch SPAN configuration (`show monitor session`) |

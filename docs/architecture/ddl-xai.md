@@ -355,7 +355,7 @@ Physical Network
 
 ```bash
 # Demo mode — 60 seconds of synthetic flows, 20% attacks:
-python LiveTraffic/live_pipeline.py --demo --duration 60
+python src/LiveTraffic/live_pipeline.py --demo --duration 60
 
 # Expected output:
 # [LivePipeline] Flows seen:  120
@@ -368,7 +368,7 @@ python LiveTraffic/live_pipeline.py --demo --duration 60
 
 ```bash
 # Run against CIC-IDS-2017 labeled PCAPs:
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
   --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
   --ddl-model models/ddl_40feat.pkl --max-files 500
 
@@ -383,10 +383,10 @@ python LiveTraffic/pcap_replay_pipeline.py \
 ```bash
 # Configure mirror port on Cisco switch (docs/setup/switch-cisco.md)
 sudo ip link set eth1 promisc on
-python LiveTraffic/live_pipeline.py --interface eth1 --duration 300
+python src/LiveTraffic/live_pipeline.py --interface eth1 --duration 300
 
 # From Laptop A (attack source):
-sudo python LiveTraffic/traffic_generator.py \
+sudo python src/LiveTraffic/traffic_generator.py \
   --mode attack --count 20 --interface eth0
 ```
 

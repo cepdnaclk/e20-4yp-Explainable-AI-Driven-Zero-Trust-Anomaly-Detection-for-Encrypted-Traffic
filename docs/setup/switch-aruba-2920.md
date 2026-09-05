@@ -302,7 +302,7 @@ cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-D
 
 source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 
-python LiveTraffic/openflow_controller.py --cmd_port 6634
+python src/LiveTraffic/openflow_controller.py --cmd_port 6634
 
 # You should see:
 # "Command server listening on 127.0.0.1:6634"
@@ -374,15 +374,15 @@ iperf3 -c 10.0.0.3 -p 5201 -t 60 -b 10M
 cd /scratch1/e20-fyp-xai-anomaly-detection/e20420Janith/e20-4yp-Explainable-AI-Driven-Zero-Trust-Anomaly-Detection-for-Encrypted-Traffic
 
 # SYN Flood
-sudo python3 LiveTraffic/traffic_generator.py \
+sudo python3 src/LiveTraffic/traffic_generator.py \
     --mode attack --count 10 --interface eth0
 
 # Normal traffic (for comparison)
-sudo python3 LiveTraffic/traffic_generator.py \
+sudo python3 src/LiveTraffic/traffic_generator.py \
     --mode normal --count 20 --interface eth0
 
 # Borderline traffic (tests DDL vs BCC disagreements)
-sudo python3 LiveTraffic/traffic_generator.py \
+sudo python3 src/LiveTraffic/traffic_generator.py \
     --mode borderline --count 5 --interface eth0
 
 # ─── Using hping3 (DDoS simulation) ───
@@ -450,7 +450,7 @@ source /scratch1/e20-fyp-xai-anomaly-detection/.venv/bin/activate
 export PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH
 
 # Run live pipeline with DDL model (replace eth0 with your NIC)
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth0 \
     --duration 300 \
     --ddl_model models/ddl_40feat.pkl \
@@ -469,10 +469,10 @@ python LiveTraffic/live_pipeline.py \
 
 ```bash
 # Terminal 1: Start OpenFlow controller
-python LiveTraffic/openflow_controller.py --cmd_port 6634
+python src/LiveTraffic/openflow_controller.py --cmd_port 6634
 
 # Terminal 2: Start pipeline connected to controller
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth0 \
     --duration 300 \
     --ddl_model models/ddl_40feat.pkl \
@@ -490,7 +490,7 @@ python LiveTraffic/live_pipeline.py \
 
 ```bash
 # Quick test without any hardware:
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --demo \
     --duration 60 \
     --ddl_model models/ddl_40feat.pkl \
@@ -642,10 +642,10 @@ configure
 ### Controller + Pipeline
 ```bash
 # Terminal 1: Controller
-python LiveTraffic/openflow_controller.py --cmd_port 6634
+python src/LiveTraffic/openflow_controller.py --cmd_port 6634
 
 # Terminal 2: Pipeline  
-python LiveTraffic/live_pipeline.py --interface eth0 --duration 300 \
+python src/LiveTraffic/live_pipeline.py --interface eth0 --duration 300 \
     --ddl_model models/ddl_40feat.pkl --openflow_host 127.0.0.1 --openflow_port 6634
 
 # Terminal 3: Attack traffic (from Host A)

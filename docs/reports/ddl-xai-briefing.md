@@ -295,7 +295,7 @@ pip install --target /tmp/lime_pkg lime shap
 
 # Run end-to-end PCAP evaluation
 PYTHONPATH=/tmp/dpkt_pkg:/tmp/lime_pkg:$PYTHONPATH \
-    python3 FullSDNPipeline/run_pcap_evaluation.py --max-flows 5000
+    python3 src/FullSDNPipeline/run_pcap_evaluation.py --max-flows 5000
 
 # View results
 cat results/pcap_results/pcap_summary.md

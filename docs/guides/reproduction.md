@@ -102,7 +102,7 @@ ls /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/
 
 ```bash
 # From project root (inside venv):
-python DDLModel/train_ddl_enhanced.py \
+python src/DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
     --ddl-output models/ddl_40feat.pkl \
@@ -111,7 +111,7 @@ python DDLModel/train_ddl_enhanced.py \
     --atoms-l1 64 --atoms-l2 128
 
 # Run in background (nohup):
-nohup python DDLModel/train_ddl_enhanced.py \
+nohup python src/DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
     --epochs 150 > models/training_log.txt 2>&1 &
@@ -129,7 +129,7 @@ nvidia-smi
 python -c "import torch; print(torch.cuda.is_available())"   # must be True
 
 # GPU training with larger batch size for efficiency:
-nohup python DDLModel/train_ddl_enhanced.py \
+nohup python src/DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
     --epochs 150 \
@@ -141,7 +141,7 @@ echo "GPU Training PID: $!"
 ### Option C: Quick Debug Run (~5-10 minutes, CPU)
 
 ```bash
-python DDLModel/train_ddl_enhanced.py \
+python src/DDLModel/train_ddl_enhanced.py \
     --train dataset/TRAIN_Traffic.csv \
     --test  dataset/TEST_Traffic.csv \
     --epochs 30 \
@@ -181,7 +181,7 @@ Tests DDL accuracy using ground-truth labels from CIC-IDS-2017:
 
 ```bash
 # Friday dataset (122k flows, ~DDoS/Bot/PortScan/BENIGN):
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
     --mode labeled \
     --pcap-dir /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Labeled/Friday \
     --ddl-model models/ddl_40feat.pkl \
@@ -200,14 +200,14 @@ Simulates how the pipeline performs on continuous mixed traffic:
 
 ```bash
 # Friday (contains DDoS from 10:02-11:15 + Bot + PortScan):
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Friday-WorkingHours.pcap \
     --ddl-model models/ddl_40feat.pkl \
     --output logs/test_friday_fullday.json
 
 # Monday (all BENIGN — should get 0% false positives from DDL):
-python LiveTraffic/pcap_replay_pipeline.py \
+python src/LiveTraffic/pcap_replay_pipeline.py \
     --mode fullday \
     --pcap-file /scratch1/e20-fyp-xai-anomaly-detection/CICDataset/PCAP/Monday-WorkingHours.pcap \
     --ddl-model models/ddl_40feat.pkl \
@@ -222,7 +222,7 @@ Test the full cascade pipeline WITHOUT any physical hardware:
 
 ```bash
 # Demo mode — synthetic flows, 20% simulated attacks:
-python LiveTraffic/live_pipeline.py --demo --duration 60
+python src/LiveTraffic/live_pipeline.py --demo --duration 60
 
 # Expected output:
 #   Flows seen:   120
@@ -233,7 +233,7 @@ python LiveTraffic/live_pipeline.py --demo --duration 60
 
 ```bash
 # Enhanced Pipeline demo (DDL + IF + DualXAI):
-python EnhancedPipeline/enhanced_pipeline.py --demo --n_flows 10
+python src/EnhancedPipeline/enhanced_pipeline.py --demo --n_flows 10
 ```
 
 ---
@@ -242,14 +242,14 @@ python EnhancedPipeline/enhanced_pipeline.py --demo --n_flows 10
 
 ```bash
 # Terminal 1 — REST API:
-python EnhancedPipeline/rest_api.py --port 5001
+python src/EnhancedPipeline/rest_api.py --port 5001
 
 # Verify it's running:
 curl http://localhost:5001/health
 # → {"status": "ok", "version": "1.0"}
 
 # Terminal 2 — Streamlit Dashboard:
-streamlit run EnhancedPipeline/dashboard.py
+streamlit run src/EnhancedPipeline/dashboard.py
 # → Opens browser at http://localhost:8501
 
 # The dashboard connects to the REST API automatically
@@ -273,7 +273,7 @@ sudo ip link set eth1 promisc on
 sudo tcpdump -i eth1 -n -c 10
 
 # 4. Start live pipeline:
-python LiveTraffic/live_pipeline.py \
+python src/LiveTraffic/live_pipeline.py \
     --interface eth1 \
     --ddl_model models/ddl_40feat.pkl \
     --duration 300
@@ -290,8 +290,8 @@ From a second machine (or another terminal with loopback):
 source .venv/bin/activate
 
 # Save attack PCAP (no root needed):
-python LiveTraffic/traffic_generator.py --mode attack --count 20 --output /tmp/demo_attack.pcap
-python LiveTraffic/traffic_generator.py --mode normal --count 30 --output /tmp/demo_normal.pcap
+python src/LiveTraffic/traffic_generator.py --mode attack --count 20 --output /tmp/demo_attack.pcap
+python src/LiveTraffic/traffic_generator.py --mode normal --count 30 --output /tmp/demo_normal.pcap
 
 # View in Wireshark:
 wireshark /tmp/demo_attack.pcap &
@@ -306,16 +306,16 @@ sudo tcpreplay -i eth0 --mbps=10 /tmp/demo_attack.pcap
 
 ```bash
 # Generate timing report (200 synthetic flows):
-python -m profiling.latency_benchmark \
+PYTHONPATH=src python -m profiling.latency_benchmark \
     --n_flows 200 \
-    --output profiling/results/demo/
+    --output results/profiling/demo/
 
 # View charts:
-ls profiling/results/demo/
+ls results/profiling/demo/
 # latency_cdf.png  per_stage_box.png  timing_summary.json
 
 # View numbers:
-cat profiling/results/demo/timing_summary.json
+cat results/profiling/demo/timing_summary.json
 ```
 
 ---
