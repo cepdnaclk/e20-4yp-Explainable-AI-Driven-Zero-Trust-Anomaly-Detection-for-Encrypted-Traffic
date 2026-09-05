@@ -95,10 +95,10 @@ PacketIN ──→ Unified Feature Extraction (DPKT, single pass)
 │   ├── stage2_if/
 │   └── stage2_xai/
 ├── dataset/                 # CIC-IDS-2017 CSV files
-├── QUICK_START.md           # Copy-paste commands
-├── PIPELINE_GUIDE.md        # Detailed architecture
-├── TRAINING_RESULTS.md      # All test results
-└── DemonstrationPlan.md     # Demo procedure
+├── docs/guides/quick-start.md           # Copy-paste commands
+├── docs/architecture/pipeline.md        # Detailed architecture
+├── docs/reports/training-results.md      # All test results
+└── docs/planning/demonstration-plan.md     # Demo procedure
 ```
 
 ---
@@ -116,7 +116,7 @@ PYTHONPATH=/tmp/lime_pkg:$PYTHONPATH python FullSDNPipeline/run_full_evaluation.
 cat results/summary.md
 ```
 
-See `QUICK_START.md` for full step-by-step guide.
+See `docs/guides/quick-start.md` for full step-by-step guide.
 
 ---
 

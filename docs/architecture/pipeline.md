@@ -201,4 +201,4 @@ ddl_features = superset["ddl_40"]
    - `FORWARD` + ALLOW rule → benign traffic passes
    - `DROP` + XAI explanation → attack traffic blocked with audit trail
 
-See `QUICK_START.md` for exact commands and `DemonstrationPlan.md` for demo procedure.
+See `docs/guides/quick-start.md` for exact commands and `docs/planning/demonstration-plan.md` for demo procedure.

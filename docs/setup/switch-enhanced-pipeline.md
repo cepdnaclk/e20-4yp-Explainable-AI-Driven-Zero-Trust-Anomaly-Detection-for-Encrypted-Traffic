@@ -9,9 +9,9 @@ This document describes how to wire up the physical switch so live traffic
 is passively captured by the Enhanced Pipeline on a laptop.
 
 > **Full per-switch CLI guides are in `LiveTraffic/`:**
-> - `LiveTraffic/CISCO_SWITCH_SETUP.md` — Cisco IOS/IOS-XE SPAN commands
-> - `LiveTraffic/HP_SWITCH_SETUP.md` — HP ProCurve / Aruba mirroring commands
-> - `LiveTraffic/SWITCH_SETUP_GUIDE.md` — General guide for any switch
+> - `docs/setup/switch-cisco.md` — Cisco IOS/IOS-XE SPAN commands
+> - `docs/setup/switch-hp-procurve.md` — HP ProCurve / Aruba mirroring commands
+> - `docs/setup/switch-overview.md` — General guide for any switch
 
 ---
 

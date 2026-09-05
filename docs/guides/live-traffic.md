@@ -142,7 +142,7 @@ sudo tcpreplay -i eth0 --mbps=1 /tmp/demo_attack.pcap
 The most realistic method. Traffic from the switch mirror port is captured by
 NFStream in real-time and processed by the pipeline.
 
-**Prerequisites:** See `LiveTraffic/CISCO_SWITCH_SETUP.md` or `LiveTraffic/HP_SWITCH_SETUP.md`.
+**Prerequisites:** See `docs/setup/switch-cisco.md` or `docs/setup/switch-hp-procurve.md`.
 
 ```bash
 # Step 1: Configure switch SPAN (see switch guide)

@@ -29,7 +29,7 @@ Stage 3: SDN Buffer + DDL Deep Analysis + XAI
 | `run_demo.py` | End-to-end demo runner with synthetic DDL training |
 | `quickstart.sh` | One-command setup + demo script |
 | `requirements.txt` | Python dependencies |
-| `PIPELINE_GUIDE.md` | Comprehensive documentation |
+| `docs/architecture/pipeline.md` | Comprehensive documentation |
 
 ## Quick Start
 

@@ -113,7 +113,7 @@ python LiveTraffic/live_pipeline.py \
 
 ## Section 5 — Live Traffic Test (Physical Switch)
 
-**Prerequisites:** See `LiveTraffic/SWITCH_SETUP_GUIDE.md`
+**Prerequisites:** See `docs/setup/switch-overview.md`
 
 ```bash
 # Check mirror port is receiving traffic

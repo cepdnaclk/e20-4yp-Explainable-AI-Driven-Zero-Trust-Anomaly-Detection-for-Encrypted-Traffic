@@ -8,7 +8,7 @@ This is the script form of the BCCC Darknet experiment. It was developed separat
 here so the whole team has it in one place. The notebook form of the same idea lives next
 door in [`../DataPreprocessing`](../DataPreprocessing) and [`../pipeline`](../pipeline).
 
-> **Status: ARCHIVED**, like everything else under `ObsoleteExperiments/`. The active
+> **Status: ARCHIVED**, like everything else under `experiments/`. The active
 > pipeline moved to CIC-IDS-2017 features and Deep Dictionary Learning. These scripts are
 > kept for reproducibility and for the write-up.
 

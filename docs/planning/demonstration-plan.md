@@ -83,7 +83,7 @@ python FullSDNPipeline/packet_shooter.py \
 
 ## Demo Option 5: Live Switch (requires hardware)
 
-See `LiveTraffic/SWITCH_SETUP_GUIDE.md` for switch configuration.
+See `docs/setup/switch-overview.md` for switch configuration.
 
 ```bash
 sudo ip link set eth1 promisc on

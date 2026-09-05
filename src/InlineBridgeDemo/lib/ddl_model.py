@@ -29,7 +29,7 @@ Threshold calibration (recommended):
 
 References:
     - Tariyal et al., "Deep Dictionary Learning," IEEE Access, 2016
-      (Research Papers/Detecting_Anomalies_in_Encrypted_Traffic_via_Deep_Dictionary_Learning.pdf)
+      (research/Detecting_Anomalies_in_Encrypted_Traffic_via_Deep_Dictionary_Learning.pdf)
     - Use DDLModel/ddl_feature_extractor.py for the recommended 40-feature DDL input set.
 """
 
@@ -388,7 +388,7 @@ class DeepDictionaryLearning:
         attack flows) where a fixed percentile may be too conservative.
 
         Based on: threshold calibration strategies reviewed in the SHAP paper
-        (Research Papers/Interpretable Anomaly Detection in Encrypted Traffic).
+        (research/Interpretable Anomaly Detection in Encrypted Traffic).
 
         Args:
             X_normal:  numpy array (n, n_features) — held-out normal samples.

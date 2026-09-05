@@ -385,7 +385,7 @@ python LiveTraffic/pcap_replay_pipeline.py \
 ### 6.3 Live Wire Test (with switch)
 
 ```bash
-# Configure mirror port on Cisco switch (LiveTraffic/CISCO_SWITCH_SETUP.md)
+# Configure mirror port on Cisco switch (docs/setup/switch-cisco.md)
 sudo ip link set eth1 promisc on
 python LiveTraffic/live_pipeline.py --interface eth1 --duration 300
 
@@ -404,7 +404,7 @@ sudo python LiveTraffic/traffic_generator.py \
 | "DDoS cannot be detected because packets look normal" | ❌ The FLOW statistics (high SYN count, zero backward traffic, tiny IAT) clearly indicate DDoS |
 | "The buffer stores packets in the switch" | ❌ The buffer is in SDN controller memory (Python dict). The switch limitation is documented in Part 4. |
 | "SHAP is needed for every flow" | ❌ SHAP only runs for anomalous flows (~15% of traffic). Normal flows get no XAI (fast path). |
-| "The 40 DDL features are the same as the 15 DT features" | ❌ See docs/FEATURE_ANALYSIS.md — completely different feature sets, chosen for different model characteristics |
+| "The 40 DDL features are the same as the 15 DT features" | ❌ See docs/architecture/features.md — completely different feature sets, chosen for different model characteristics |
 | "NFStream processes packets one by one" | ❌ NFStream delivers one complete flow object after the flow terminates/times out |
 
 ---

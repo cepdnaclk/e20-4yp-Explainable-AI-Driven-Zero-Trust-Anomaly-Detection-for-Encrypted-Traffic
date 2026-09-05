@@ -20,7 +20,7 @@ Its `label` column is `Encrypted` (6,968) / `Non-Encrypted` (18,570). Note this 
 afterwards, for checking what the detected anomalies turned out to be.
 
 A copy of this file is already in the repo at
-`ObsoleteExperiments/DataPreprocessing/bccc_darknet.csv`, from the notebook version of the
+`experiments/DataPreprocessing/bccc_darknet.csv`, from the notebook version of the
 experiment.
 
 ## `bcc_darknet_labeled_high_confidence.csv`

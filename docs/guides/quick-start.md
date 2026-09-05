@@ -115,4 +115,4 @@ python FullSDNPipeline/packet_shooter.py \
 
 ---
 
-*Detailed results: `TRAINING_RESULTS.md` | Architecture: `PIPELINE_GUIDE.md` | Demo: `DemonstrationPlan.md`*
+*Detailed results: `docs/reports/training-results.md` | Architecture: `docs/architecture/pipeline.md` | Demo: `docs/planning/demonstration-plan.md`*

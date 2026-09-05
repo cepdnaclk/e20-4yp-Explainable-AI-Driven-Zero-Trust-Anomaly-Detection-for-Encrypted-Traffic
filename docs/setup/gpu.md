@@ -1,4 +1,4 @@
-# DDLModel/GPU_SETUP.md — PyTorch + CUDA Setup for GPU-Accelerated DDL Training
+# docs/setup/gpu.md — PyTorch + CUDA Setup for GPU-Accelerated DDL Training
 # Zero-Trust XAI Anomaly Detection | University of Peradeniya
 # e20420Janith
 

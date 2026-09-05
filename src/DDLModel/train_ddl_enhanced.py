@@ -41,7 +41,7 @@ Output:
 
 GPU Setup (if not yet done):
     pip install torch --index-url https://download.pytorch.org/whl/cu124
-    See DDLModel/GPU_SETUP.md for full instructions.
+    See docs/setup/gpu.md for full instructions.
 """
 
 import argparse
@@ -258,7 +258,7 @@ def train_ddl_enhanced(
     # ── Train DDL ─────────────────────────────────────────────────────────────
     logger.info("=== STAGE 2: Training Deep Dictionary Learning model ===")
     if use_gpu:
-        logger.info("GPU mode requested — will use CUDA if available (see DDLModel/GPU_SETUP.md)")
+        logger.info("GPU mode requested — will use CUDA if available (see docs/setup/gpu.md)")
         logger.info("  Recommended: --batch-size 512 for GPU efficiency")
     t0 = time.time()
     ddl = DeepDictionaryLearning(
@@ -381,7 +381,7 @@ if __name__ == "__main__":
         "--gpu", action="store_true", default=False,
         help="Use CUDA GPU for training (auto-selects most-free GPU). "
              "Requires: pip install torch --index-url https://download.pytorch.org/whl/cu124. "
-             "See DDLModel/GPU_SETUP.md. Recommended batch-size: 512."
+             "See docs/setup/gpu.md. Recommended batch-size: 512."
     )
     parser.add_argument(
         "--max-train-rows", type=int, default=None,

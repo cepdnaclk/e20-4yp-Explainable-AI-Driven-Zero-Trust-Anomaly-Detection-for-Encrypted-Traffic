@@ -9,7 +9,7 @@ DDL model + XAI, and logs all decisions.
 
 PREREQUISITES
 -------------
-  1. Switch mirror port configured (see LiveTraffic/SWITCH_SETUP_GUIDE.md)
+  1. Switch mirror port configured (see docs/setup/switch-overview.md)
   2. Network interface in promiscuous mode:
        sudo ip link set eth1 promisc on
   3. Models trained (or use demo mode):

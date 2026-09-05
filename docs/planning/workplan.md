@@ -13,10 +13,10 @@
   - `packet_shooter.py` — PCAP replay with real timing (reads timestamps from PCAP headers, sorts chronologically, rate-multiplier support)
   - `run_demo.sh` — One-command launcher (demo/friday/tuesday/realtime modes)
 - [x] **Documentation rewrite:**
-  - `QUICK_START.md` — Step-by-step demo guide with FullSDNPipeline commands
+  - `docs/guides/quick-start.md` — Step-by-step demo guide with FullSDNPipeline commands
   - `README.md` — Correct pipeline diagram, repo layout, quickstart
-  - `PIPELINE_GUIDE.md` — Full architecture with feature tables, decision logic, training commands
-  - `DemonstrationPlan.md` — Demo day script with 4-terminal layout, talking points, hardware setup
+  - `docs/architecture/pipeline.md` — Full architecture with feature tables, decision logic, training commands
+  - `docs/planning/demonstration-plan.md` — Demo day script with 4-terminal layout, talking points, hardware setup
 
 ### Pending
 - [ ] Train DDL model on GPU (if not done)

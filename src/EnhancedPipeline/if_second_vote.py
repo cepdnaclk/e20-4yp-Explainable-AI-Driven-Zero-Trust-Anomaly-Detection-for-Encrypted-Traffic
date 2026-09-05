@@ -22,7 +22,7 @@ This reduces false positives by ~30% compared to DDL alone (based on empirical
 results in the SHAP paper: "Interpretable Anomaly Detection in Encrypted Traffic").
 
 REFERENCES:
-  - Research Papers/Light-weight_Unsupervised_Anomaly_Detection_for_Encrypted_Malware_Traffic.pdf
+  - research/Light-weight_Unsupervised_Anomaly_Detection_for_Encrypted_Malware_Traffic.pdf
     (Uses Isolation Forest as baseline comparison for DDL)
   - sklearn.ensemble.IsolationForest documentation
 """

@@ -58,7 +58,7 @@ pip install \
     shap lime \
     matplotlib seaborn
 
-# Optional: GPU support (requires CUDA 12.4 — see DDLModel/GPU_SETUP.md):
+# Optional: GPU support (requires CUDA 12.4 — see docs/setup/gpu.md):
 pip install torch --index-url https://download.pytorch.org/whl/cu124
 
 # Verify nfstream works:
@@ -264,7 +264,7 @@ streamlit run EnhancedPipeline/dashboard.py
 ## Step 10 — Live Traffic with Physical Switch
 
 See the full guide in **`docs/LIVE_TRAFFIC_GUIDE.md`** and the switch-specific
-guides in `LiveTraffic/CISCO_SWITCH_SETUP.md` or `LiveTraffic/HP_SWITCH_SETUP.md`.
+guides in `docs/setup/switch-cisco.md` or `docs/setup/switch-hp-procurve.md`.
 
 Quick checklist:
 ```bash

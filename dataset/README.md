@@ -22,7 +22,7 @@ evaluating the DDL + Isolation Forest models.
 | Use | Column | Count |
 |-----|--------|-------|
 | Labels | `Label` (Normal / Attack) | 1 |
-| DT features (teammate) | Various (see WORKPLAN.md) | 15 |
+| DT features (teammate) | Various (see docs/planning/workplan.md) | 15 |
 | DDL features | Mapped to `DDL_TO_CSV` dict in `train_ddl_enhanced.py` | 30 |
 
 ## Label Distribution (approximate)
@@ -71,4 +71,4 @@ Preprocessed and split by the FYP team. The segmentation done in
 
 The 40 DDL features map to CSV columns via `DDL_TO_CSV` in
 `DDLModel/train_ddl_enhanced.py`. All 30 columns exist in the CSV.
-See `docs/FEATURE_ANALYSIS.md` for rationale behind the 30-feature choice.
+See `docs/architecture/features.md` for rationale behind the 30-feature choice.

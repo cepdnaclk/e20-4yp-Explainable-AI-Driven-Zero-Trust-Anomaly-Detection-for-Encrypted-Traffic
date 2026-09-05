@@ -35,7 +35,7 @@ LiveTraffic/traffic_generator.py or tcpreplay. The actual "buffering" of
 real packets is done at the controller/mirror level by NFStream. The SDNBuffer
 here tracks the LOGICAL state of buffered flows and provides timing data.
 
-See docs/DDL_XAI_INSIGHT.md Part 4 for full architecture explanation.
+See docs/architecture/ddl-xai.md Part 4 for full architecture explanation.
 """
 
 import time

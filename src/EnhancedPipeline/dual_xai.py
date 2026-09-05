@@ -28,9 +28,9 @@ AGREEMENT ANALYSIS:
   This corroboration signal is displayed in the XAI report.
 
 REFERENCES:
-  - Research Papers/Interpretable Anomaly Detection in Encrypted Traffic Using SHAP.pdf
-  - Research Papers/XAI-IoT_An_Explainable_AI_Framework_for_Enhancing_Anomaly_Detection_in_IoT_Systems.pdf
-  - Research Papers/Unveiling anomalies_ a survey on XAI-based anomaly detection for.pdf
+  - research/Interpretable Anomaly Detection in Encrypted Traffic Using SHAP.pdf
+  - research/XAI-IoT_An_Explainable_AI_Framework_for_Enhancing_Anomaly_Detection_in_IoT_Systems.pdf
+  - research/Unveiling anomalies_ a survey on XAI-based anomaly detection for.pdf
 """
 
 import numpy as np

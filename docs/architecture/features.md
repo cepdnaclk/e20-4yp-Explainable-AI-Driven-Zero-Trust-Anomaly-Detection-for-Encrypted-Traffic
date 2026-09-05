@@ -1,4 +1,4 @@
-# docs/FEATURE_ANALYSIS.md — Why Different Feature Sets for DT vs DDL
+# docs/architecture/features.md — Why Different Feature Sets for DT vs DDL
 # Zero-Trust XAI Anomaly Detection | University of Peradeniya
 # e20420Janith
 
@@ -7,7 +7,7 @@
 ## Summary
 
 The two-stage pipeline uses **two independent feature sets** by design.
-This document justifies the choices based on the research papers in `Research Papers/`.
+This document justifies the choices based on the research papers in `research/`.
 
 ---
 
@@ -40,7 +40,7 @@ Flow-level aggregate features (IAT, window size, header length) serve this purpo
 **Research support:**
 > Ensemble of decision trees for network intrusion detection (CIC-IDS-2017):
 > these 15 features achieve >99% accuracy on the CIC-IDS-2017 benchmark.
-> (See: *Evaluating Feature Importance for Network-Based IDS* in Research Papers/)
+> (See: *Evaluating Feature Importance for Network-Based IDS* in research/)
 
 ---
 
@@ -61,13 +61,13 @@ error is high. For this, DDL benefits from:
 These 30 features cover aspects that the 15-feature DT set deliberately omits to stay fast.
 
 **Research support:**
-> Tariyal et al. (2016), *Deep Dictionary Learning* (in Research Papers/):
+> Tariyal et al. (2016), *Deep Dictionary Learning* (in research/):
 > "The dictionary learning framework benefits from over-complete representations;
 > using 30+ statistical features per flow yields significantly lower reconstruction
 > error variance for normal traffic."
 >
 > Shah et al., *Interpretable Anomaly Detection in Encrypted Traffic Using SHAP*
-> (in Research Papers/):
+> (in research/):
 > "From 78 NFStream features, mutual information ranking identifies the top-30
 > as optimal for DDL-based anomaly detection."
 >
